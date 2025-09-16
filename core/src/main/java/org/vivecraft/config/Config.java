@@ -19,101 +19,106 @@ public class Config {
 
     // config keys
     // debug
-    public ConfigBuilder.BooleanValue debug;
-    public ConfigBuilder.BooleanValue debugParticlesEnabled;
-    public ConfigBuilder.BooleanValue debugParticlesOpOnly;
-    public ConfigBuilder.BooleanValue debugParticlesVrDevice;
-    public ConfigBuilder.BooleanValue debugParticlesVrHead;
-    public ConfigBuilder.BooleanValue debugParticlesHeadHitbox;
+    public final ConfigBuilder.BooleanValue debug;
+    public final ConfigBuilder.BooleanValue debugParticlesEnabled;
+    public final ConfigBuilder.BooleanValue debugParticlesOpOnly;
+    public final ConfigBuilder.BooleanValue debugParticlesVrDevice;
+    public final ConfigBuilder.BooleanValue debugParticlesVrHead;
+    public final ConfigBuilder.BooleanValue debugParticlesHeadHitbox;
 
     // general
-    public ConfigBuilder.BooleanValue checkForUpdates;
-    public ConfigBuilder.BooleanValue vrOnly;
-    public ConfigBuilder.BooleanValue viveOnly;
-    public ConfigBuilder.BooleanValue allowOp;
-    public ConfigBuilder.IntValue messageKickDelay;
-    public ConfigBuilder.BooleanValue vrFun;
-    public ConfigBuilder.BooleanValue requestData;
-    public ConfigBuilder.BooleanValue sendData;
-    public ConfigBuilder.BooleanValue sendDataToOwner;
+    public final ConfigBuilder.BooleanValue checkForUpdates;
+    public final ConfigBuilder.BooleanValue vrOnly;
+    public final ConfigBuilder.BooleanValue viveOnly;
+    public final ConfigBuilder.BooleanValue allowOp;
+    public final ConfigBuilder.IntValue messageKickDelay;
+    public final ConfigBuilder.BooleanValue vrFun;
+    public final ConfigBuilder.BooleanValue requestData;
+    public final ConfigBuilder.BooleanValue sendData;
+    public final ConfigBuilder.BooleanValue sendDataToOwner;
 
-    public ConfigBuilder.BooleanValue spigotSettingsEnabled;
-    public ConfigBuilder.DoubleValue spigotSettingsMovedTooQuickly;
-    public ConfigBuilder.DoubleValue spigotSettingsMovedWronglyThreshold;
+    public final ConfigBuilder.BooleanValue spigotSettingsEnabled;
+    public final ConfigBuilder.DoubleValue spigotSettingsMovedTooQuickly;
+    public final ConfigBuilder.DoubleValue spigotSettingsMovedWronglyThreshold;
 
+    // permissions
+    public final ConfigBuilder.BooleanValue permissionsGroupsEnabled;
+    public final ConfigBuilder.StringValue permissionsNonVRGroup;
+    public final ConfigBuilder.StringValue permissionsVRGroup;
+    public final ConfigBuilder.StringValue permissionsClimbPermission;
 
     // messages
-    public ConfigBuilder.BooleanValue messagesEnabled;
+    public final ConfigBuilder.BooleanValue messagesEnabled;
 
-    public ConfigBuilder.StringValue messagesWelcomeVr;
-    public ConfigBuilder.StringValue messagesWelcomeNonvr;
-    public ConfigBuilder.StringValue messagesWelcomeSeated;
-    public ConfigBuilder.StringValue messagesWelcomeVanilla;
+    public final ConfigBuilder.StringValue messagesWelcomeVr;
+    public final ConfigBuilder.StringValue messagesWelcomeNonvr;
+    public final ConfigBuilder.StringValue messagesWelcomeSeated;
+    public final ConfigBuilder.StringValue messagesWelcomeVanilla;
 
-    public ConfigBuilder.StringValue messagesDeathVr;
-    public ConfigBuilder.StringValue messagesDeathNonvr;
-    public ConfigBuilder.StringValue messagesDeathSeated;
-    public ConfigBuilder.StringValue messagesDeathVanilla;
-    public ConfigBuilder.StringValue messagesDeathByMobVr;
-    public ConfigBuilder.StringValue messagesDeathByMobNonvr;
-    public ConfigBuilder.StringValue messagesDeathByMobSeated;
-    public ConfigBuilder.StringValue messagesDeathByMobVanilla;
+    public final ConfigBuilder.StringValue messagesDeathVr;
+    public final ConfigBuilder.StringValue messagesDeathNonvr;
+    public final ConfigBuilder.StringValue messagesDeathSeated;
+    public final ConfigBuilder.StringValue messagesDeathVanilla;
+    public final ConfigBuilder.StringValue messagesDeathByMobVr;
+    public final ConfigBuilder.StringValue messagesDeathByMobNonvr;
+    public final ConfigBuilder.StringValue messagesDeathByMobSeated;
+    public final ConfigBuilder.StringValue messagesDeathByMobVanilla;
 
-    public ConfigBuilder.StringValue messagesLeaveMessage;
+    public final ConfigBuilder.StringValue messagesLeaveMessage;
 
-    public ConfigBuilder.StringValue messagesKickViveOnly;
-    public ConfigBuilder.StringValue messagesKickVrOnly;
+    public final ConfigBuilder.StringValue messagesKickViveOnly;
+    public final ConfigBuilder.StringValue messagesKickVrOnly;
 
     // vrChanges
-    public ConfigBuilder.BooleanValue dualWielding;
-    public ConfigBuilder.DoubleValue bootsArmorDamage;
-    public ConfigBuilder.DoubleValue creeperSwellDistance;
-    public ConfigBuilder.DoubleValue projectileInaccuracyMultiplier;
-    public ConfigBuilder.BooleanValue allowFasterBlockBreaking;
-    public ConfigBuilder.BooleanValue allowRoomscaleShieldBlocking;
-    public ConfigBuilder.BooleanValue allowAttacksWhileBlocking;
+    public final ConfigBuilder.BooleanValue dualWielding;
+    public final ConfigBuilder.DoubleValue bootsArmorDamage;
+    public final ConfigBuilder.DoubleValue creeperSwellDistance;
+    public final ConfigBuilder.DoubleValue projectileInaccuracyMultiplier;
+    public final ConfigBuilder.BooleanValue allowFasterBlockBreaking;
+    public final ConfigBuilder.BooleanValue allowRoomscaleShieldBlocking;
+    public final ConfigBuilder.BooleanValue allowAttacksWhileBlocking;
     // bow
-    public ConfigBuilder.DoubleValue bowStandingMultiplier;
-    public ConfigBuilder.DoubleValue bowSeatedMultiplier;
-    public ConfigBuilder.DoubleValue bowStandingHeadshotMultiplier;
-    public ConfigBuilder.DoubleValue bowSeatedHeadshotMultiplier;
-    public ConfigBuilder.DoubleValue bowVanillaHeadshotMultiplier;
-    public ConfigBuilder.EnumValue<HeadshotIndicator> bowHeadshotIndicator;
+    public final ConfigBuilder.DoubleValue bowStandingMultiplier;
+    public final ConfigBuilder.DoubleValue bowSeatedMultiplier;
+    public final ConfigBuilder.DoubleValue bowStandingHeadshotMultiplier;
+    public final ConfigBuilder.DoubleValue bowSeatedHeadshotMultiplier;
+    public final ConfigBuilder.DoubleValue bowVanillaHeadshotMultiplier;
+    public final ConfigBuilder.EnumValue<HeadshotIndicator> bowHeadshotIndicator;
 
     // pvp
-    public ConfigBuilder.BooleanValue pvpVrVsVr;
-    public ConfigBuilder.BooleanValue pvpSeatedvrVsSeatedvr;
-    public ConfigBuilder.BooleanValue pvpVrVsNonvr;
-    public ConfigBuilder.BooleanValue pvpSeatedvrVsNonvr;
-    public ConfigBuilder.BooleanValue pvpVrVsSeatedvr;
-    public ConfigBuilder.BooleanValue pvpNotifyBlockedDamage;
+    public final ConfigBuilder.BooleanValue pvpVrVsVr;
+    public final ConfigBuilder.BooleanValue pvpSeatedvrVsSeatedvr;
+    public final ConfigBuilder.BooleanValue pvpVrVsNonvr;
+    public final ConfigBuilder.BooleanValue pvpSeatedvrVsNonvr;
+    public final ConfigBuilder.BooleanValue pvpVrVsSeatedvr;
+    public final ConfigBuilder.BooleanValue pvpNotifyBlockedDamage;
 
     // climbey
-    public ConfigBuilder.BooleanValue climbeyEnabled;
-    public ConfigBuilder.EnumValue<ClimbeyBlockmode> climbeyBlockmode;
-    public ConfigBuilder.StringListValue climbeyBlocklist;
+    public final ConfigBuilder.BooleanValue climbeyEnabled;
+    public final ConfigBuilder.EnumValue<ClimbeyBlockmode> climbeyBlockmode;
+    public final ConfigBuilder.StringListValue climbeyBlocklist;
 
     // crawling
-    public ConfigBuilder.BooleanValue crawlingEnabled;
+    public final ConfigBuilder.BooleanValue crawlingEnabled;
 
     // teleport
-    public ConfigBuilder.BooleanValue teleportEnabled;
-    public ConfigBuilder.BooleanValue teleportLimitedSurvival;
-    public ConfigBuilder.IntValue teleportUpLimit;
-    public ConfigBuilder.IntValue teleportDownLimit;
-    public ConfigBuilder.IntValue teleportHorizontalLimit;
+    public final ConfigBuilder.BooleanValue teleportEnabled;
+    public final ConfigBuilder.BooleanValue teleportLimitedSurvival;
+    public final ConfigBuilder.IntValue teleportUpLimit;
+    public final ConfigBuilder.IntValue teleportDownLimit;
+    public final ConfigBuilder.IntValue teleportHorizontalLimit;
 
     // worldscale
-    public ConfigBuilder.BooleanValue worldscaleLimited;
-    public ConfigBuilder.DoubleValue worldscaleMax;
-    public ConfigBuilder.DoubleValue worldscaleMin;
+    public final ConfigBuilder.BooleanValue worldscaleLimited;
+    public final ConfigBuilder.DoubleValue worldscaleMax;
+    public final ConfigBuilder.DoubleValue worldscaleMin;
 
     // settingOverrides
-    public ConfigBuilder.BooleanValue forceThirdPersonItems;
-    public ConfigBuilder.BooleanValue forceThirdPersonItemsCustom;
+    public final ConfigBuilder.BooleanValue forceThirdPersonItems;
+    public final ConfigBuilder.BooleanValue forceThirdPersonItemsCustom;
 
     // vr switching
-    public ConfigBuilder.BooleanValue vrSwitchingEnabled;
+    public final ConfigBuilder.BooleanValue vrSwitchingEnabled;
 
     private final ConfigBuilder builder;
 
@@ -130,15 +135,15 @@ public class Config {
         this.vrOnly = this.builder
             .push("vr_only")
             .define(false)
-            .setOnUpdate(NetworkHandler::updateViveVROnly);
+            .setOnUpdate((oV, nV) -> NetworkHandler.updateViveVROnly());
         this.viveOnly = this.builder
             .push("vive_only")
             .define(false)
-            .setOnUpdate(NetworkHandler::updateViveVROnly);
+            .setOnUpdate((oV, nV) -> NetworkHandler.updateViveVROnly());
         this.allowOp = this.builder
             .push("allow_op")
             .define(true)
-            .setOnUpdate(NetworkHandler::updateViveVROnly);
+            .setOnUpdate((oV, nV) -> NetworkHandler.updateViveVROnly());
         this.messageKickDelay = this.builder
             .push("messageAndKickDelay")
             .defineInRange(200, 100, 1000);
@@ -152,7 +157,7 @@ public class Config {
         this.sendData = this.builder
             .push("sendData")
             .define(true)
-            .setOnUpdate(() -> ViveMain.INSTANCE.toggleDataTask(this.sendData.get()));
+            .setOnUpdate((oV, nV) -> ViveMain.INSTANCE.toggleDataTask(nV));
         this.sendDataToOwner = this.builder
             .push("sendDataToOwner")
             .define(false);
@@ -173,6 +178,23 @@ public class Config {
             .defineInRange(64.0, 0.0, 10000.0)
             .setNeedsReload(true);
         // end spigot settings
+        this.builder.pop();
+
+        this.builder.push("permissions");
+        this.permissionsGroupsEnabled = this.builder
+            .push("groupsEnabled")
+            .define(true);
+        this.permissionsNonVRGroup = this.builder
+            .push("NonVRgroup")
+            .define("vive.non-vivegroup");
+        this.permissionsVRGroup = this.builder
+            .push("VRgroup")
+            .define("vive.vivegroup");
+        this.permissionsClimbPermission = this.builder
+            .push("climbperm")
+            .define("vive.climbanywhere")
+            .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p));
+        // end permissions
         this.builder.pop();
 
         this.builder
@@ -245,7 +267,7 @@ public class Config {
         this.dualWielding = this.builder
             .push("dualWielding")
             .define(true)
-            .setPacketFunction(v -> new DualWieldingPayloadS2C(this.dualWielding.get()));
+            .setPacketFunction((v, p) -> new DualWieldingPayloadS2C(v));
         this.bootsArmorDamage = this.builder
             .push("bootsArmorDamage")
             .defineInRange(0.0, 0.0, 5.0);
@@ -261,7 +283,7 @@ public class Config {
         this.allowAttacksWhileBlocking = this.builder
             .push("allowAttacksWhileBlocking")
             .define(true)
-            .setPacketFunction(v -> new AttackWhileBlockingPayloadS2C(this.allowAttacksWhileBlocking.get()));
+            .setPacketFunction((v, p) -> new AttackWhileBlockingPayloadS2C(v));
 
         this.builder
             .push("bow");
@@ -316,15 +338,15 @@ public class Config {
         this.climbeyEnabled = this.builder
             .push("enabled")
             .define(true)
-            .setPacketFunction(v -> PacketUtils.getClimbeyServerPayload());
+            .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p));
         this.climbeyBlockmode = this.builder
             .push("blockmode")
             .defineEnum(ClimbeyBlockmode.DISABLED, ClimbeyBlockmode.class)
-            .setPacketFunction(v -> PacketUtils.getClimbeyServerPayload());
+            .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p));
         this.climbeyBlocklist = this.builder
             .push("blocklist")
             .defineStringList(Arrays.asList("white_wool", "dirt", "grass_block"))
-            .setPacketFunction(v -> PacketUtils.getClimbeyServerPayload());
+            .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p));
         // end climbey
         this.builder.pop();
 
@@ -333,7 +355,7 @@ public class Config {
         this.crawlingEnabled = this.builder
             .push("enabled")
             .define(true)
-            .setPacketFunction(v -> new CrawlPayloadS2C(this.crawlingEnabled.get(), v.networkVersion));
+            .setPacketFunction((v, p) -> new CrawlPayloadS2C(v, p.networkVersion));
         // end crawling
         this.builder.pop();
 
@@ -342,23 +364,23 @@ public class Config {
         this.teleportEnabled = this.builder
             .push("enabled")
             .define(true)
-            .setPacketFunction(v -> new TeleportPayloadS2C(this.teleportEnabled.get(), v.networkVersion));
+            .setPacketFunction((v, p) -> new TeleportPayloadS2C(v, p.networkVersion));
         this.teleportLimitedSurvival = this.builder
             .push("limitedSurvival")
             .define(false)
-            .setPacketFunction(v -> PacketUtils.getSurvivalTeleportOverridePayload());
+            .setPacketFunction((v, p) -> PacketUtils.getSurvivalTeleportOverridePayload());
         this.teleportUpLimit = this.builder
             .push("upLimit")
             .defineInRange(4, 1, 16)
-            .setPacketFunction(v -> PacketUtils.getSurvivalTeleportOverridePayload());
+            .setPacketFunction((v, p) -> PacketUtils.getSurvivalTeleportOverridePayload());
         this.teleportDownLimit = this.builder
             .push("downLimit")
             .defineInRange(4, 1, 16)
-            .setPacketFunction(v -> PacketUtils.getSurvivalTeleportOverridePayload());
+            .setPacketFunction((v, p) -> PacketUtils.getSurvivalTeleportOverridePayload());
         this.teleportHorizontalLimit = this.builder
             .push("horizontalLimit")
             .defineInRange(16, 1, 32)
-            .setPacketFunction(v -> PacketUtils.getSurvivalTeleportOverridePayload());
+            .setPacketFunction((v, p) -> PacketUtils.getSurvivalTeleportOverridePayload());
         // end teleport
         this.builder.pop();
 
@@ -367,15 +389,15 @@ public class Config {
         this.worldscaleLimited = this.builder
             .push("limitRange")
             .define(false)
-            .setPacketFunction(v -> PacketUtils.getWorldScaleOverridePayload());
+            .setPacketFunction((v, p) -> PacketUtils.getWorldScaleOverridePayload());
         this.worldscaleMin = this.builder
             .push("min")
             .defineInRange(0.5, 0.1, 100.0)
-            .setPacketFunction(v -> PacketUtils.getWorldScaleOverridePayload());
+            .setPacketFunction((v, p) -> PacketUtils.getWorldScaleOverridePayload());
         this.worldscaleMax = this.builder
             .push("max")
             .defineInRange(2.0, 0.1, 100.0)
-            .setPacketFunction(v -> PacketUtils.getWorldScaleOverridePayload());
+            .setPacketFunction((v, p) -> PacketUtils.getWorldScaleOverridePayload());
         // end worldScale
         this.builder.pop();
 
@@ -384,11 +406,11 @@ public class Config {
         this.forceThirdPersonItems = this.builder
             .push("thirdPersonItems")
             .define(false)
-            .setPacketFunction(v -> PacketUtils.getThirdPersonItemsOverridePayload());
+            .setPacketFunction((v, p) -> PacketUtils.getThirdPersonItemsOverridePayload());
         this.forceThirdPersonItemsCustom = this.builder
             .push("thirdPersonItemsCustom")
             .define(false)
-            .setPacketFunction(v -> PacketUtils.getThirdPersonItemsCustomOverridePayload());
+            .setPacketFunction((v, p) -> PacketUtils.getThirdPersonItemsCustomOverridePayload());
         // end settingOverrides
         this.builder.pop();
 
@@ -397,7 +419,7 @@ public class Config {
         this.vrSwitchingEnabled = this.builder
             .push("enabled")
             .define(true)
-            .setPacketFunction(v -> PacketUtils.getVRSwitchingPayload());
+            .setPacketFunction((v, p) -> PacketUtils.getVRSwitchingPayload());
         // end vrSwitching
         this.builder.pop();
 
@@ -412,7 +434,7 @@ public class Config {
         this.debugParticlesEnabled = this.builder
             .push("enabled")
             .define(false)
-            .setOnUpdate(() -> ViveMain.INSTANCE.toggleParticleTask(this.debugParticlesEnabled.get()));
+            .setOnUpdate((oV, nV) -> ViveMain.INSTANCE.toggleParticleTask(nV));
         this.debugParticlesOpOnly = this.builder
             .push("opOnly")
             .define(true);
@@ -483,7 +505,7 @@ public class Config {
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                     // skip comments or list values
                     continue;
-                } else if (trimmed.contains(":")){
+                } else if (trimmed.contains(":")) {
                     // regular line
                     String newIndent = line.substring(0, line.indexOf(trimmed));
                     String entry = trimmed.substring(0, trimmed.indexOf(":"));

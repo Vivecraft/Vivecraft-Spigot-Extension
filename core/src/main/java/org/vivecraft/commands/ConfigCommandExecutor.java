@@ -8,7 +8,6 @@ import org.bukkit.command.CommandSender;
 import org.vivecraft.ViveMain;
 import org.vivecraft.config.ConfigBuilder;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class ConfigCommandExecutor implements CommandExecutor {
@@ -156,8 +155,9 @@ public class ConfigCommandExecutor implements CommandExecutor {
                         return Action.SET;
                     }
                 }
-                sender.sendMessage(new String[]{"'" + padRed(value) + "' is not a valid value for " + config.getPath() + ".",
-                    "Valid values are: '" + String.join("', '", inList.getValidValues()) + "'"});
+                sender.sendMessage(
+                    new String[]{"'" + padRed(value) + "' is not a valid value for " + config.getPath() + ".",
+                        "Valid values are: '" + String.join("', '", inList.getValidValues()) + "'"});
                 return Action.ERROR;
             } else {
                 config.set(value);

@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 public class LazySupplier<T> implements Supplier<T> {
 
-    private Supplier<T> sup;
+    private final Supplier<T> sup;
     private T cached;
 
     public LazySupplier(Supplier<T> sup) {

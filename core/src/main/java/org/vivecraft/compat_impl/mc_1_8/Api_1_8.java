@@ -119,6 +119,7 @@ public class Api_1_8 implements ApiHelper {
         itemStack.setItemMeta(meta);
         return true;
     }
+
     @Override
     public ShapedRecipe createRecipe(ItemStack itemStack, String id) {
         return new ShapedRecipe(itemStack);

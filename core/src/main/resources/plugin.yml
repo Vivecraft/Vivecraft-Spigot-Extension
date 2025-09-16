@@ -15,3 +15,5 @@ permissions:
   vivecraft.config:
     description: Allows changing vivecraft configs at runtime
     default: op
+softdepend:
+  - Vault

@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.util.Vector;
+import org.vivecraft.PermissionManager;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.api.data.FBTMode;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.logging.Level;
 
@@ -153,7 +155,7 @@ public class NetworkHandler implements PluginMessageListener {
 
         // send server settings
         if (ViveMain.CONFIG.climbeyEnabled.get()) {
-            sendPacket(vivePlayer, PacketUtils.getClimbeyServerPayload());
+            sendPacket(vivePlayer, PacketUtils.getClimbeyServerPayload(vivePlayer));
         }
 
         // always send in new versions to allow disabling of teleports
@@ -209,7 +211,10 @@ public class NetworkHandler implements PluginMessageListener {
 
     private void handleIsActive(VivePlayer vivePlayer, VRActivePayloadC2S active) {
         if (vivePlayer.isVR() == active.vr) return;
+
         vivePlayer.setVR(!vivePlayer.isVR());
+        PermissionManager.updatePlayerPermissionGroup(vivePlayer.player);
+
         if (!vivePlayer.isVR()) {
             // send all nearby players that the state changed
             // this is only needed for OFF, to delete the clientside vr player state
@@ -353,11 +358,11 @@ public class NetworkHandler implements PluginMessageListener {
      *
      * @param config ConfigValue to send an update for
      */
-    public static void sendUpdatePacketToAll(ConfigBuilder.ConfigValue<?> config) {
-        Function<VivePlayer, VivecraftPayloadS2C> function = config.getPacketFunction();
+    public static void sendUpdatePacketToAll(ConfigBuilder.ConfigValue config) {
+        BiFunction<Object, VivePlayer, VivecraftPayloadS2C> function = config.getPacketFunction();
         if (function != null) {
             for (VivePlayer vivePlayer : ViveMain.VIVE_PLAYERS.values()) {
-                VivecraftPayloadS2C payload = function.apply(vivePlayer);
+                VivecraftPayloadS2C payload = function.apply(config.get(), vivePlayer);
                 // old clients cannot clear server overrides, crawl or tp
                 if (vivePlayer.networkVersion < NetworkConstants.NETWORK_VERSION_OPTION_TOGGLE &&
                     ((payload instanceof SettingOverridePayloadS2C && ((SettingOverridePayloadS2C) payload).clear) ||

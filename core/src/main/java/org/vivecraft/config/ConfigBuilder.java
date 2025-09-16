@@ -9,8 +9,9 @@ import org.vivecraft.network.NetworkHandler;
 import org.vivecraft.network.packet.s2c.VivecraftPayloadS2C;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class ConfigBuilder {
 
@@ -40,6 +41,9 @@ public class ConfigBuilder {
     }
 
     private void registerConfigValue(String key, ConfigValue configValue) {
+        if (this.map.containsKey(key)) {
+            throw new IllegalStateException("Duplicate config key: " + key);
+        }
         this.map.put(key, configValue);
         this.configValues.add(configValue);
     }
@@ -258,13 +262,13 @@ public class ConfigBuilder {
         protected boolean needsReload;
 
         /**
-         * Function that takes a VivePlayer on setting change and creates a network packet for them
+         * Function that takes the setting value and a VivePlayer and creates a network packet for them
          */
-        private Function<VivePlayer, VivecraftPayloadS2C> packetFunction = null;
+        private BiFunction<T, VivePlayer, VivecraftPayloadS2C> packetFunction = null;
         /**
          * Consumer that takes a MinecraftServer on setting change to send updates
          */
-        private Runnable updateRunnable = null;
+        private BiConsumer<T, T> updateConsumer = null;
 
         public ConfigValue(ConfigBuilder config, String path, T defaultValue) {
             this.config = config;
@@ -280,9 +284,10 @@ public class ConfigBuilder {
         }
 
         public void set(T newValue) {
+            T oldValue = this.get();
             this.cachedValue = newValue;
             this.config.getConfig().set(this.path, newValue);
-            onUpdate();
+            onUpdate(oldValue, newValue);
         }
 
         public T reset() {
@@ -304,32 +309,32 @@ public class ConfigBuilder {
         }
 
         public String getPath() {
-            return String.join(".", this.path);
+            return this.path;
         }
 
         @SuppressWarnings("unchecked")
-        public <V extends ConfigValue<T>> V setOnUpdate(Runnable runnable) {
-            this.updateRunnable = runnable;
+        public <V extends ConfigValue<T>> V setOnUpdate(BiConsumer<T, T> onUpdate) {
+            this.updateConsumer = onUpdate;
             return (V) this;
         }
 
-        public void onUpdate() {
-            if (this.updateRunnable != null) {
-                this.updateRunnable.run();
+        public void onUpdate(T oldValue, T newValue) {
+            if (this.updateConsumer != null) {
+                this.updateConsumer.accept(oldValue, newValue);
             }
             NetworkHandler.sendUpdatePacketToAll(this);
         }
 
         @SuppressWarnings("unchecked")
         public <V extends ConfigValue<T>> V setPacketFunction(
-            Function<VivePlayer, VivecraftPayloadS2C> supplier)
+            BiFunction<T, VivePlayer, VivecraftPayloadS2C> supplier)
         {
             this.packetFunction = supplier;
             return (V) this;
         }
 
         @Nullable
-        public Function<VivePlayer, VivecraftPayloadS2C> getPacketFunction() {
+        public BiFunction<T, VivePlayer, VivecraftPayloadS2C> getPacketFunction() {
             return this.packetFunction;
         }
 
@@ -400,9 +405,10 @@ public class ConfigBuilder {
 
         @Override
         public void set(T newValue) {
+            T oldValue = this.get();
             this.cachedValue = newValue;
             this.config.getConfig().set(this.path, newValue.name());
-            this.onUpdate();
+            this.onUpdate(oldValue, newValue);
         }
 
         public T getEnumValue(Object value) {

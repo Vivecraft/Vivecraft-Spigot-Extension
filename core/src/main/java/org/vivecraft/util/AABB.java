@@ -108,8 +108,8 @@ public class AABB {
         double l = dir.length();
         dir.normalize();
 
-        Vector t1 = new Vector(this.minX , this.minY, this.minZ).subtract(from).divide(dir);
-        Vector t2 = new Vector(this.maxX , this.maxY, this.maxZ).subtract(from).divide(dir);
+        Vector t1 = new Vector(this.minX, this.minY, this.minZ).subtract(from).divide(dir);
+        Vector t2 = new Vector(this.maxX, this.maxY, this.maxZ).subtract(from).divide(dir);
 
         Vector tMin = Vector.getMinimum(t1, t2);
         Vector tMax = Vector.getMaximum(t1, t2);

@@ -6,6 +6,8 @@ apply plugin: "me.kcra.takenaka.accessor"
 
 dependencies {
     compileOnly('org.spigotmc:spigot-api:1.8-R0.1-SNAPSHOT')
+    // Vault
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
 
     // takenaka
     // the mapping bundle, published by the project at github.com/zlataovce/mappings

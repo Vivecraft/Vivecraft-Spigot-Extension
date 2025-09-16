@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+import org.vivecraft.PermissionManager;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.compat.types.Item;
@@ -71,6 +72,8 @@ public class PlayerEvents implements Listener {
                     // actually send the message, if there is one set
                     NetworkUtils.sendMessageToAll(message, player.getDisplayName(), "");
                 }
+
+                PermissionManager.updatePlayerPermissionGroup(player);
             } else {
                 Debug.log(player.getName() + " no longer online!");
             }

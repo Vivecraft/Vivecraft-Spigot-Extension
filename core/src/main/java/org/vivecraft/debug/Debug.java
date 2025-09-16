@@ -1,13 +1,10 @@
 package org.vivecraft.debug;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.vivecraft.ViveMain;
@@ -128,7 +125,8 @@ public class Debug {
     public static void spawnParticlesDirection(World world, Vector color, Vector position, Vector3f direction) {
         for (int i = 0; i < 5; i++) {
             // pre 1.13 the particles are regular size
-            Vector3f offset = direction.mul((MCVersion.getCurrent().major < 13 ? 0.5F : 0.25F) / 4F * i, new Vector3f());
+            Vector3f offset = direction.mul((MCVersion.getCurrent().major < 13 ? 0.5F : 0.25F) / 4F * i,
+                new Vector3f());
             ViveMain.API.spawnParticle(Particles.DEBUG, world,
                 new Vector(position.getX() + offset.x, position.getY() + offset.y, position.getZ() + offset.z), 1,
                 color, 0, false);

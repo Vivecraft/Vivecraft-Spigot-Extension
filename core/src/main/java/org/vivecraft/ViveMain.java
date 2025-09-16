@@ -72,6 +72,10 @@ public class ViveMain extends JavaPlugin {
         MC = Helpers.getMc();
         NMS = Helpers.getNMS();
 
+        if (!PermissionManager.checkForVault() && ViveMain.CONFIG.permissionsGroupsEnabled.get()) {
+            ViveMain.LOGGER.warning("To use the permission groups feature, 'Vault' needs to be installed");
+        }
+
         // set up commands
         String configCommandString = "vivecraft-server-config";
         PluginCommand configCommand = this.getCommand(configCommandString);

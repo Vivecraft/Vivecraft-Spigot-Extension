@@ -22,7 +22,7 @@ import org.vivecraft.util.MathUtils;
 public class ProjectileEvents implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+    public void vrProjectileDirection(ProjectileLaunchEvent event) {
         //position all projectiles correctly.
         Projectile proj = event.getEntity();
 
@@ -66,7 +66,7 @@ public class ProjectileEvents implements Listener {
 
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onProjectileHit(EntityDamageByEntityEvent event) {
+    public void arrowDamageMultiplier(EntityDamageByEntityEvent event) {
         if (!ViveMain.MC.isArrow(event.getDamager())) return;
 
         if (event.getDamager() instanceof Arrow) {

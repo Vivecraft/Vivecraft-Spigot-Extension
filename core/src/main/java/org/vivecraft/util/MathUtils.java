@@ -19,7 +19,7 @@ public class MathUtils {
     public static final Vector3fc ZERO = new Vector3f();
 
     // hand grip is usually offset 0° to 45° from the controller pointing direction, this is probably a solid middle ground
-    public static final Vector3fc GRIP_FORWARD = new Vector3f(0,0,1).rotateX(DEG_TO_RAD * 20F);
+    public static final Vector3fc GRIP_FORWARD = new Vector3f(0, 0, 1).rotateX(DEG_TO_RAD * 20F);
 
     public static Vector toBukkitVec(Vector3fc v) {
         return new Vector(v.x(), v.y(), v.z());

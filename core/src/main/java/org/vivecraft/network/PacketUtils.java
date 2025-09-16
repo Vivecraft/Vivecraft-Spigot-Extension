@@ -1,6 +1,7 @@
 package org.vivecraft.network;
 
 import org.vivecraft.ViveMain;
+import org.vivecraft.VivePlayer;
 import org.vivecraft.config.enums.ClimbeyBlockmode;
 import org.vivecraft.network.packet.s2c.ClimbingPayloadS2C;
 import org.vivecraft.network.packet.s2c.SettingOverridePayloadS2C;
@@ -15,13 +16,22 @@ public class PacketUtils {
     /**
      * @return CLIMBING payload holding blockmode and list of blocks
      */
-    public static VivecraftPayloadS2C getClimbeyServerPayload() {
+    public static VivecraftPayloadS2C getClimbeyServerPayload(VivePlayer vivePlayer) {
         List<String> blocks = null;
-        if (ViveMain.CONFIG.climbeyBlockmode.get() != ClimbeyBlockmode.DISABLED) {
+        ClimbeyBlockmode blockMode = ViveMain.CONFIG.climbeyBlockmode.get();
+
+        if (blockMode != ClimbeyBlockmode.DISABLED &&
+            !ViveMain.CONFIG.permissionsClimbPermission.get().trim().isEmpty() &&
+            vivePlayer.player.hasPermission(ViveMain.CONFIG.permissionsClimbPermission.get().trim()))
+        {
+            // permission to climb on everything
+            blockMode = ClimbeyBlockmode.DISABLED;
+        }
+
+        if (blockMode != ClimbeyBlockmode.DISABLED) {
             blocks = new ArrayList<>(ViveMain.CONFIG.climbeyBlocklist.get());
         }
-        return new ClimbingPayloadS2C(ViveMain.CONFIG.climbeyEnabled.get(), ViveMain.CONFIG.climbeyBlockmode.get(),
-            blocks);
+        return new ClimbingPayloadS2C(ViveMain.CONFIG.climbeyEnabled.get(), blockMode, blocks);
     }
 
     /**
