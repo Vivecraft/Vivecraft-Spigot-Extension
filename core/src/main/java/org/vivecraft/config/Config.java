@@ -10,6 +10,7 @@ import org.vivecraft.network.packet.s2c.AttackWhileBlockingPayloadS2C;
 import org.vivecraft.network.packet.s2c.CrawlPayloadS2C;
 import org.vivecraft.network.packet.s2c.DualWieldingPayloadS2C;
 import org.vivecraft.network.packet.s2c.TeleportPayloadS2C;
+import org.vivecraft.util.MCVersion;
 
 import java.io.*;
 import java.util.*;
@@ -126,6 +127,9 @@ public class Config {
 
     public Config(JavaPlugin plugin) {
         this.plugin = plugin;
+
+        MCVersion mc = MCVersion.getCurrent();
+
         this.builder = new ConfigBuilder(plugin.getConfig());
         this.builder
             .push("general");
@@ -345,7 +349,9 @@ public class Config {
             .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p));
         this.climbeyBlocklist = this.builder
             .push("blocklist")
-            .defineStringList(Arrays.asList("white_wool", "dirt", "grass_block"))
+            .defineStringList(mc.major > 12 ?
+                Arrays.asList("white_wool", "dirt", "grass_block") :
+                Arrays.asList("wool:0", "dirt", "grass"))
             .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p));
         // end climbey
         this.builder.pop();
