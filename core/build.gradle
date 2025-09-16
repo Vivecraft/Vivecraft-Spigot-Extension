@@ -1,0 +1,80 @@
+plugins {
+    id "me.kcra.takenaka.accessor" version "$takenaka_version"
+}
+
+apply plugin: "me.kcra.takenaka.accessor"
+
+dependencies {
+    compileOnly('org.spigotmc:spigot-api:1.8-R0.1-SNAPSHOT')
+
+    // takenaka
+    // the mapping bundle, published by the project at github.com/zlataovce/mappings
+    mappingBundle("me.kcra.takenaka:mappings:1.8.8+1.21.8")
+
+}
+processResources {
+    filesMatching("**/plugin.yml") {
+        expand(name: plugin_name, version: plugin_version)
+    }
+}
+
+accessors {
+    versionRange("1.8.8", "1.21.8")
+    mappingWebsite = "https://mappings.dev"
+
+    // package where it places the mappings
+    basePackage("org.vivecraft.accessors")
+    // namespaces that should be available at runtime
+    namespaces("spigot")
+    // if it should make it's own automatic reflection mappings
+    accessorType("none")
+
+
+    mapClass("net.minecraft.world.entity.LivingEntity") {
+        field("float", "yBodyRot")
+    }
+
+    mapClass("net.minecraft.world.entity.Entity") {
+        field("float", "width")
+        method("net.minecraft.world.phys.AABB", "getBoundingBox")
+        method("net.minecraft.world.phys.Vec3", "getLookAngle")
+    }
+
+    mapClass("net.minecraft.server.level.ServerLevel") {
+        method("void", "func_180505_a", "net.minecraft.util.EnumParticleTypes",
+            "boolean", "double", "double", "double", "int", "double", "double", "double", "double", "int[]")
+    }
+
+    mapClass("net.minecraft.server.VVV.EnumParticle") {
+        field("net.minecraft.server.VVV.EnumParticle", "CRIT")
+        field("net.minecraft.server.VVV.EnumParticle", "REDSTONE")
+    }
+
+    mapClass("net.minecraft.network.chat.Component") {
+        method("net.minecraft.network.chat.MutableComponent", "translatableWithFallback", "java.lang.String", "java.lang.String")
+    }
+
+    mapClass("net.minecraft.world.item.ItemStack") {
+        method("net.minecraft.world.item.ItemStack", "setHoverName", "net.minecraft.network.chat.Component")
+        method("java.lang.Object", "set", "net.minecraft.core.component.DataComponentType", "java.lang.Object")
+    }
+
+    mapClass("net.minecraft.core.component.DataComponents") {
+        field("net.minecraft.core.component.DataComponentType", "CUSTOM_NAME")
+    }
+
+    mapClass("net.minecraft.world.phys.AABB") {
+        field("double", "minX")
+        field("double", "minY")
+        field("double", "minZ")
+        field("double", "maxX")
+        field("double", "maxY")
+        field("double", "maxZ")
+    }
+
+    mapClass("net.minecraft.world.phys.Vec3") {
+        field("double", "x")
+        field("double", "y")
+        field("double", "z")
+    }
+}

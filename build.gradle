@@ -1,0 +1,104 @@
+plugins {
+    id 'com.gradleup.shadow' version '9.1.0'
+    id 'java'
+    id 'java-library'
+}
+
+allprojects {
+    apply plugin: "java"
+    apply plugin: 'java-library'
+    apply plugin: "com.gradleup.shadow"
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    group 'org.vivecraft'
+    version = plugin_version
+
+    repositories {
+        mavenLocal {
+            content {
+                // this repository *only* contains artifacts with group
+                includeGroup "org.spigotmc"
+                includeGroup "org.bukkit"
+                includeGroup "com.mojang"
+            }
+        }
+        maven {
+            url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+            content {
+                includeGroup 'org.bukkit'
+                includeGroup 'org.spigotmc'
+            }
+        }
+
+        maven {
+            name = 'minecraft'
+            url = 'https://libraries.minecraft.net'
+            content {
+                includeModule("com.mojang", "brigadier")
+            }
+        }
+
+        maven {
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+
+        // add the ScreamingSandals repository for the mapping bundle
+        maven {
+            url = "https://repo.screamingsandals.org/public"
+            content {
+                includeGroup("me.kcra.takenaka")
+            }
+        }
+
+        mavenCentral()
+    }
+
+    dependencies {
+        compileOnly('org.jetbrains:annotations:26.0.2')
+        implementation('org.joml:joml:1.10.8') { transitive = false }
+        // the small library needed for the accessors to function
+        implementation("me.kcra.takenaka:generator-accessor-runtime:$takenaka_version")
+    }
+}
+
+dependencies {
+    subprojects.each { subproj ->
+        implementation subproj
+    }
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    //relocate 'org.joml', 'shadow.io.org.joml'
+    /*minimize() {
+        subprojects.each { subproj ->
+            exclude dependency(subproj)
+        }
+    }*/
+}
+
+// Disable jar and replace with shadowJar
+jar.enabled = false
+assemble.dependsOn(shadowJar)
+
+tasks.register('printProjectName') {
+    doLast {
+        println rootProject.name
+    }
+}
+
+tasks.register('release') {
+    dependsOn build
+
+    doLast {
+        if (!version.endsWith("-SNAPSHOT")) {
+            // Rename final JAR to trim off version information
+            shadowJar.archiveFile.get().getAsFile()
+                    .renameTo(layout.buildDirectory.get().toString() + File.separator + 'libs' + File.separator
+                            + rootProject.name + '.jar')
+        }
+    }
+}

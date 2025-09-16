@@ -1,0 +1,17 @@
+main: org.vivecraft.ViveMain
+name: ${name}
+prefix: Vivecraft
+version: ${version}
+author: fayer3
+description: Adds support for Vivecraft on spigot/paper based servers
+api-version: 1.13
+commands:
+  vivecraft-server-config:
+    description: Allows to query/set vivecraft server settings
+    usage: For usage type '/<command> help'
+    aliases: [vive, vse]
+    permission: vivecraft.config
+permissions:
+  vivecraft.config:
+    description: Allows changing vivecraft configs at runtime
+    default: op
