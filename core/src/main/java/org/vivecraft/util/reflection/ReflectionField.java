@@ -21,27 +21,39 @@ public class ReflectionField {
         return new ReflectionField(cls.getDeclaredField(fieldName));
     }
 
-    public static ReflectionField getField(FieldMapping mapping) {
+    /**
+     * Tries to find any reflection field matching the given mappings
+     *
+     * @param mappings one or multiple mappings to try
+     * @return found reflection field
+     * @throws RuntimeException When no matching field is found
+     */
+    public static ReflectionField getField(FieldMapping... mappings) {
         // get the matching filed with the closest matching version, preferring older ones, unless there is none
         MCVersion mc = MCVersion.getCurrent();
-        int major = mc.major;
-        int minor = mc.minor;
         Field f = null;
-        while (major > 7 && f == null) {
-            while (minor >= 0 && f == null) {
-                if (minor == 0) {
-                    f = mapping.getField("1." + major, "spigot");
-                } else {
-                    f = mapping.getField("1." + major + "." + minor, "spigot");
+        for (FieldMapping mapping : mappings) {
+            int major = mc.major;
+            int minor = mc.minor;
+            while (major > 7 && f == null) {
+                while (minor >= 0 && f == null) {
+                    if (minor == 0) {
+                        f = mapping.getField("1." + major, "spigot");
+                    } else {
+                        f = mapping.getField("1." + major + "." + minor, "spigot");
+                    }
+                    minor--;
                 }
-                minor--;
+                minor = 10;
+                major--;
             }
-            minor = 10;
-            major--;
-        }
-        if (f == null && mc.major <= 8) {
-            // get 1.8.8 in this case, that is the oldest mapping that takenaka supports
-            f = mapping.getField("1.8.8", "spigot");
+            if (f == null && mc.major <= 8) {
+                // get 1.8.8 in this case, that is the oldest mapping that takenaka supports
+                f = mapping.getField("1.8.8", "spigot");
+            }
+            if (f != null) {
+                break;
+            }
         }
         if (f == null) {
             // if it is still null we don't support it yet
@@ -50,6 +62,15 @@ public class ReflectionField {
         return new ReflectionField(f);
     }
 
+    /**
+     * Tries to find any reflection field matching the given class paths
+     *
+     * @param pre       path before the spigot api part
+     * @param post      path after the spigot api part
+     * @param fieldName name of the field
+     * @return found reflection field
+     * @throws RuntimeException When no matching field is found
+     */
     public static ReflectionField getWithApi(String pre, String post, String fieldName) {
         try {
             Class<?> c = ClassGetter.getWithApi(pre, post);
@@ -59,6 +80,14 @@ public class ReflectionField {
         }
     }
 
+    /**
+     * Tries to find the reflection field matching the given class path
+     *
+     * @param cls       path of the containing class
+     * @param fieldName name of the field
+     * @return found reflection field
+     * @throws RuntimeException When no matching field is found
+     */
     public static ReflectionField getRaw(String cls, String fieldName) {
         try {
             return getField(ClassGetter.getRaw(cls), fieldName);

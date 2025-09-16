@@ -23,7 +23,7 @@ public class NMS_1_19_4 extends NMS_1_13_2 {
         super.init();
         this.Component_translationWithFallback = ReflectionMethod.getMethod(
             ComponentMapping.METHOD_TRANSLATABLE_WITH_FALLBACK);
-        this.ItemStack_setHoverName = ReflectionMethod.getMethod(ItemStackMapping.METHOD_SET_HOVER_NAME, false);
+        this.ItemStack_setHoverName = ReflectionMethod.getMethod(false, ItemStackMapping.METHOD_SET_HOVER_NAME);
         this.CraftItemStack_asNMSCopy = ReflectionMethod.getWithApi("org.bukkit.craftbukkit",
             "inventory.CraftItemStack", "asNMSCopy", ItemStack.class);
         try {

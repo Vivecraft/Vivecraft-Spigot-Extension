@@ -2,13 +2,11 @@ package org.vivecraft.compat_impl.mc_1_8;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.joml.Vector3f;
-import org.vivecraft.accessors.AABBMapping;
-import org.vivecraft.accessors.EntityMapping;
-import org.vivecraft.accessors.LivingEntityMapping;
-import org.vivecraft.accessors.Vec3Mapping;
+import org.vivecraft.accessors.*;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat.NMSHelper;
 import org.vivecraft.util.AABB;
@@ -32,6 +30,11 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionField Vec3_Y;
     protected ReflectionField Vec3_Z;
 
+    protected ReflectionField Entity_fallDistance;
+    protected ReflectionField ServerPlayer_connection;
+    protected ReflectionField ServerGamePacketListenerImpl_aboveGroundTicks;
+
+
     public NMS_1_8() {
         this.init();
         this.initAABB();
@@ -40,6 +43,12 @@ public class NMS_1_8 implements NMSHelper {
 
     protected void init() {
         this.LivingEntity_BodyYaw = ReflectionField.getField(LivingEntityMapping.FIELD_Y_BODY_ROT);
+
+        this.Entity_fallDistance = ReflectionField.getField(EntityMapping.FIELD_FALL_DISTANCE,
+            EntityMapping.FIELD_FALL_DISTANCE_1);
+        this.ServerPlayer_connection = ReflectionField.getField(ServerPlayerMapping.FIELD_CONNECTION);
+        this.ServerGamePacketListenerImpl_aboveGroundTicks = ReflectionField.getField(
+            ServerGamePacketListenerImplMapping.FIELD_ABOVE_GROUND_TICK_COUNT);
     }
 
     protected void initAABB() {
@@ -81,12 +90,18 @@ public class NMS_1_8 implements NMSHelper {
             (double) this.AABB_maxX.get(aabb), (double) this.AABB_maxY.get(aabb), (double) this.AABB_maxZ.get(aabb));
     }
 
-
     @Override
     public ItemStack setItemStackName(ItemStack itemStack, String translationKey, String fallback) {
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(fallback);
         itemStack.setItemMeta(meta);
         return itemStack;
+    }
+
+    @Override
+    public void resetFallDistance(Player player) {
+        this.Entity_fallDistance.set(BukkitReflector.getHandle(player), 0);
+        this.ServerGamePacketListenerImpl_aboveGroundTicks.set(
+            this.ServerPlayer_connection.get(BukkitReflector.getHandle(player)), 0);
     }
 }

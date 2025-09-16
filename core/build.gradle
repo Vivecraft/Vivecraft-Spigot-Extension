@@ -38,8 +38,18 @@ accessors {
 
     mapClass("net.minecraft.world.entity.Entity") {
         field("float", "width")
+        field("double", "fallDistance")
+        field("float", "fallDistance")
         method("net.minecraft.world.phys.AABB", "getBoundingBox")
         method("net.minecraft.world.phys.Vec3", "getLookAngle")
+    }
+
+    mapClass("net.minecraft.server.level.ServerPlayer") {
+        field("net.minecraft.server.network.ServerGamePacketListenerImpl", "connection")
+    }
+
+    mapClass("net.minecraft.server.network.ServerGamePacketListenerImpl") {
+        field("int", "aboveGroundTickCount")
     }
 
     mapClass("net.minecraft.server.level.ServerLevel") {

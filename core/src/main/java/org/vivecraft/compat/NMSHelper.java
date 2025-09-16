@@ -2,6 +2,7 @@ package org.vivecraft.compat;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.joml.Vector3f;
 import org.vivecraft.util.AABB;
@@ -48,4 +49,11 @@ public interface NMSHelper {
      * @apiNote available since 1.19.4, old versions just set the fallback
      */
     ItemStack setItemStackName(ItemStack itemStack, String translationKey, String fallback);
+
+    /**
+     * resets the fall distance and aboveGroundTickCount of the given Player
+     *
+     * @param player Player to reset
+     */
+    void resetFallDistance(Player player);
 }

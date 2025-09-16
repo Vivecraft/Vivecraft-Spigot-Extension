@@ -83,7 +83,7 @@ public class NetworkHandler implements PluginMessageListener {
                 this.handleTeleport(vivePlayer, (TeleportPayloadC2S) payload);
                 break;
             case CLIMBING:
-                this.handleClimbing(vivePlayer, (ClimbingPayloadC2S) payload);
+                this.handleClimbing(vivePlayer);
                 break;
             case ACTIVEHAND:
                 this.handleActiveHand(vivePlayer, (ActiveBodyPartPayloadC2S) payload);
@@ -231,12 +231,9 @@ public class NetworkHandler implements PluginMessageListener {
         vivePlayer.player.teleport(loc);
     }
 
-    private void handleClimbing(VivePlayer vivePlayer, ClimbingPayloadC2S climbing) {
-        // TODO climbing NMS
-        /*
-        player.fallDistance = 0.0F;
-        player.connection.aboveGroundTickCount = 0;
-        */
+    private void handleClimbing(VivePlayer vivePlayer) {
+        if (!ViveMain.CONFIG.climbeyEnabled.get()) return;
+        ViveMain.NMS.resetFallDistance(vivePlayer.player);
     }
 
     private void handleActiveHand(VivePlayer vivePlayer, ActiveBodyPartPayloadC2S activeBodypart) {
