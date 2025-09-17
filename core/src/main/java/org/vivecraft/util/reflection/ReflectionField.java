@@ -1,6 +1,7 @@
 package org.vivecraft.util.reflection;
 
 import me.kcra.takenaka.accessor.mapping.FieldMapping;
+import org.jetbrains.annotations.Nullable;
 import org.vivecraft.ViveMain;
 import org.vivecraft.util.MCVersion;
 
@@ -30,6 +31,24 @@ public class ReflectionField {
      */
     public static ReflectionField getField(FieldMapping... mappings) {
         // get the matching field with the closest matching version, preferring older ones, unless there is none
+        Field f = null;
+        // need to also try mojang, because of paper
+        for (String namespace : new String[]{"spigot", "mojang"}) {
+            f = getField(namespace, mappings);
+            if (f != null) break;
+        }
+
+        if (f == null) {
+            // if it is still null we don't support it yet
+            throw new RuntimeException(
+                "Unsupported mc version: " + MCVersion.getCurrent().version + ", no mapping found for: " +
+                    mappings[0].getParent().getName() + "." + mappings[0].getName());
+        }
+        return new ReflectionField(f);
+    }
+
+    @Nullable
+    private static Field getField(String namespace, FieldMapping... mappings) {
         MCVersion mc = MCVersion.getCurrent();
         Field f = null;
         for (FieldMapping mapping : mappings) {
@@ -38,9 +57,9 @@ public class ReflectionField {
             while (major > 7 && f == null) {
                 while (minor >= 0 && f == null) {
                     if (minor == 0) {
-                        f = mapping.getField("1." + major, "spigot");
+                        f = mapping.getField("1." + major, namespace);
                     } else {
-                        f = mapping.getField("1." + major + "." + minor, "spigot");
+                        f = mapping.getField("1." + major + "." + minor, namespace);
                     }
                     minor--;
                 }
@@ -49,18 +68,16 @@ public class ReflectionField {
             }
             if (f == null && mc.major <= 8) {
                 // get 1.8.8 in this case, that is the oldest mapping that takenaka supports
-                f = mapping.getField("1.8.8", "spigot");
+                f = mapping.getField("1.8.8", namespace);
+            }
+            if (f == null) {
+                f = mapping.getField();
             }
             if (f != null) {
                 break;
             }
         }
-        if (f == null) {
-            // if it is still null we don't support it yet
-            throw new RuntimeException("Unsupported mc version: " + mc.version + ", no mapping found for: " +
-                mappings[0].getParent().getName() + "." + mappings[0].getName());
-        }
-        return new ReflectionField(f);
+        return f;
     }
 
     /**
@@ -77,7 +94,8 @@ public class ReflectionField {
             Class<?> c = ClassGetter.getWithApi(pre, post);
             return getField(c, fieldName);
         } catch (ClassNotFoundException | NoSuchFieldException e) {
-            throw new RuntimeException("couldn't find any field matching " + pre + ".###." + post + "." + fieldName);
+            throw new RuntimeException(
+                "couldn't find any field matching " + pre + ".###." + post + "." + fieldName);
         }
     }
 

@@ -1,6 +1,7 @@
 package org.vivecraft.util.reflection;
 
 import me.kcra.takenaka.accessor.mapping.MethodMapping;
+import org.jetbrains.annotations.Nullable;
 import org.vivecraft.ViveMain;
 import org.vivecraft.util.MCVersion;
 
@@ -46,6 +47,29 @@ public class ReflectionMethod {
      */
     public static ReflectionMethod getMethod(boolean critical, MethodMapping... mappings) {
         // get the matching method with the closest matching version, preferring older ones, unless there is none
+        Method m = null;
+        // need to also try mojang, because of paper
+        for (String namespace : new String[]{"spigot", "mojang"}) {
+            m = getMethod(namespace, mappings);
+            if (m != null) break;
+        }
+
+        if (m == null) {
+            // if it is still null we don't support it yet
+            if (critical) {
+                throw new RuntimeException(
+                    "Unsupported mc version: " + MCVersion.getCurrent() + ", no mapping found for: " +
+                        mappings[0].getParent().getName() + "." + mappings[0].getName());
+            } else {
+                return null;
+            }
+        }
+        return new ReflectionMethod(m);
+    }
+
+    @Nullable
+    private static Method getMethod(String namespace, MethodMapping... mappings) {
+        // get the matching method with the closest matching version, preferring older ones, unless there is none
         MCVersion mc = MCVersion.getCurrent();
         Method m = null;
         for (MethodMapping mapping : mappings) {
@@ -54,9 +78,9 @@ public class ReflectionMethod {
             while (major > 7 && m == null) {
                 while (minor >= 0 && m == null) {
                     if (minor == 0) {
-                        m = mapping.getMethod("1." + major, "spigot");
+                        m = mapping.getMethod("1." + major, namespace);
                     } else {
-                        m = mapping.getMethod("1." + major + "." + minor, "spigot");
+                        m = mapping.getMethod("1." + major + "." + minor, namespace);
                     }
                     minor--;
                 }
@@ -65,19 +89,10 @@ public class ReflectionMethod {
             }
             if (m == null && mc.major <= 8) {
                 // get 1.8.8 in this case, that is the oldest mapping that takenaka supports
-                m = mapping.getMethod("1.8.8", "spigot");
+                m = mapping.getMethod("1.8.8", namespace);
             }
         }
-        if (m == null) {
-            // if it is still null we don't support it yet
-            if (critical) {
-                throw new RuntimeException("Unsupported mc version: " + mc.version + ", no mapping found for: " +
-                    mappings[0].getParent().getName() + "." + mappings[0].getName());
-            } else {
-                return null;
-            }
-        }
-        return new ReflectionMethod(m);
+        return m;
     }
 
     /**

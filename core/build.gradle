@@ -30,7 +30,8 @@ accessors {
     // package where it places the mappings
     basePackage("org.vivecraft.accessors")
     // namespaces that should be available at runtime
-    namespaces("spigot")
+    // paper is using mojang
+    namespaces("spigot", "mojang")
     // if it should make it's own automatic reflection mappings
     accessorType("none")
 

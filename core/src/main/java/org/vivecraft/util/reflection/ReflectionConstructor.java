@@ -1,6 +1,7 @@
 package org.vivecraft.util.reflection;
 
 import me.kcra.takenaka.accessor.mapping.ConstructorMapping;
+import org.jetbrains.annotations.Nullable;
 import org.vivecraft.ViveMain;
 import org.vivecraft.util.MCVersion;
 
@@ -45,37 +46,51 @@ public class ReflectionConstructor {
      */
     public static ReflectionConstructor getConstructor(boolean critical, ConstructorMapping... mappings) {
         // get the matching constructor with the closest matching version, preferring older ones, unless there is none
+        Constructor<?> c = null;
+        // need to also try mojang, because of paper
+        for (String nameSpace : new String[]{"spigot", "mojang"}) {
+            c = getConstructor(nameSpace, mappings);
+            if (c != null) break;
+        }
+
+        if (c == null) {
+            // if it is still null we don't support it yet
+            if (critical) {
+                throw new RuntimeException(
+                    "Unsupported mc version: " + MCVersion.getCurrent() + ", no constructor  found for: " +
+                        mappings[0].getParent().getName());
+            } else {
+                return null;
+            }
+        }
+        return new ReflectionConstructor(c);
+    }
+
+    @Nullable
+    private static Constructor<?> getConstructor(String namespace, ConstructorMapping... mappings) {
         MCVersion mc = MCVersion.getCurrent();
-        Constructor<?> m = null;
+        Constructor<?> c = null;
         for (ConstructorMapping mapping : mappings) {
             int major = mc.major;
             int minor = mc.minor;
-            while (major > 7 && m == null) {
-                while (minor >= 0 && m == null) {
+            while (major > 7 && c == null) {
+                while (minor >= 0 && c == null) {
                     if (minor == 0) {
-                        m = mapping.getConstructor("1." + major, "spigot");
+                        c = mapping.getConstructor("1." + major, namespace);
                     } else {
-                        m = mapping.getConstructor("1." + major + "." + minor, "spigot");
+                        c = mapping.getConstructor("1." + major + "." + minor, namespace);
                     }
                     minor--;
                 }
                 minor = 10;
                 major--;
             }
-            if (m == null && mc.major <= 8) {
+            if (c == null && mc.major <= 8) {
                 // get 1.8.8 in this case, that is the oldest mapping that takenaka supports
-                m = mapping.getConstructor("1.8.8", "spigot");
+                c = mapping.getConstructor("1.8.8", namespace);
             }
         }
-        if (m == null) {
-            // if it is still null we don't support it yet
-            if (critical) {
-                throw new RuntimeException("Unsupported mc version: " + mc.version);
-            } else {
-                return null;
-            }
-        }
-        return new ReflectionConstructor(m);
+        return c;
     }
 
     /**
