@@ -11,7 +11,7 @@ import org.vivecraft.VivePlayer;
 
 public class PvPEvents implements Listener {
     @EventHandler
-    public void onPlayerDeath(EntityDamageByEntityEvent event) {
+    public void onPvP(EntityDamageByEntityEvent event) {
         // we only care about player vs player events
         if (!(event.getEntity() instanceof Player)) return;
 
