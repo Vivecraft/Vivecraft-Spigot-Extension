@@ -33,12 +33,15 @@ public class ProjectileEvents implements Listener {
 
                 final boolean arrow = ViveMain.MC.isArrow(proj);
 
-                Quaternionf inaccuracy = new Quaternionf()
-                    .rotateTo(ViveMain.NMS.getViewVector(player), MathUtils.toJomlVec(proj.getVelocity()));
-                vivePlayer.getAimOrientation(true).mul(inaccuracy, inaccuracy);
+                Vector3f view = ViveMain.NMS.getViewVector(player);
+                Vector projDir = proj.getVelocity();
+                float yView = (float) Math.atan2(-view.x(), view.z());
+                float yProj = (float) Math.atan2(-projDir.getX(), projDir.getZ());
 
-                inaccuracy = new Quaternionf(vivePlayer.getAimOrientation(true))
-                    .rotateTo(ViveMain.NMS.getViewVector(player), MathUtils.toJomlVec(proj.getVelocity()));
+                float multishotOffset = yProj - yView;
+
+                Quaternionf inaccuracy = new Quaternionf(vivePlayer.getAimOrientation(true))
+                    .rotateY(multishotOffset);
 
                 Vector pos = vivePlayer.getAimPos(true);
                 Vector aim = MathUtils.toBukkitVec(inaccuracy.transform(MathUtils.BACK, new Vector3f()));
