@@ -9,6 +9,9 @@ dependencies {
     // Vault
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
 
+    // netty
+    compileOnly("io.netty:netty-handler:4.1.127.Final")
+
     // takenaka
     // the mapping bundle, published by the project at github.com/zlataovce/mappings
     mappingBundle("me.kcra.takenaka:mappings:1.8.8+1.21.8")
@@ -34,14 +37,36 @@ accessors {
 
     mapClass("net.minecraft.world.entity.LivingEntity") {
         field("float", "yBodyRot")
+        field("float", "yHeadRot")
+        field("float", "yHeadRotO")
     }
 
     mapClass("net.minecraft.world.entity.Entity") {
         field("float", "width")
         field("double", "fallDistance")
         field("float", "fallDistance")
+        field("float", "xRot") // up to 1.16.5
+        field("float", "yRot") // up to 1.16.5
+        field("float", "xRotO")
+        field("float", "yRotO")
+        field("double", "xo")
+        field("double", "yo")
+        field("double", "zo")
+        field("double", "locX") // up to 1.14
+        field("double", "locY") // up to 1.14
+        field("double", "locZ") // up to 1.14
+        field("float", "eyeHeight") // 1.14+
+        field("float", "length") // up to 1.13.2
         method("net.minecraft.world.phys.AABB", "getBoundingBox")
         method("net.minecraft.world.phys.Vec3", "getLookAngle")
+        method("net.minecraft.world.phys.Vec3", "position") // 1.15+
+        method("float", "getXRot")
+        method("float", "getYRot")
+        method("void", "setPosRaw", "double", "double", "double")  // 1.15+
+        method("void", "setXRot", "float")
+        method("void", "setYRot", "float")
+        method("net.minecraft.server.MinecraftServer", "getServer")
+        method("net.minecraft.world.level.Level", "getCommandSenderWorld")
     }
 
     mapClass("net.minecraft.server.level.ServerPlayer") {
@@ -50,11 +75,23 @@ accessors {
 
     mapClass("net.minecraft.server.network.ServerGamePacketListenerImpl") {
         field("int", "aboveGroundTickCount")
+        field("net.minecraft.server.level.ServerPlayer", "player")
+        field("net.minecraft.network.Connection", "connection") //  up to 1.20.1
+    }
+
+    mapClass("net.minecraft.server.network.ServerCommonPacketListenerImpl") {
+        field("net.minecraft.network.Connection", "connection") // 1.20.2+
+    }
+
+    mapClass("net.minecraft.network.protocol.Packet") {
+        method("void", "handle", "net.minecraft.network.PacketListener")
     }
 
     mapClass("net.minecraft.server.level.ServerLevel") {
+        // 1.8.8
         method("void", "func_180505_a", "net.minecraft.util.EnumParticleTypes",
             "boolean", "double", "double", "double", "int", "double", "double", "double", "double", "int[]")
+        method("net.minecraft.server.MinecraftServer", "getServer")
     }
 
     mapClass("net.minecraft.server.VVV.EnumParticle") {
@@ -89,4 +126,23 @@ accessors {
         field("double", "y")
         field("double", "z")
     }
+
+    mapClass("net.minecraft.network.Connection") {
+        field("io.netty.channel.Channel", "channel")
+        method("net.minecraft.network.PacketListener", "getPacketListener")
+        method("boolean", "isConnected")
+    }
+
+    mapClass("net.minecraft.util.thread.BlockableEventLoop") {
+        method("void", "executeIfPossible", "java.lang.Runnable") // 1.18+
+        method("void", "execute", "java.lang.Runnable") // 1.14+
+        method("com.google.common.util.concurrent.ListenableFuture", "postToMainThread", "java.lang.Runnable")
+    }
+
+    mapClass("net.minecraft.network.protocol.game.ServerboundUseItemPacket") {
+        field("float", "yRot")
+        field("float", "xRot")
+    }
+    mapClass("net.minecraft.network.protocol.game.ServerboundUseItemOnPacket") {}
+    mapClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket") {}
 }

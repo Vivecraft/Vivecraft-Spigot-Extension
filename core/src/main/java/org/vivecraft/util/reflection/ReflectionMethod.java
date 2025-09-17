@@ -37,15 +37,15 @@ public class ReflectionMethod {
     }
 
     /**
-     * Tries to find any reflection field matching the given mappings
+     * Tries to find any reflection method matching the given mappings
      *
-     * @param critical when true, if this method is required to function
+     * @param critical when true, this will fail with an exception, instead of returning {@code null}
      * @param mappings one or multiple mappings to try
      * @return found reflection method, or {@code null}, if not found and {@code critical} is false
      * @throws RuntimeException When no matching method is found and {@code critical} is true
      */
     public static ReflectionMethod getMethod(boolean critical, MethodMapping... mappings) {
-        // get the matching filed with the closest matching version, preferring older ones, unless there is none
+        // get the matching method with the closest matching version, preferring older ones, unless there is none
         MCVersion mc = MCVersion.getCurrent();
         Method m = null;
         for (MethodMapping mapping : mappings) {
@@ -71,7 +71,8 @@ public class ReflectionMethod {
         if (m == null) {
             // if it is still null we don't support it yet
             if (critical) {
-                throw new RuntimeException("Unsupported mc version: " + mc.version);
+                throw new RuntimeException("Unsupported mc version: " + mc.version + ", no mapping found for: " +
+                    mappings[0].getParent().getName() + "." + mappings[0].getName());
             } else {
                 return null;
             }
@@ -94,7 +95,9 @@ public class ReflectionMethod {
             Class<?> c = ClassGetter.getWithApi(pre, post);
             return getMethod(c, methodName, args);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
-            throw new RuntimeException("couldn't find any method matching " + pre + ".###." + post + "." + methodName,
+            throw new RuntimeException(
+                "couldn't find any method matching " + pre + ".###." + post + "." + methodName + " with args: " +
+                    Arrays.toString(args),
                 e);
         }
     }

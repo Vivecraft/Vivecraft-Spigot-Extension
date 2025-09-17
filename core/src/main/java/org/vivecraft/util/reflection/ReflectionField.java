@@ -29,7 +29,7 @@ public class ReflectionField {
      * @throws RuntimeException When no matching field is found
      */
     public static ReflectionField getField(FieldMapping... mappings) {
-        // get the matching filed with the closest matching version, preferring older ones, unless there is none
+        // get the matching field with the closest matching version, preferring older ones, unless there is none
         MCVersion mc = MCVersion.getCurrent();
         Field f = null;
         for (FieldMapping mapping : mappings) {
@@ -57,7 +57,8 @@ public class ReflectionField {
         }
         if (f == null) {
             // if it is still null we don't support it yet
-            throw new RuntimeException("Unsupported mc version: " + mc.version);
+            throw new RuntimeException("Unsupported mc version: " + mc.version + ", no mapping found for: " +
+                mappings[0].getParent().getName() + "." + mappings[0].getName());
         }
         return new ReflectionField(f);
     }
@@ -88,10 +89,13 @@ public class ReflectionField {
      * @return found reflection field
      * @throws RuntimeException When no matching field is found
      */
-    public static ReflectionField getRaw(String cls, String fieldName) {
+    public static ReflectionField getRaw(String cls, String fieldName, boolean required) {
         try {
             return getField(ClassGetter.getRaw(cls), fieldName);
         } catch (ClassNotFoundException | NoSuchFieldException e) {
+            if (!required) {
+                return null;
+            }
             throw new RuntimeException("couldn't find field " + cls + "." + fieldName, e);
         }
     }

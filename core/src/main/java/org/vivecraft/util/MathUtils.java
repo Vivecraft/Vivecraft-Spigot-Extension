@@ -33,4 +33,8 @@ public class MathUtils {
         return new Vector3f((float) (a.getX() - b.getX()), (float) (a.getY() - b.getY()),
             (float) (a.getZ() - b.getZ()));
     }
+
+    public static boolean equalsPosition(double x0, double y0, double z0, double x1, double y1, double z1) {
+        return Double.compare(x0, x1) == 0 && Double.compare(y0, y1) == 0 && Double.compare(z0, z1) == 0;
+    }
 }

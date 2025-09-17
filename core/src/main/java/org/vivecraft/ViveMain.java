@@ -148,6 +148,10 @@ public class ViveMain extends JavaPlugin {
         return entity instanceof Player && VIVE_PLAYERS.containsKey(entity.getUniqueId());
     }
 
+    public static boolean isVRPlayer(Player player) {
+        return isVivePlayer(player) && getVivePlayer(player).isVR();
+    }
+
     public static VivePlayer getVivePlayer(Player player) {
         return VIVE_PLAYERS.get(player.getUniqueId());
     }

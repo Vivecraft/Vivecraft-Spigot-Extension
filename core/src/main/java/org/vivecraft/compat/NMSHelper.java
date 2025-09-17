@@ -1,10 +1,13 @@
 package org.vivecraft.compat;
 
+import io.netty.channel.Channel;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 import org.joml.Vector3f;
+import org.vivecraft.data.PlayerState;
 import org.vivecraft.util.AABB;
 
 /**
@@ -52,8 +55,67 @@ public interface NMSHelper {
 
     /**
      * resets the fall distance and aboveGroundTickCount of the given Player
-     *
-     * @param player Player to reset
      */
     void resetFallDistance(Player player);
+
+    /**
+     * gets the network connection for the player
+     */
+    Object getConnection(Player player);
+
+    /**
+     * returns if the given connection is still connected
+     */
+    boolean isConnectionConnected(Object connection);
+
+    /**
+     * gets the underlying netty Channel
+     */
+    Channel getChannel(Object connection);
+
+    /**
+     * gets the active packet listener of the connection
+     */
+    Object getPacketListener(Object connection);
+
+    /**
+     * gets the server this serverPlayer is part of
+     */
+    Object getServer(Object serverPlayer);
+
+    /**
+     * runs the given Runnable on the main thread of the given server
+     */
+    void runOnMainThread(Object server, Runnable runnable);
+
+    /**
+     * gets the current player of the PacketListener
+     */
+    Object getPlayer(Object packetListener);
+
+    /**
+     * handles the given packet using the given listener
+     */
+    void handlePacket(Object packet, Object packetListener, float xRot, float yRot);
+
+    /**
+     * checks if the Packet needs aimfix handling
+     */
+    boolean needsAimfixHandling(Object packet);
+
+    /**
+     * copies position and direction values from the player
+     */
+    PlayerState getPlayerState(Object serverPlayer);
+
+    /**
+     * overrides position and direction values of the player
+     */
+    void setPlayerState(Object serverPlayer, Vector position, float xRot, float yRot);
+
+    /**
+     * restores position and direction values of the player to the given state, except of the position,
+     * if it doesn't match either the modified, or the original position
+     */
+    boolean restorePlayerState(Object serverPlayer, PlayerState original, Vector modifiedPosition);
 }

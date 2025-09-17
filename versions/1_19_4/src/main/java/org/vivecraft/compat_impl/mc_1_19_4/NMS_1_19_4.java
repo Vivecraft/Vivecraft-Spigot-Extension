@@ -5,12 +5,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
 import org.vivecraft.accessors.ComponentMapping;
 import org.vivecraft.accessors.ItemStackMapping;
-import org.vivecraft.compat_impl.mc_1_13_2.NMS_1_13_2;
+import org.vivecraft.compat_impl.mc_1_17.NMS_1_17;
 import org.vivecraft.util.AABB;
 import org.vivecraft.util.reflection.ClassGetter;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
-public class NMS_1_19_4 extends NMS_1_13_2 {
+public class NMS_1_19_4 extends NMS_1_17 {
 
     protected ReflectionMethod Component_translationWithFallback;
     protected ReflectionMethod CraftItemStack_asNMSCopy;

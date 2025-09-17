@@ -14,6 +14,7 @@ import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.compat.types.Item;
 import org.vivecraft.debug.Debug;
+import org.vivecraft.network.AimFixHandler;
 import org.vivecraft.network.NetworkUtils;
 import org.vivecraft.util.UpdateChecker;
 
@@ -89,11 +90,7 @@ public class PlayerEvents implements Listener {
             });
         }
 
-        // TODO AIMFIX
-        /*Connection netManager = (Connection) Reflector.getFieldValue(Reflector.connection,
-            ((CraftPlayer) p).getHandle().connection);
-        netManager.channel.pipeline().addBefore("packet_handler", "vr_aim_fix", new AimFixHandler(netManager));
-         */
+        new AimFixHandler(player, ViveMain.NMS.getConnection(player));
     }
 
     @EventHandler
