@@ -16,7 +16,7 @@ public class SpigotReflector {
 
     public static void setMovedWrongly(double d) {
         if (SpigotConfig_movedWrong != null) {
-            SpigotConfig_movedWrong.set(null, Math.max((double) SpigotConfig_movedWrong.get(null), d));
+            SpigotConfig_movedWrong.set(Math.max((double) SpigotConfig_movedWrong.get(), d));
         } else {
             ViveMain.LOGGER.warning("spigot config 'movedWronglyThreshold' not set, not available");
         }
@@ -24,7 +24,7 @@ public class SpigotReflector {
 
     public static void setMovedTooQuickly(double d) {
         if (SpigotConfig_movedTooQuickly != null) {
-            SpigotConfig_movedTooQuickly.set(null, Math.max((double) SpigotConfig_movedTooQuickly.get(null), d));
+            SpigotConfig_movedTooQuickly.set(Math.max((double) SpigotConfig_movedTooQuickly.get(), d));
         } else {
             ViveMain.LOGGER.warning("spigot config 'movedTooQuicklyMultiplier' not set, not available");
         }

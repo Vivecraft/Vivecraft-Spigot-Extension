@@ -29,7 +29,7 @@ public class ReflectionMethod {
     /**
      * Tries to find any reflection method matching the given mappings
      *
-     * @param mappings one or multiple mappings to try
+     * @param mappings one or multiple mappings to try, when supplying multiple, they need to be given in order new > old
      * @return found reflection method
      * @throws RuntimeException When no matching method is found
      */
@@ -135,10 +135,22 @@ public class ReflectionMethod {
         }
     }
 
+    public Object invokes(Object... args) {
+        try {
+            return this.method.invoke(null, args);
+        } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+            ViveMain.LOGGER.log(Level.SEVERE,
+                "couldn't invoke static method " + this.method.getName() + " on: " +
+                    this.method.getDeclaringClass().getName(),
+                e);
+            return null;
+        }
+    }
+
     public Object invoke(Object target, Object... args) {
         try {
             return this.method.invoke(target, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
             ViveMain.LOGGER.log(Level.SEVERE,
                 "couldn't invoke method " + this.method.getName() + " on: " + target.getClass().getName(), e);
             return null;

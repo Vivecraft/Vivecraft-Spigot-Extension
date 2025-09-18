@@ -1,15 +1,18 @@
 package org.vivecraft.events;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemStack;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
+import org.vivecraft.debug.Debug;
 
-public class PvPEvents implements Listener {
+public class DamageEvents implements Listener {
     @EventHandler
     public void onPvP(EntityDamageByEntityEvent event) {
         // we only care about player vs player events
@@ -84,6 +87,46 @@ public class PvPEvents implements Listener {
                 if (ViveMain.CONFIG.pvpNotifyBlockedDamage.get()) {
                     other.sendMessage(blockedDamageCase);
                 }
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void noAttackWhileBlocking(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player && ViveMain.isVRPlayer(event.getDamager())) {
+            Player player = (Player) event.getDamager();
+            if (player.isBlocking() && !ViveMain.CONFIG.allowAttacksWhileBlocking.get()) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void bootsDamage(EntityDamageByEntityEvent event) {
+        // feet make more damage with boots
+        if (ViveMain.CONFIG.dualWielding.get() && ViveMain.CONFIG.bootsArmorDamage.get() > 0) {
+            if (event.getDamager() instanceof Player && ViveMain.isVRPlayer(event.getDamager())) {
+                Player player = (Player) event.getDamager();
+                VivePlayer vivePlayer = ViveMain.getVivePlayer(player);
+                ItemStack itemStack = player.getEquipment().getBoots();
+                if (vivePlayer.activeBodyPart.isFoot() && itemStack != null && itemStack.getType() != Material.AIR) {
+                    double armor = ViveMain.API.applyArmorModifiers(ViveMain.NMS.getArmorValue(itemStack),
+                        player.getInventory().getBoots());
+                    double addedDamage = armor * ViveMain.CONFIG.bootsArmorDamage.get();
+                    Debug.log("Boots hit: armor level: %s, total damage added: %s", armor, addedDamage);
+                    event.setDamage(event.getDamage() + addedDamage);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void roomscaleBlocking(EntityDamageByEntityEvent event) {
+        if (event.getEntity() instanceof Player && ViveMain.isVRPlayer(event.getEntity())) {
+            Player player = (Player) event.getEntity();
+
+            if (player.isBlocking() && !ViveMain.CONFIG.allowAttacksWhileBlocking.get()) {
                 event.setCancelled(true);
             }
         }

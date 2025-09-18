@@ -14,9 +14,9 @@ import org.vivecraft.compat.NMSHelper;
 import org.vivecraft.compat.SpigotReflector;
 import org.vivecraft.config.Config;
 import org.vivecraft.debug.Debug;
+import org.vivecraft.events.DamageEvents;
 import org.vivecraft.events.PlayerEvents;
 import org.vivecraft.events.ProjectileEvents;
-import org.vivecraft.events.PvPEvents;
 import org.vivecraft.linker.Helpers;
 import org.vivecraft.network.NetworkConstants;
 import org.vivecraft.network.NetworkHandler;
@@ -116,7 +116,7 @@ public class ViveMain extends JavaPlugin {
     private void registerEvents(PluginManager manager) {
         manager.registerEvents(new ProjectileEvents(), this);
         manager.registerEvents(new PlayerEvents(), this);
-        manager.registerEvents(new PvPEvents(), this);
+        manager.registerEvents(new DamageEvents(), this);
     }
 
     private void registerRecipes() {
@@ -148,12 +148,12 @@ public class ViveMain extends JavaPlugin {
         return entity instanceof Player && VIVE_PLAYERS.containsKey(entity.getUniqueId());
     }
 
-    public static boolean isVRPlayer(Player player) {
-        return isVivePlayer(player) && getVivePlayer(player).isVR();
+    public static boolean isVRPlayer(Entity entity) {
+        return isVivePlayer(entity) && getVivePlayer(entity).isVR();
     }
 
-    public static VivePlayer getVivePlayer(Player player) {
-        return VIVE_PLAYERS.get(player.getUniqueId());
+    public static VivePlayer getVivePlayer(Entity entity) {
+        return VIVE_PLAYERS.get(entity.getUniqueId());
     }
 
     public void toggleParticleTask(boolean enabled) {

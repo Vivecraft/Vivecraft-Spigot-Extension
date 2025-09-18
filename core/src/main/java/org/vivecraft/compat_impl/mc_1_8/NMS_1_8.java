@@ -67,11 +67,16 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionField LivingEntity_yHeadRot;
     protected ReflectionField LivingEntity_yHeadRotO;
 
+    protected ReflectionMethod ItemStack_getItem;
+    protected ReflectionField ArmorItem_defense;
+    protected Class<?> ArmorItem;
+
     public NMS_1_8() {
         this.init();
         this.initAABB();
         this.initVec3();
         this.initAimFix();
+        this.initArmor();
     }
 
     protected void init() {
@@ -143,6 +148,12 @@ public class NMS_1_8 implements NMSHelper {
         this.Entity_x = ReflectionField.getField(EntityMapping.FIELD_LOC_X);
         this.Entity_y = ReflectionField.getField(EntityMapping.FIELD_LOC_Y);
         this.Entity_z = ReflectionField.getField(EntityMapping.FIELD_LOC_Z);
+    }
+
+    protected void initArmor() {
+        this.ItemStack_getItem = ReflectionMethod.getMethod(ItemStackMapping.METHOD_GET_ITEM);
+        this.ArmorItem_defense = ReflectionField.getField(ArmorItemMapping.FIELD_DEFENSE);
+        this.ArmorItem = ClassGetter.getClass(true, ArmorItemMapping.MAPPING);
     }
 
     protected Vector getPosition(Object serverPlayer) {
@@ -314,6 +325,16 @@ public class NMS_1_8 implements NMSHelper {
         } else {
             this.setPosition(serverPlayer, original.x, original.y, original.z);
             return false;
+        }
+    }
+
+    @Override
+    public double getArmorValue(ItemStack itemStack) {
+        Object item = this.ItemStack_getItem.invoke(BukkitReflector.asNMSCopy(itemStack));
+        if (this.ArmorItem.isInstance(item)) {
+            return (int) this.ArmorItem_defense.get(item);
+        } else {
+            return 0;
         }
     }
 }

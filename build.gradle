@@ -16,6 +16,10 @@ allprojects {
     group 'org.vivecraft'
     version = plugin_version
 
+    configurations.configureEach {
+        exclude group: "net.md-5"
+    }
+
     repositories {
         mavenLocal {
             content {
@@ -39,10 +43,6 @@ allprojects {
             content {
                 includeModule("com.mojang", "brigadier")
             }
-        }
-
-        maven {
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
 
         // add the ScreamingSandals repository for the mapping bundle
@@ -101,8 +101,8 @@ tasks.register('release') {
         if (!version.endsWith("-SNAPSHOT")) {
             // Rename final JAR to trim off version information
             shadowJar.archiveFile.get().getAsFile()
-                    .renameTo(layout.buildDirectory.get().toString() + File.separator + 'libs' + File.separator
-                            + rootProject.name + '.jar')
+                .renameTo(layout.buildDirectory.get().toString() + File.separator + 'libs' + File.separator
+                    + rootProject.name + '.jar')
         }
     }
 }

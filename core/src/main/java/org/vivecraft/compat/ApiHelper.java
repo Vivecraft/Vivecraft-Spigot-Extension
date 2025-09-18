@@ -96,4 +96,14 @@ public interface ApiHelper {
      * @apiNote damage source cause is only available since 1.20.6
      */
     String getCausingEntityName(PlayerDeathEvent event);
+
+    /**
+     * applies the spigot armor attribute modifiers
+     * this only applied the spigot attributes, use in combination with {@link NMSHelper#getArmorValue(ItemStack)}
+     *
+     * @param baseArmor base armor value without spigot attributes
+     * @param itemStack ItemStack to get the modifers from
+     * @apiNote api only exists since 1.13.2
+     */
+    double applyArmorModifiers(double baseArmor, ItemStack itemStack);
 }

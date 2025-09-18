@@ -2,10 +2,10 @@ package org.vivecraft.compat_impl.mc_1_17;
 
 import org.bukkit.util.Vector;
 import org.vivecraft.accessors.EntityMapping;
-import org.vivecraft.compat_impl.mc_1_15.NMS_1_15;
+import org.vivecraft.compat_impl.mc_1_16.NMS_1_16;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
-public class NMS_1_17 extends NMS_1_15 {
+public class NMS_1_17 extends NMS_1_16 {
 
     protected ReflectionMethod Entity_getXRot;
     protected ReflectionMethod Entity_getYRot;

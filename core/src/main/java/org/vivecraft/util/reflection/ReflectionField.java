@@ -118,6 +118,27 @@ public class ReflectionField {
         }
     }
 
+    public Object get() {
+        try {
+            return this.field.get(null);
+        } catch (IllegalAccessException e) {
+            ViveMain.LOGGER.log(Level.SEVERE,
+                "couldn't get static field " + this.field.getName() + " from: " +
+                    this.field.getDeclaringClass().getName(), e);
+            return null;
+        }
+    }
+
+    public void set(Object value) {
+        try {
+            this.field.set(null, value);
+        } catch (IllegalAccessException e) {
+            ViveMain.LOGGER.log(Level.SEVERE,
+                "couldn't set static field " + this.field.getName() + " of: " +
+                    this.field.getDeclaringClass().getName(), e);
+        }
+    }
+
     public Object get(Object target) {
         try {
             return this.field.get(target);

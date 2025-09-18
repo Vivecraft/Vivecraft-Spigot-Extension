@@ -49,10 +49,10 @@ public class Api_1_8 implements ApiHelper {
         Particles particle, World world, Vector pos, int count, Vector data, double speed, boolean force)
     {
         if (particle == Particles.CRIT) {
-            this.Level_spawnParticle.invoke(BukkitReflector.getHandle(world), this.EnumParticle_CRIT.get(null), force,
+            this.Level_spawnParticle.invoke(BukkitReflector.getHandle(world), this.EnumParticle_CRIT.get(), force,
                 pos.getX(), pos.getY(), pos.getZ(), count, data.getX(), data.getY(), data.getZ(), speed, null);
         } else if (particle == Particles.DEBUG) {
-            this.Level_spawnParticle.invoke(BukkitReflector.getHandle(world), this.EnumParticle_REDSTONE.get(null),
+            this.Level_spawnParticle.invoke(BukkitReflector.getHandle(world), this.EnumParticle_REDSTONE.get(),
                 force, pos.getX(), pos.getY(), pos.getZ(), 0, data.getX(), data.getY(), data.getZ(), 1, null);
         }
     }
@@ -128,5 +128,10 @@ public class Api_1_8 implements ApiHelper {
     @Override
     public String getCausingEntityName(PlayerDeathEvent event) {
         return "";
+    }
+
+    @Override
+    public double applyArmorModifiers(double baseArmor, ItemStack itemStack) {
+        return baseArmor;
     }
 }

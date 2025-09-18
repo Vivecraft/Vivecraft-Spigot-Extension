@@ -118,4 +118,9 @@ public interface NMSHelper {
      * if it doesn't match either the modified, or the original position
      */
     boolean restorePlayerState(Object serverPlayer, PlayerState original, Vector modifiedPosition);
+
+    /**
+     * gets the vanilla armor level of an item
+     */
+    double getArmorValue(ItemStack itemStack);
 }

@@ -1,4 +1,4 @@
 dependencies {
     compileOnly('org.spigotmc:spigot-api:1.15-R0.1-SNAPSHOT')
-    api(project(":versions:1_13_2"))
+    api(project(":versions:1_14"))
 }

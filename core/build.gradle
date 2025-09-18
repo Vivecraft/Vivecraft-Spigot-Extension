@@ -9,8 +9,9 @@ dependencies {
     // Vault
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
 
-    // netty
+    // mc libs
     compileOnly("io.netty:netty-handler:4.1.127.Final")
+    compileOnly("com.google.code.gson:gson:2.2.4")
 
     // takenaka
     // the mapping bundle, published by the project at github.com/zlataovce/mappings
@@ -107,10 +108,61 @@ accessors {
     mapClass("net.minecraft.world.item.ItemStack") {
         method("net.minecraft.world.item.ItemStack", "setHoverName", "net.minecraft.network.chat.Component")
         method("java.lang.Object", "set", "net.minecraft.core.component.DataComponentType", "java.lang.Object")
+        method("net.minecraft.world.item.Item", "getItem")
+    }
+
+    mapClass("net.minecraft.world.item.Item") {
+        method("net.minecraft.world.item.component.ItemAttributeModifiers", "getDefaultAttributeModifiers") // 1.20.6/1.21
+        method("com.google.common.collect.Multimap", "getDefaultAttributeModifiers", "net.minecraft.world.entity.EquipmentSlot")
+        method("com.google.common.collect.Multimap", "func_111205_h") // 1.8.8
+    }
+
+    mapClass("net.minecraft.world.item.ArmorItem") {
+        field("int", "defense")
+    }
+
+    mapClass("net.minecraft.world.entity.EquipmentSlot") {
+        field("net.minecraft.world.entity.EquipmentSlot", "FEET")
     }
 
     mapClass("net.minecraft.core.component.DataComponents") {
         field("net.minecraft.core.component.DataComponentType", "CUSTOM_NAME")
+        field("net.minecraft.core.component.DataComponentType", "ATTRIBUTE_MODIFIERS")
+    }
+
+    mapClass("net.minecraft.core.component.DataComponentHolder") {
+        method("java.lang.Object", "getOrDefault", "net.minecraft.core.component.DataComponentType", "java.lang.Object")
+    }
+
+    mapClass("net.minecraft.world.item.component.ItemAttributeModifiers") {
+        field("net.minecraft.world.item.component.ItemAttributeModifiers", "EMPTY")
+        method("java.util.List", "modifiers")
+    }
+    mapClass("net.minecraft.world.item.component.ItemAttributeModifiers\$Entry") {
+        method("net.minecraft.core.Holder", "attribute")
+        method("net.minecraft.world.entity.ai.attributes.AttributeModifier", "modifier")
+    }
+    mapClass("net.minecraft.world.entity.ai.attributes.AttributeModifier") {
+        method("double", "amount") // 1.20.6+
+        method("double", "getAmount")
+        method("net.minecraft.world.entity.ai.attributes.AttributeModifier\$Operation", "operation") // 1.20.6+
+        method("net.minecraft.world.entity.ai.attributes.AttributeModifier\$Operation", "getOperation") // 1.14+
+        method("int", "func_111169_c") // get operation until 1.14
+    }
+    mapClass("net.minecraft.world.entity.ai.attributes.Attributes") {
+        field("net.minecraft.world.entity.ai.attributes.Attribute", "ARMOR")
+        field("net.minecraft.core.Holder", "ARMOR") // 1.20.6+
+    }
+    mapClass("net.minecraft.world.entity.ai.attributes.Attribute") {
+        method("java.lang.String", "getDescriptionId")
+    }
+    mapClass("net.minecraft.world.entity.ai.attributes.AttributeModifier\$Operation") {
+        field("net.minecraft.world.entity.ai.attributes.AttributeModifier\$Operation", "ADD_VALUE") // 1.20.6+
+        field("net.minecraft.world.entity.ai.attributes.AttributeModifier\$Operation", "ADD_MULTIPLIED_TOTAL")
+        // 1.20.6+
+    }
+    mapClass("net.minecraft.core.Holder") {
+        method("boolean", "is", "net.minecraft.core.Holder")
     }
 
     mapClass("net.minecraft.world.phys.AABB") {
@@ -144,6 +196,6 @@ accessors {
         field("float", "yRot")
         field("float", "xRot")
     }
-    mapClass("net.minecraft.network.protocol.game.ServerboundUseItemOnPacket") {}
-    mapClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket") {}
+    mapClass("net.minecraft.network.protocol.game.ServerboundUseItemOnPacket")
+    mapClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
 }
