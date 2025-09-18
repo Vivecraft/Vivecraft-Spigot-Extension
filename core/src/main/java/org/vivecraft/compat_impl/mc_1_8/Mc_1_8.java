@@ -22,10 +22,6 @@ public class Mc_1_8 implements McHelper {
             entity instanceof Enderman ||
             entity instanceof Villager ||
             entity instanceof Snowman;
-        /* ||
-            entity instanceof AbstractPiglin || 1.16
-            entity instanceof Strider || 1.16
-            entity instanceof Creaking 1.21.2/1.21.4*/
     }
 
     @Override
