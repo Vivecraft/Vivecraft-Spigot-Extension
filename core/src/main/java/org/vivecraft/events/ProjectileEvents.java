@@ -34,17 +34,34 @@ public class ProjectileEvents implements Listener {
                 final boolean arrow = ViveMain.MC.isArrow(proj);
 
                 Vector3f view = ViveMain.NMS.getViewVector(player);
-                Vector projDir = proj.getVelocity();
-                float yView = (float) Math.atan2(-view.x(), view.z());
-                float yProj = (float) Math.atan2(-projDir.getX(), projDir.getZ());
+                Vector projDir = proj.getVelocity().normalize();
+                Quaternionf rotation = new Quaternionf(vivePlayer.getAimOrientation(true));
+                boolean isMainArrow = false;
 
-                float multishotOffset = yProj - yView;
+                if (view.dot((float) projDir.getX(), (float) projDir.getY(), (float) projDir.getZ()) > 0.996F) {
+                    // main arrow
+                    // apply inaccuracy
+                    rotation.rotateTo(
+                        view.x, view.y, view.z,
+                        (float) projDir.getX(), (float) projDir.getY(), (float) projDir.getZ());
+                    isMainArrow = true;
+                } else {
+                    // multishot side arrows
+                    // no inaccuracy just spread
+                    float yView = (float) Math.atan2(-view.x(), view.z());
+                    float yProj = (float) Math.atan2(-projDir.getX(), projDir.getZ());
 
-                Quaternionf inaccuracy = new Quaternionf(vivePlayer.getAimOrientation(true))
-                    .rotateY(multishotOffset);
+                    float multishotOffset = yProj - yView;
+                    rotation.rotateY(multishotOffset);
+                }
 
                 Vector pos = vivePlayer.getAimPos(true);
-                Vector aim = MathUtils.toBukkitVec(inaccuracy.transform(MathUtils.BACK, new Vector3f()));
+                Vector3f aimF = rotation.transform(MathUtils.BACK, new Vector3f());
+                if (isMainArrow && ViveMain.CONFIG.projectileInaccuracyMultiplier.get() < 1.0) {
+                    aimF.lerp(vivePlayer.getAimDir(true),
+                        1F - ViveMain.CONFIG.projectileInaccuracyMultiplier.get().floatValue());
+                }
+                Vector aim = MathUtils.toBukkitVec(aimF);
 
                 double velocity = 1.0;
                 if (arrow && vivePlayer.draw != 0 && !vivePlayer.isSeated()) {
