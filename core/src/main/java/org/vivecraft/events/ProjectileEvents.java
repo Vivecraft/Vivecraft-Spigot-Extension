@@ -98,7 +98,7 @@ public class ProjectileEvents implements Listener {
                     if (ViveMain.CONFIG.bowHeadshotIndicator.get() != HeadshotIndicator.AUDIO) {
                         // send headshot particles
                         ViveMain.API.spawnParticle(Particles.CRIT, player.getWorld(), hitPos, 5,
-                            arrow.getVelocity().multiply(-1), 0.1, true);
+                            arrow.getVelocity().multiply(-1), 0.1, true, null);
                     }
                     if (ViveMain.CONFIG.bowHeadshotIndicator.get() != HeadshotIndicator.VISUAL) {
                         // send sound effect

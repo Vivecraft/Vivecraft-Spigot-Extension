@@ -2,5 +2,6 @@ package org.vivecraft.compat.types;
 
 public enum Particles {
     CRIT,
-    DEBUG
+    DEBUG,
+    ITEM_BREAK
 }

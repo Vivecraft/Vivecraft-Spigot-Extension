@@ -12,7 +12,9 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 import org.vivecraft.accessors.EntityMapping;
+import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.types.Item;
 import org.vivecraft.compat.types.Particles;
 import org.vivecraft.compat_impl.mc_1_8.Api_1_8;
@@ -26,8 +28,8 @@ public class Api_1_9 extends Api_1_8 {
     }
 
     @Override
-    public void spawnParticle(
-        Particles particle, World world, Vector pos, int count, Vector data, double speed, boolean force)
+    public <T> void spawnParticle(
+        Particles particle, World world, Vector pos, int count, Vector data, double speed, boolean force, T pData)
     {
         if (particle == Particles.CRIT) {
             world.spawnParticle(Particle.CRIT, pos.getX(), pos.getY(), pos.getZ(), count,
@@ -35,6 +37,9 @@ public class Api_1_9 extends Api_1_8 {
         } else if (particle == Particles.DEBUG) {
             world.spawnParticle(Particle.REDSTONE, pos.getX(), pos.getY(), pos.getZ(), 0,
                 data.getX(), data.getY(), data.getZ(), 1);
+        } else if (particle == Particles.ITEM_BREAK && pData instanceof ItemStack) {
+            world.spawnParticle(Particle.ITEM_CRACK, pos.getX(), pos.getY(), pos.getZ(), count,
+                data.getX(), data.getY(), data.getZ(), speed, pData);
         }
     }
 
@@ -79,5 +84,32 @@ public class Api_1_9 extends Api_1_8 {
         }
         stack.setItemMeta(meta);
         return stack;
+    }
+
+    @Override
+    public ItemStack getHandItem(Player player, VRBodyPart hand) {
+        if (hand == VRBodyPart.MAIN_HAND) {
+            return player.getInventory().getItemInMainHand();
+        } else if (hand == VRBodyPart.OFF_HAND) {
+            return player.getInventory().getItemInOffHand();
+        }
+        return null;
+    }
+
+    @Override
+    public void setHandItem(Player player, VRBodyPart hand, @Nullable ItemStack itemStack) {
+        if (itemStack == null) {
+            itemStack = new ItemStack(Material.AIR);
+        }
+        if (hand == VRBodyPart.MAIN_HAND) {
+            player.getInventory().setItemInMainHand(itemStack);
+        } else if (hand == VRBodyPart.OFF_HAND) {
+            player.getInventory().setItemInOffHand(itemStack);
+        }
+    }
+
+    @Override
+    public boolean isShield(ItemStack itemStack) {
+        return itemStack.getType() == Material.SHIELD;
     }
 }

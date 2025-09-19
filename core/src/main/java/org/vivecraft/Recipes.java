@@ -13,7 +13,7 @@ public class Recipes {
     public static void addClawsRecipe() {
         ItemStack claws = new ItemStack(Material.SHEARS);
 
-        if (!ViveMain.API.setItemStackUnbreakable(claws, false)) {
+        if (!ViveMain.API.setItemStackUnbreakable(claws, true)) {
             ViveMain.LOGGER.info("Error creating boots recipe, not added");
             return;
         }
@@ -29,7 +29,7 @@ public class Recipes {
     public static void addBootsRecipe() {
         ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
 
-        if (!ViveMain.API.setItemStackUnbreakable(boots, false)) {
+        if (!ViveMain.API.setItemStackUnbreakable(boots, true)) {
             ViveMain.LOGGER.info("Error creating boots recipe, not added");
             return;
         }

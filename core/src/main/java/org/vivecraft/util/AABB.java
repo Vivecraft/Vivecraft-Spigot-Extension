@@ -29,6 +29,10 @@ public class AABB {
         this(start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ());
     }
 
+    public Vector getCenter() {
+        return new Vector(this.minX + this.maxX, this.minY + this.maxY, this.minZ + this.maxZ).multiply(0.5);
+    }
+
     /**
      * makes the AABB larger in all directions
      */

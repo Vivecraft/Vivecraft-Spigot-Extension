@@ -24,7 +24,7 @@ public class Headshot {
         AABB headBox = getHeadHitbox(target);
         if (headBox != null) {
             Vector projPos = projectile.getLocation().toVector();
-            Vector originalHitPos = ViveMain.NMS.getEntityAABB(target)
+            Vector originalHitPos = ViveMain.API.getEntityAABB(target)
                 .clip(projPos, new Vector().copy(projPos).add(projectile.getVelocity().multiply(2.0)))
                 .orElse(new Vector().copy(projPos).add(projectile.getVelocity()));
             return headBox

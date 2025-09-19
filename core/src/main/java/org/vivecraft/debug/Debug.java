@@ -72,10 +72,6 @@ public class Debug {
             VrPlayerState vrPlayerState = vivePlayer.vrPlayerState();
             if (vivePlayer.isVR() && vrPlayerState != null) {
 
-                debugParticleAxes(
-                    entity.getWorld(),
-                    vivePlayer.getAimPos(true),
-                    vivePlayer.getAimOrientation(true));
                 if (ViveMain.CONFIG.debugParticlesVrDevice.get()) {
                     for (VRBodyPart bodyPart : VRBodyPart.values()) {
                         if (bodyPart.availableInMode(vrPlayerState.fbtMode) && bodyPart != VRBodyPart.HEAD) {
@@ -129,7 +125,7 @@ public class Debug {
                 new Vector3f());
             ViveMain.API.spawnParticle(Particles.DEBUG, world,
                 new Vector(position.getX() + offset.x, position.getY() + offset.y, position.getZ() + offset.z), 1,
-                color, 0, false);
+                color, 0, false, null);
         }
     }
 
@@ -151,7 +147,7 @@ public class Debug {
         vs.add(new Vector(aabb.maxX, aabb.minY, aabb.maxZ));
         vs.add(new Vector(aabb.maxX, aabb.maxY, aabb.maxZ));
         for (Vector v : vs) {
-            ViveMain.API.spawnParticle(Particles.DEBUG, world, v, 1, RED, 0, true);
+            ViveMain.API.spawnParticle(Particles.DEBUG, world, v, 1, RED, 0, true, null);
         }
     }
 }

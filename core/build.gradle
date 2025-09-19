@@ -99,6 +99,7 @@ accessors {
     mapClass("net.minecraft.server.VVV.EnumParticle") {
         field("net.minecraft.server.VVV.EnumParticle", "CRIT")
         field("net.minecraft.server.VVV.EnumParticle", "REDSTONE")
+        field("net.minecraft.server.VVV.EnumParticle", "ITEM_CRACK")
     }
 
     mapClass("net.minecraft.network.chat.Component") {
@@ -115,6 +116,7 @@ accessors {
         method("net.minecraft.world.item.component.ItemAttributeModifiers", "getDefaultAttributeModifiers") // 1.20.6/1.21
         method("com.google.common.collect.Multimap", "getDefaultAttributeModifiers", "net.minecraft.world.entity.EquipmentSlot")
         method("com.google.common.collect.Multimap", "func_111205_h") // 1.8.8
+        method("int", "getId", "net.minecraft.world.item.Item")
     }
 
     mapClass("net.minecraft.world.item.ArmorItem") {

@@ -8,7 +8,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.joml.Vector3f;
 import org.vivecraft.data.PlayerState;
-import org.vivecraft.util.AABB;
 
 /**
  * for calls that are missing an api in any version
@@ -33,14 +32,6 @@ public interface NMSHelper {
      * but can never know if the y decide to change it gain
      */
     Vector3f getViewVector(Entity entity);
-
-    /**
-     * get the AABB of the entity, converted to our AABB for simplicity
-     *
-     * @param entity entity to get teh AABB from
-     * @return AABB of the entity
-     */
-    AABB getEntityAABB(Entity entity);
 
     /**
      * sets the translation key with fallback

@@ -1,16 +1,24 @@
 package org.vivecraft.events;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
+import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.debug.Debug;
+import org.vivecraft.util.AABB;
+import org.vivecraft.util.MathUtils;
 
 public class DamageEvents implements Listener {
     @EventHandler
@@ -121,13 +129,70 @@ public class DamageEvents implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void roomscaleBlocking(EntityDamageByEntityEvent event) {
-        if (event.getEntity() instanceof Player && ViveMain.isVRPlayer(event.getEntity())) {
+        if (event.getEntity() instanceof Player && ViveMain.isVRPlayer(event.getEntity()) &&
+            ViveMain.CONFIG.allowRoomscaleShieldBlocking.get())
+        {
             Player player = (Player) event.getEntity();
+            if (!player.isBlocking()) {
+                Entity damage = event.getDamager();
+                VivePlayer vivePlayer = ViveMain.getVivePlayer(player);
+                boolean isProjectile = false;
+                if (damage instanceof Projectile) {
+                    isProjectile = true;
+                    if (damage instanceof Arrow && ViveMain.API.isArrowPiercing((Arrow) damage)) {
+                        // can't block piercing arrows
+                        return;
+                    }
+                }
 
-            if (player.isBlocking() && !ViveMain.CONFIG.allowAttacksWhileBlocking.get()) {
-                event.setCancelled(true);
+                // move it back in the movement direction, to get a better source direction
+                AABB bb = ViveMain.API.getEntityAABB(damage);
+                Vector dmgPos = bb.getCenter().subtract(damage.getVelocity().normalize());
+
+                // check if any hand is holding a shield
+                for (int i = 0; i < 2; i++) {
+                    VRBodyPart hand = i == 0 ? VRBodyPart.MAIN_HAND : VRBodyPart.OFF_HAND;
+                    ItemStack stack = ViveMain.API.getHandItem(player, hand);
+
+                    // check for shield and do not bypass item cooldowns
+                    if (stack != null && ViveMain.API.isShield(stack) && !ViveMain.API.hasItemCooldown(player, stack)) {
+                        // check if it blocks
+                        Vector3fc sideDir;
+                        if (vivePlayer.isLeftHanded()) {
+                            sideDir = hand == VRBodyPart.MAIN_HAND ? MathUtils.RIGHT : MathUtils.LEFT;
+                        } else {
+                            sideDir = hand == VRBodyPart.MAIN_HAND ? MathUtils.LEFT : MathUtils.RIGHT;
+                        }
+                        Vector3fc shieldDir = vivePlayer.getBodyPartVectorCustom(hand, sideDir);
+
+                        // 0.5 = 120° blocking cone
+                        double angle = 0;
+                        if (isProjectile) {
+                            // direction to hand
+                            Vector dmgDir = dmgPos.subtract(vivePlayer.getBodyPartPos(hand)).normalize();
+                            angle = shieldDir.dot((float) dmgDir.getX(), (float) dmgDir.getY(), (float) dmgDir.getZ());
+                        } else {
+                            // horizontal direction to the player
+                            Vector dmgDir = dmgPos.subtract(player.getLocation().toVector()).setY(0).normalize();
+                            Vector3f hShieldDir = new Vector3f(shieldDir.x(), 0, shieldDir.z()).normalize();
+                            angle = hShieldDir.dot((float) dmgDir.getX(), (float) dmgDir.getY(), (float) dmgDir.getZ());
+                        }
+                        if (angle > 0.5) {
+                            if (event.getDamage() >= 3) {
+                                // damage shield
+                                // durability counts up the damage
+                                if (ViveMain.API.addDamage(stack, 1 + (int) Math.floor(event.getDamage()))) {
+                                    ViveMain.API.breakItem(player, hand);
+                                }
+                            }
+                            // TODO knockback and shield disable
+                            event.setCancelled(true);
+                            return;
+                        }
+                    }
+                }
             }
         }
     }

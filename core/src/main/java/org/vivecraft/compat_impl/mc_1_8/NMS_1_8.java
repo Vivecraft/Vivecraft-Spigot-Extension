@@ -12,7 +12,6 @@ import org.vivecraft.accessors.*;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat.NMSHelper;
 import org.vivecraft.data.PlayerState;
-import org.vivecraft.util.AABB;
 import org.vivecraft.util.MathUtils;
 import org.vivecraft.util.reflection.ClassGetter;
 import org.vivecraft.util.reflection.ReflectionField;
@@ -21,14 +20,6 @@ import org.vivecraft.util.reflection.ReflectionMethod;
 public class NMS_1_8 implements NMSHelper {
 
     protected ReflectionField LivingEntity_BodyYaw;
-
-    protected ReflectionMethod Entity_getBoundingBox;
-    protected ReflectionField AABB_minX;
-    protected ReflectionField AABB_minY;
-    protected ReflectionField AABB_minZ;
-    protected ReflectionField AABB_maxX;
-    protected ReflectionField AABB_maxY;
-    protected ReflectionField AABB_maxZ;
 
     protected ReflectionMethod Entity_getViewVector;
     protected ReflectionField Vec3_X;
@@ -73,7 +64,6 @@ public class NMS_1_8 implements NMSHelper {
 
     public NMS_1_8() {
         this.init();
-        this.initAABB();
         this.initVec3();
         this.initAimFix();
         this.initArmor();
@@ -87,16 +77,6 @@ public class NMS_1_8 implements NMSHelper {
         this.ServerPlayer_packetListener = ReflectionField.getField(ServerPlayerMapping.FIELD_CONNECTION);
         this.ServerGamePacketListenerImpl_aboveGroundTicks = ReflectionField.getField(
             ServerGamePacketListenerImplMapping.FIELD_ABOVE_GROUND_TICK_COUNT);
-    }
-
-    protected void initAABB() {
-        this.Entity_getBoundingBox = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_BOUNDING_BOX);
-        this.AABB_minX = ReflectionField.getField(AABBMapping.FIELD_MIN_X);
-        this.AABB_minY = ReflectionField.getField(AABBMapping.FIELD_MIN_Y);
-        this.AABB_minZ = ReflectionField.getField(AABBMapping.FIELD_MIN_Z);
-        this.AABB_maxX = ReflectionField.getField(AABBMapping.FIELD_MAX_X);
-        this.AABB_maxY = ReflectionField.getField(AABBMapping.FIELD_MAX_Y);
-        this.AABB_maxZ = ReflectionField.getField(AABBMapping.FIELD_MAX_Z);
     }
 
     protected void initVec3() {
@@ -197,14 +177,6 @@ public class NMS_1_8 implements NMSHelper {
             (float) (double) this.Vec3_X.get(vec3),
             (float) (double) this.Vec3_Y.get(vec3),
             (float) (double) this.Vec3_Z.get(vec3));
-    }
-
-    @Override
-    public AABB getEntityAABB(Entity entity) {
-        Object aabb = this.Entity_getBoundingBox.invoke(BukkitReflector.getHandle(entity));
-        return new AABB(
-            (double) this.AABB_minX.get(aabb), (double) this.AABB_minY.get(aabb), (double) this.AABB_minZ.get(aabb),
-            (double) this.AABB_maxX.get(aabb), (double) this.AABB_maxY.get(aabb), (double) this.AABB_maxZ.get(aabb));
     }
 
     @Override

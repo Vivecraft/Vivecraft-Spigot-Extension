@@ -7,9 +7,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.vivecraft.ViveMain;
-import org.vivecraft.compat_impl.mc_1_11.Api_1_11;
+import org.vivecraft.compat_impl.mc_1_11_2.Api_1_11_2;
 
-public class Api_1_12_2 extends Api_1_11 {
+public class Api_1_12_2 extends Api_1_11_2 {
 
     @Override
     protected void init() {

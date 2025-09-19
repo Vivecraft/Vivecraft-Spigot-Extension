@@ -1,13 +1,10 @@
 package org.vivecraft.compat_impl.mc_1_19_4;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.BoundingBox;
 import org.vivecraft.accessors.ComponentMapping;
 import org.vivecraft.accessors.ItemStackMapping;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat_impl.mc_1_17.NMS_1_17;
-import org.vivecraft.util.AABB;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
 public class NMS_1_19_4 extends NMS_1_17 {
@@ -22,14 +19,6 @@ public class NMS_1_19_4 extends NMS_1_17 {
         this.Component_translationWithFallback = ReflectionMethod.getMethod(
             ComponentMapping.METHOD_TRANSLATABLE_WITH_FALLBACK);
         this.ItemStack_setHoverName = ReflectionMethod.getMethod(false, ItemStackMapping.METHOD_SET_HOVER_NAME);
-    }
-
-    @Override
-    public AABB getEntityAABB(Entity entity) {
-        BoundingBox aabb = entity.getBoundingBox();
-        return new AABB(
-            aabb.getMinX(), aabb.getMinY(), aabb.getMinZ(),
-            aabb.getMaxX(), aabb.getMaxY(), aabb.getMaxZ());
     }
 
     @Override
