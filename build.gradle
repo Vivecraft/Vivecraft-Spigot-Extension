@@ -63,6 +63,11 @@ allprojects {
     dependencies {
         compileOnly('org.jetbrains:annotations:26.0.2')
         implementation('org.joml:joml:1.10.8') { transitive = false }
+
+        // mc libs
+        compileOnly("io.netty:netty-handler:4.1.127.Final")
+        compileOnly("com.google.code.gson:gson:2.2.4")
+
         // the small library needed for the accessors to function
         implementation("me.kcra.takenaka:generator-accessor-runtime:$takenaka_version")
     }
