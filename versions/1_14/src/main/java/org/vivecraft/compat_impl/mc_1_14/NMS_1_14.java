@@ -1,6 +1,9 @@
 package org.vivecraft.compat_impl.mc_1_14;
 
+import org.bukkit.entity.Enderman;
+import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import org.vivecraft.ViveMain;
 import org.vivecraft.accessors.*;
 import org.vivecraft.compat.types.BlockContext;
 import org.vivecraft.compat.types.FluidContext;
@@ -91,5 +94,17 @@ public class NMS_1_14 extends NMS_1_13_2 {
                 this.Vec3.newInstance(from.getX(), from.getY(), from.getZ()),
                 this.Vec3.newInstance(to.getX(), to.getY(), to.getZ()),
                 blockContext, fluidContext, sourceEntity))) != this.HitResultType_MISS.get();
+    }
+
+    @Override
+    public void modifyEntity(Entity entity) {
+        if (entity instanceof Enderman) {
+            if (!replaceGoal(entity, false, goal -> ViveMain.MC_MODS.endermanHelper().isFreezeGoal(goal),
+                enderman -> ViveMain.MC_MODS.endermanHelper().getEndermanFreezeWhenLookAt(enderman)))
+            {
+                throw new RuntimeException("Could not find freezewhenlookat goal for enderman");
+            }
+        }
+        super.modifyEntity(entity);
     }
 }

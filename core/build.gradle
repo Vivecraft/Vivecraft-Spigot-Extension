@@ -37,6 +37,7 @@ accessors {
         field("float", "yBodyRot")
         field("float", "yHeadRot")
         field("float", "yHeadRotO")
+        method("net.minecraft.world.entity.ai.attributes.AttributeInstance", "getAttribute", "net.minecraft.world.entity.ai.attributes.Attribute")
     }
 
     mapClass("net.minecraft.world.entity.Entity") {
@@ -69,8 +70,12 @@ accessors {
         method("java.util.UUID", "getUUID")
         method("double", "distanceToSqr", "net.minecraft.world.entity.Entity")
         method("net.minecraft.world.phys.Vec3", "getEyePosition", "float")
+        method("float", "getEyeHeight")
+
+        method("void", "makeSound", "java.lang.String", "float", "float")
     }
 
+    mapClass("net.minecraft.world.entity.player.Player")
     mapClass("net.minecraft.server.level.ServerPlayer") {
         field("net.minecraft.server.network.ServerGamePacketListenerImpl", "connection")
     }
@@ -193,6 +198,7 @@ accessors {
         method("int", "func_111169_c") // get operation until 1.14
     }
     mapClass("net.minecraft.world.entity.ai.attributes.Attributes") {
+        field("net.minecraft.world.entity.ai.attributes.Attribute", "MOVEMENT_SPEED")
         field("net.minecraft.world.entity.ai.attributes.Attribute", "ARMOR")
         field("net.minecraft.core.Holder", "ARMOR") // 1.20.6+
     }
@@ -203,6 +209,10 @@ accessors {
         field("net.minecraft.world.entity.ai.attributes.AttributeModifier\$Operation", "ADD_VALUE") // 1.20.6+
         field("net.minecraft.world.entity.ai.attributes.AttributeModifier\$Operation", "ADD_MULTIPLIED_TOTAL")
         // 1.20.6+
+    }
+    mapClass("net.minecraft.world.entity.ai.attributes.AttributeInstance") {
+        method("void", "addModifier", "net.minecraft.world.entity.ai.attributes.AttributeModifier")
+        method("void", "removeModifier", "net.minecraft.world.entity.ai.attributes.AttributeModifier")
     }
     mapClass("net.minecraft.core.Holder") {
         method("boolean", "is", "net.minecraft.core.Holder")
@@ -215,6 +225,7 @@ accessors {
         field("double", "maxX")
         field("double", "maxY")
         field("double", "maxZ")
+        method("net.minecraft.world.phys.AABB", "inflate", "double", "double", "double")
     }
 
     mapClass("net.minecraft.world.phys.Vec3") {
@@ -248,19 +259,32 @@ accessors {
     mapClass("net.minecraft.world.entity.ai.goal.SwellGoal")
     mapClass("net.minecraft.world.entity.ai.goal.Goal") {
         method("boolean", "canUse")
+        method("boolean", "canContinueToUse")
         method("void", "setFlags", "java.util.EnumSet")
         method("void", "start")
+        method("void", "stop")
         method("void", "tick")
     }
     mapClass("net.minecraft.world.entity.ai.goal.Goal\$Flag") {
         field("net.minecraft.world.entity.ai.goal.Goal\$Flag", "MOVE")
         field("net.minecraft.world.entity.ai.goal.Goal\$Flag", "JUMP")
     }
+    mapClass("net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal") {
+        field("net.minecraft.world.entity.LivingEntity", "target")
+        field("java.util.function.Predicate", "field_82643_g")
+        field("com.google.common.base.Predicate", "field_82643_g")
+        field("net.minecraft.entity.ai.EntityAINearestAttackableTarget\$Sorter", "field_75306_g")
+    }
     mapClass("net.minecraft.world.entity.Mob") {
         field("net.minecraft.world.entity.ai.goal.GoalSelector", "goalSelector")
+        field("net.minecraft.world.entity.ai.goal.GoalSelector", "targetSelector")
         method("net.minecraft.world.entity.LivingEntity", "getTarget")
         method("net.minecraft.world.entity.ai.navigation.PathNavigation", "getNavigation")
         method("net.minecraft.world.entity.ai.control.LookControl", "getLookControl")
+        method("void", "lookAt", "net.minecraft.world.entity.Entity", "float", "float")
+    }
+    mapClass("net.minecraft.world.entity.ai.goal.target.TargetGoal") {
+        method("double", "getFollowDistance")
     }
     mapClass("net.minecraft.world.entity.ai.navigation.PathNavigation") {
         method("void", "stop")
@@ -286,5 +310,13 @@ accessors {
     }
 
     mapClass("net.minecraft.world.entity.monster.EnderMan\$EndermanFreezeWhenLookedAt")
-    mapClass("net.minecraft.world.entity.monster.EnderMan")
+    mapClass("net.minecraft.world.entity.monster.EnderMan\$EndermanLookForPlayerGoal")
+    mapClass("net.minecraft.world.entity.monster.EnderMan") {
+        field("net.minecraft.world.entity.ai.attributes.AttributeModifier", "SPEED_MODIFIER_ATTACKING")
+        field("boolean", "field_104003_g")
+        method("void", "func_70819_e", "boolean")
+        method("boolean", "teleportTowards", "net.minecraft.world.entity.Entity")
+        method("boolean", "teleport")
+    }
+    mapClass("net.minecraft.world.entity.PathfinderMob")
 }

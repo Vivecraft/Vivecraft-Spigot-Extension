@@ -20,7 +20,7 @@ public class ReflectionMethod {
         this.method = method;
     }
 
-    private static ReflectionMethod getMethod(
+    public static ReflectionMethod getMethod(
         Class<?> cls, String fieldName, Class<?>... args) throws NoSuchMethodException
     {
         return new ReflectionMethod(cls.getDeclaredMethod(fieldName, args));

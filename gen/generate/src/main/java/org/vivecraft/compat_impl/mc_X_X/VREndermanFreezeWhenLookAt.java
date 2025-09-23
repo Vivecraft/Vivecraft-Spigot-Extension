@@ -8,21 +8,21 @@ public class VREndermanFreezeWhenLookAt extends net.minecraft.world.entity.ai.go
 
     public VREndermanFreezeWhenLookAt(net.minecraft.world.entity.monster.EnderMan enderman) {
         this.enderman = enderman;
-        ViveMain.MC_MODS.endermanHelper().setFreezeFlags(this);
+        ViveMain.MC_MODS.endermanHelper().freezeSetFlags(this);
     }
 
     @Override
     public boolean canUse() {
-        return ViveMain.MC_MODS.endermanHelper().canFreeze(this.enderman);
+        return ViveMain.MC_MODS.endermanHelper().freezeCanUse(this.enderman);
     }
 
     @Override
     public void start() {
-        ViveMain.MC_MODS.endermanHelper().stopNavigation(this.enderman);
+        ViveMain.MC_MODS.endermanHelper().freezeStart(this.enderman);
     }
 
     @Override
     public void tick() {
-        ViveMain.MC_MODS.endermanHelper().lookAtTarget(this.enderman);
+        ViveMain.MC_MODS.endermanHelper().freezeTick(this.enderman);
     }
 }

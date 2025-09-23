@@ -5,6 +5,7 @@
       "constructors": {
         "1": ["net.minecraft.world.entity.monster.Creeper"]
       },
+      "fields": {},
       "methods": {
         "canUse": {
           "class": "net.minecraft.world.entity.ai.goal.Goal",
@@ -18,9 +19,7 @@
         "net.minecraft.world.entity.ai.goal.SwellGoal",
         "net.minecraft.world.entity.monster.Creeper"
       ],
-      "methods": {
-        "canUse": "net.minecraft.world.entity.ai.goal.Goal"
-      }
+      "methods": {}
     }
   },
   "VREndermanFreezeWhenLookAt.java": {
@@ -29,6 +28,8 @@
     },
     "parent": {
       "class": "net.minecraft.world.entity.ai.goal.Goal",
+      "constructors": {},
+      "fields": {},
       "methods": {
         "canUse": {
           "class": "net.minecraft.world.entity.ai.goal.Goal",
@@ -53,11 +54,67 @@
         "net.minecraft.world.entity.monster.EnderMan",
         "net.minecraft.world.entity.ai.goal.Goal$Flag"
       ],
+      "methods": {}
+    }
+  },
+  "VREndermanLookForPlayerGoal.java": {
+    "versions": {
+      "to": "1.16.5"
+    },
+    "parent": {
+      "class": "net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal",
+      "constructors": {
+        "1": ["net.minecraft.world.entity.PathfinderMob", "Class", "boolean"]
+      },
+      "fields": {
+        "target": {
+          "class": "net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal",
+          "type": "net.minecraft.world.entity.LivingEntity"
+        }
+      },
       "methods": {
-        "canUse": "net.minecraft.world.entity.ai.goal.Goal",
-        "start": "net.minecraft.world.entity.ai.goal.Goal",
-        "tick": "net.minecraft.world.entity.ai.goal.Goal"
+        "canUse": {
+          "class": "net.minecraft.world.entity.ai.goal.Goal",
+          "type": "boolean",
+          "args": []
+        },
+        "start": {
+          "class": "net.minecraft.world.entity.ai.goal.Goal",
+          "type": "void",
+          "args": []
+        },
+        "stop": {
+          "class": "net.minecraft.world.entity.ai.goal.Goal",
+          "type": "void",
+          "args": []
+        },
+        "canContinueToUse": {
+          "class": "net.minecraft.world.entity.ai.goal.Goal",
+          "type": "boolean",
+          "args": []
+        },
+        "tick": {
+          "class": "net.minecraft.world.entity.ai.goal.Goal",
+          "type": "void",
+          "args": []
+        },
+        "getFollowDistance": {
+          "class": "net.minecraft.world.entity.ai.goal.target.TargetGoal",
+          "type": "double",
+          "args": []
+        }
       }
+    },
+    "mappings": {
+      "classes": [
+        "net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal",
+        "net.minecraft.world.entity.monster.EnderMan",
+        "net.minecraft.world.entity.player.Player",
+        "net.minecraft.world.entity.LivingEntity",
+        "net.minecraft.world.entity.Mob",
+        "net.minecraft.world.entity.PathfinderMob"
+      ],
+      "methods": {}
     }
   }
 }

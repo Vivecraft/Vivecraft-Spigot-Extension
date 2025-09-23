@@ -14,6 +14,7 @@ import org.vivecraft.compat.NMSHelper;
 import org.vivecraft.compat.types.BlockContext;
 import org.vivecraft.compat.types.FluidContext;
 import org.vivecraft.data.PlayerState;
+import org.vivecraft.debug.Debug;
 import org.vivecraft.util.MathUtils;
 import org.vivecraft.util.reflection.ClassGetter;
 import org.vivecraft.util.reflection.ReflectionConstructor;
@@ -22,6 +23,8 @@ import org.vivecraft.util.reflection.ReflectionMethod;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class NMS_1_8 implements NMSHelper {
 
@@ -63,7 +66,7 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionField Entity_xRotO;
     protected ReflectionField Entity_yRotO;
     protected ReflectionField Entity_eyeHeight;
-    protected ReflectionMethod Entity_getEyePosition;
+    protected ReflectionMethod Entity_getEyeHeight;
     protected ReflectionField LivingEntity_yHeadRot;
     protected ReflectionField LivingEntity_yHeadRotO;
 
@@ -75,6 +78,7 @@ public class NMS_1_8 implements NMSHelper {
 
     protected ReflectionMethod Mob_getTarget;
     protected ReflectionField Mob_goalSelector;
+    protected ReflectionField Mob_targetSelector;
     protected ReflectionField GoalSelector_availableGoals;
     protected ReflectionMethod GoalSelector_addGoal;
     protected ReflectionMethod GoalSelector_removeGoal;
@@ -101,10 +105,11 @@ public class NMS_1_8 implements NMSHelper {
         this.Level_Clip = ReflectionMethod.getMethod(BlockGetterMapping.METHOD_CLIP,
             LevelMapping.METHOD_FUNC_200259_A, LevelMapping.METHOD_FUNC_147447_A);
 
-        this.Entity_getEyePosition = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_EYE_POSITION);
+        this.Entity_getEyeHeight = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_EYE_HEIGHT);
 
         this.Mob_getTarget = ReflectionMethod.getMethod(MobMapping.METHOD_GET_TARGET);
         this.Mob_goalSelector = ReflectionField.getField(MobMapping.FIELD_GOAL_SELECTOR);
+        this.Mob_targetSelector = ReflectionField.getField(MobMapping.FIELD_TARGET_SELECTOR);
         this.GoalSelector_availableGoals = ReflectionField.getField(GoalSelectorMapping.FIELD_AVAILABLE_GOALS,
             GoalSelectorMapping.FIELD_FIELD_75782_A, GoalSelectorMapping.FIELD_FIELD_75782_A_1);
         this.GoalSelector_addGoal = ReflectionMethod.getMethod(GoalSelectorMapping.METHOD_ADD_GOAL);
@@ -386,8 +391,15 @@ public class NMS_1_8 implements NMSHelper {
             VivePlayer vive = getVRPlayer(nmsEntity);
             return vive.getHMDPos();
         } else {
-            return vec3ToVector(this.Entity_getEyePosition.invoke(nmsEntity, 1F));
+            return getEyePosition(nmsEntity);
         }
+    }
+
+    protected Vector getEyePosition(Object nmsEntity) {
+        return new Vector(
+            (double) this.Entity_xo.get(nmsEntity),
+            (double) this.Entity_yo.get(nmsEntity) + (float) this.Entity_getEyeHeight.invoke(nmsEntity),
+            (double) this.Entity_zo.get(nmsEntity));
     }
 
     @Override
@@ -444,45 +456,43 @@ public class NMS_1_8 implements NMSHelper {
     @Override
     public void modifyEntity(Entity entity) {
         if (entity instanceof Creeper) {
-            Object nmsCreeper = BukkitReflector.getHandle(entity);
-            Object selector = this.Mob_goalSelector.get(nmsCreeper);
-            Collection<?> goals = (Collection<?>) this.GoalSelector_availableGoals.get(selector);
-            int priority = Integer.MAX_VALUE;
-            for (Object wrappedGoal : goals) {
-                Object goal = this.WrappedGoal_goal.get(wrappedGoal);
-                if (ViveMain.MC_MODS.creeperHelper().isSwellGoal(goal)) {
-                    priority = (int) this.WrappedGoal_priority.get(wrappedGoal);
-                    this.GoalSelector_removeGoal.invoke(selector, goal);
-                    break;
-                }
-            }
-            if (priority == Integer.MAX_VALUE) {
-                for (Object wrappedGoal : goals) {
-                    Object goal = this.WrappedGoal_goal.get(wrappedGoal);
-                    ViveMain.LOGGER.info("creper has goal: " + goal.getClass().getName());
-                }
+            if (!replaceGoal(entity, false, goal -> ViveMain.MC_MODS.creeperHelper().isSwellGoal(goal),
+                creeper -> ViveMain.MC_MODS.creeperHelper().getCreeperSwellGoal(creeper)))
+            {
                 throw new RuntimeException("Could not find swell goal for creeper");
             }
-            this.GoalSelector_addGoal.invoke(selector, priority,
-                ViveMain.MC_MODS.creeperHelper().getCreeperSwellGoal(nmsCreeper));
         } else if (entity instanceof Enderman) {
-            Object nmsEnderman = BukkitReflector.getHandle(entity);
-            Object selector = this.Mob_goalSelector.get(nmsEnderman);
-            Collection<?> goals = (Collection<?>) this.GoalSelector_availableGoals.get(selector);
-            int priority = Integer.MAX_VALUE;
+            if (!replaceGoal(entity, true, goal -> ViveMain.MC_MODS.endermanHelper().isLookForPlayerGoal(goal),
+                enderman -> ViveMain.MC_MODS.endermanHelper().getEndermanLookForPlayer(enderman)))
+            {
+                throw new RuntimeException("Could not find lookforplayer goal for enderman");
+            }
+            Debug.log("look for player replaced");
+        }
+    }
+
+    protected boolean replaceGoal(Entity entity, boolean isTarget, Predicate<Object> isGoal, Function<Object, Object> newGoal) {
+        Object nmsEntity = BukkitReflector.getHandle(entity);
+        Object selector = isTarget ? this.Mob_targetSelector.get(nmsEntity) : this.Mob_goalSelector.get(nmsEntity);
+        Collection<?> goals = (Collection<?>) this.GoalSelector_availableGoals.get(selector);
+        int priority = Integer.MAX_VALUE;
+        for (Object wrappedGoal : goals) {
+            Object goal = this.WrappedGoal_goal.get(wrappedGoal);
+            if (isGoal.test(goal)) {
+                priority = (int) this.WrappedGoal_priority.get(wrappedGoal);
+                this.GoalSelector_removeGoal.invoke(selector, goal);
+                break;
+            }
+        }
+        if (priority == Integer.MAX_VALUE) {
             for (Object wrappedGoal : goals) {
                 Object goal = this.WrappedGoal_goal.get(wrappedGoal);
-                if (ViveMain.MC_MODS.endermanHelper().isFreezeGoal(goal)) {
-                    priority = (int) this.WrappedGoal_priority.get(wrappedGoal);
-                    this.GoalSelector_removeGoal.invoke(selector, goal);
-                    break;
-                }
+                ViveMain.LOGGER.info("entity has goal: " + goal.getClass().getName());
             }
-            if (priority == Integer.MAX_VALUE) {
-                throw new RuntimeException("Could not find lookat goal for enderman");
-            }
-            this.GoalSelector_addGoal.invoke(selector, priority,
-                ViveMain.MC_MODS.endermanHelper().getEndermanFreezeWhenLookAt(nmsEnderman));
+            return false;
         }
+        this.GoalSelector_addGoal.invoke(selector, priority,
+            newGoal.apply(nmsEntity));
+        return true;
     }
 }

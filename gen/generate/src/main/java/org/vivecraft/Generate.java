@@ -38,7 +38,7 @@ public class Generate {
             delete(generatedMC, false);
         }
 
-        Set<String> processedClasses = new HashSet<>();
+        Map<String, Set<String>> processedClasses = new HashMap<>();
 
         for (String key : templates.keySet()) {
             JsonObject root = templates.getAsJsonObject(key);
@@ -66,7 +66,7 @@ public class Generate {
                 processedClasses);
 
             // generate classes for all mc versions
-            writeAndRemapTemplate(limit, key, root.getAsJsonObject("parent").get("class").getAsString(),
+            writeAndRemapTemplate(limit, key, root.getAsJsonObject("parent"),
                 root.getAsJsonObject("mappings"));
         }
 
@@ -87,12 +87,13 @@ public class Generate {
     }
 
     private static void generateStubs(
-        VersionLimit limit, JsonObject parent, Set<String> processedClasses) throws Exception
+        VersionLimit limit, JsonObject parent, Map<String, Set<String>> processedClasses) throws Exception
     {
         // iterate over all methods and collect needed imports
         String clazz = parent.get("class").getAsString();
         Set<String> imports = new HashSet<>();
         List<MethodHolder> methods = new ArrayList<>();
+        List<FieldHolder> fields = new ArrayList<>();
         List<ConstructorHolder> constructors = new ArrayList<>();
 
         for (String methodName : parent.getAsJsonObject("methods").keySet()) {
@@ -121,33 +122,43 @@ public class Generate {
             imports.addAll(classes);
         }
 
-        if (parent.has("constructors")) {
-            for (String con : parent.getAsJsonObject("constructors").keySet()) {
-                Set<String> classes = new HashSet<>();
+        for (String fieldName : parent.getAsJsonObject("fields").keySet()) {
+            JsonObject current = parent.getAsJsonObject("fields").getAsJsonObject(fieldName);
 
-                String code = "    public " + clazz + "(";
-                char argName = 'a';
-                boolean firstArg = true;
-
-                // args
-                for (JsonElement arg : parent.getAsJsonObject("constructors").getAsJsonArray(con)) {
-                    if (arg.getAsString().contains(".")) {
-                        classes.add(arg.getAsString());
-                    }
-                    code += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
-                    firstArg = false;
-                }
-                code += ") {}\n\n";
-                constructors.add(new ConstructorHolder(code, clazz, classes));
-                imports.addAll(classes);
+            // type
+            String type = current.get("type").getAsString();
+            if (type.contains(".")) {
+                imports.add(type);
             }
+            String field = "    public " + type + " " + fieldName + ";\n\n";
+            fields.add(new FieldHolder(field, fieldName, current.get("class").getAsString(), type));
         }
 
-        processedClasses.add(clazz);
+        for (String con : parent.getAsJsonObject("constructors").keySet()) {
+            Set<String> classes = new HashSet<>();
+
+            String code = "    public " + clazz + "(";
+            char argName = 'a';
+            boolean firstArg = true;
+
+            // args
+            for (JsonElement arg : parent.getAsJsonObject("constructors").getAsJsonArray(con)) {
+                if (arg.getAsString().contains(".")) {
+                    classes.add(arg.getAsString());
+                }
+                code += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
+                firstArg = false;
+            }
+            code += ") {}\n\n";
+            constructors.add(new ConstructorHolder(code, clazz, classes));
+            imports.addAll(classes);
+        }
+
         // writing file
         Set<String> writtenFiles = new HashSet<>();
         for (String version : getVersions(clazz)) {
             if (!limit.valid(version)) continue;
+            addCreate(processedClasses, version, clazz);
             String parentClass = getClass(clazz, version);
             if (writtenFiles.contains(parentClass)) {
                 continue;
@@ -170,7 +181,20 @@ public class Generate {
 
                 content += "\npublic class " + parentName + " {\n";
 
-                if (!methods.isEmpty()) {
+                if (!fields.isEmpty()) {
+                    content += "\n";
+                }
+
+                for (FieldHolder field : fields) {
+                    String line = field.code;
+                    if (field.type.contains(".")) {
+                        line = line.replace(field.type, getClass(field.type, version));
+                    }
+                    line = line.replace(field.name, getField(field.clazz, field.name, version));
+                    content += line;
+                }
+
+                if (!constructors.isEmpty()) {
                     content += "\n";
                 }
 
@@ -181,6 +205,10 @@ public class Generate {
                         line = line.replace(c, getClass(c, version));
                     }
                     content += line;
+                }
+
+                if (!methods.isEmpty()) {
+                    content += "\n";
                 }
 
                 for (MethodHolder method : methods) {
@@ -200,19 +228,19 @@ public class Generate {
     }
 
     private static void generateBasicStubs(
-        VersionLimit limit, JsonArray classes, Set<String> processedClasses) throws Exception
+        VersionLimit limit, JsonArray classes, Map<String, Set<String>> processedClasses) throws Exception
     {
 
         // writing file
         Set<String> writtenFiles = new HashSet<>();
         for (JsonElement element : classes) {
             String clazz = element.getAsString();
-            if (processedClasses.contains(clazz)) {
-                continue;
-            }
-            processedClasses.add(clazz);
             for (String version : getVersions(clazz)) {
+                if (processedClasses.getOrDefault(version, new HashSet<>()).contains(clazz)) {
+                    continue;
+                }
                 if (!limit.valid(version)) continue;
+                addCreate(processedClasses, version, clazz);
                 String parentClass = getClass(clazz, version);
                 if (writtenFiles.contains(parentClass)) {
                     continue;
@@ -233,11 +261,11 @@ public class Generate {
     }
 
     private static void writeAndRemapTemplate(
-        VersionLimit limit, String template, String versionClass, JsonObject mappings) throws IOException
+        VersionLimit limit, String template, JsonObject parent, JsonObject mappings) throws IOException
     {
         String codeOrg = String.join("\n",
             Files.readAllLines(new File("src/main/java/org/vivecraft/compat_impl/mc_X_X/" + template).toPath()));
-        for (String version : getVersions(versionClass)) {
+        for (String version : getVersions(parent.get("class").getAsString())) {
             MCVersion mc = MCVersion.parse(version, true);
             if (!limit.valid(mc)) continue;
             File target = new File(generatedMC,
@@ -258,6 +286,18 @@ public class Generate {
                 for (String method : mappings.getAsJsonObject("methods").keySet()) {
                     code = code.replace(method,
                         getMethod(mappings.getAsJsonObject("methods").get(method).getAsString(), method, version));
+                }
+                // also remap methods from the parent
+                for (String method : parent.getAsJsonObject("methods").keySet()) {
+                    code = code.replace(method,
+                        getMethod(parent.getAsJsonObject("methods").getAsJsonObject(method).get("class").getAsString(),
+                            method, version));
+                }
+                // and fields
+                for (String field : parent.getAsJsonObject("fields").keySet()) {
+                    code = code.replace(field,
+                        getField(parent.getAsJsonObject("fields").getAsJsonObject(field).get("class").getAsString(),
+                            field, version));
                 }
                 writer.write(code);
             }
@@ -295,6 +335,14 @@ public class Generate {
             "no mapping of method: " + method + " in class: " + clazz + " with version: " + version).getName();
     }
 
+    private static String getField(String clazz, String field, String version) {
+        return Objects.requireNonNull(Objects.requireNonNull(
+                    Objects.requireNonNull(Mappings.LOOKUP.getClass(clazz), "no mapping for class: " + clazz)
+                        .getField(field, 0), "no mapping of field: " + field + " in class: " + clazz)
+                .getName(version, getNameSpace(version)),
+            "no mapping of field: " + field + " in class: " + clazz + " with version: " + version);
+    }
+
     private static Set<String> getVersions(String clazz) {
         return Objects.requireNonNull(Mappings.LOOKUP.getClass(clazz), "no mapping for class: " + clazz).getMappings()
             .keySet();
@@ -308,6 +356,12 @@ public class Generate {
         return MCVersion.parse(version, true).major >= 17;
     }
 
+    private static void addCreate(Map<String, Set<String>> map, String key, String value) {
+        Set<String> set = map.getOrDefault(key, new HashSet<>());
+        set.add(value);
+        map.put(key, set);
+    }
+
     private static class MethodHolder {
         public final String code;
         public final String name;
@@ -319,6 +373,20 @@ public class Generate {
             this.name = name;
             this.clazz = clazz;
             this.argClasses = argClasses;
+        }
+    }
+
+    private static class FieldHolder {
+        public final String code;
+        public final String name;
+        public final String clazz;
+        public final String type;
+
+        public FieldHolder(String code, String name, String clazz, String type) {
+            this.code = code;
+            this.name = name;
+            this.clazz = clazz;
+            this.type = type;
         }
     }
 
