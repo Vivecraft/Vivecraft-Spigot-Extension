@@ -65,6 +65,8 @@ accessors {
         method("void", "setYRot", "float")
         method("net.minecraft.server.MinecraftServer", "getServer")
         method("net.minecraft.world.level.Level", "getCommandSenderWorld")
+        method("java.util.UUID", "getUUID")
+        method("double", "distanceToSqr", "net.minecraft.world.entity.Entity")
     }
 
     mapClass("net.minecraft.server.level.ServerPlayer") {
@@ -196,4 +198,14 @@ accessors {
     }
     mapClass("net.minecraft.network.protocol.game.ServerboundUseItemOnPacket")
     mapClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
+    mapClass("net.minecraft.world.entity.monster.Creeper") {
+        method("int", "getSwellDir")
+    }
+    mapClass("net.minecraft.world.entity.ai.goal.SwellGoal")
+    mapClass("net.minecraft.world.entity.ai.goal.Goal"){
+        method("boolean", "canUse")
+    }
+    mapClass("net.minecraft.world.entity.Mob") {
+        method("net.minecraft.world.entity.LivingEntity", "getTarget")
+    }
 }

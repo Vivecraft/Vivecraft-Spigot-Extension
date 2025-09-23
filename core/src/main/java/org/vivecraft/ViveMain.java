@@ -8,10 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.vivecraft.commands.ConfigCommandExecutor;
 import org.vivecraft.commands.ConfigCommandTabCompleter;
-import org.vivecraft.compat.ApiHelper;
-import org.vivecraft.compat.McHelper;
-import org.vivecraft.compat.NMSHelper;
-import org.vivecraft.compat.SpigotReflector;
+import org.vivecraft.compat.*;
 import org.vivecraft.config.Config;
 import org.vivecraft.debug.Debug;
 import org.vivecraft.events.DamageEvents;
@@ -47,6 +44,8 @@ public class ViveMain extends JavaPlugin {
 
     public static NMSHelper NMS;
 
+    private static CustomMcClasses CUSTOM_MC;
+
     public static String VERSION;
 
     public static Map<String, String> TRANSLATIONS;
@@ -71,6 +70,7 @@ public class ViveMain extends JavaPlugin {
         API = Helpers.getApi();
         MC = Helpers.getMc();
         NMS = Helpers.getNMS();
+        CUSTOM_MC = new CustomMcClasses();
 
         if (!PermissionManager.checkForVault() && ViveMain.CONFIG.permissionsGroupsEnabled.get()) {
             ViveMain.LOGGER.warning("To use the permission groups feature, 'Vault' needs to be installed");
@@ -150,6 +150,10 @@ public class ViveMain extends JavaPlugin {
 
     public static boolean isVRPlayer(Entity entity) {
         return isVivePlayer(entity) && getVivePlayer(entity).isVR();
+    }
+
+    public static boolean isVRPlayer(UUID uuid) {
+        return VIVE_PLAYERS.containsKey(uuid) && VIVE_PLAYERS.get(uuid).isVR();
     }
 
     public static VivePlayer getVivePlayer(Entity entity) {

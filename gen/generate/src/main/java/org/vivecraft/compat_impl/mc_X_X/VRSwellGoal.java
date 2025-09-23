@@ -1,0 +1,21 @@
+package org.vivecraft.compat_impl.mc_X_X;
+
+import org.vivecraft.ViveMain;
+
+public class VRSwellGoal extends net.minecraft.world.entity.ai.goal.SwellGoal {
+
+    private final net.minecraft.world.entity.monster.Creeper creeper;
+
+    public VRSwellGoal(net.minecraft.world.entity.monster.Creeper creeper) {
+        super(creeper);
+        this.creeper = creeper;
+    }
+
+    @Override
+    public boolean canUse() {
+        if (ViveMain.NMS.creeperShouldDoVrCheck(this.creeper)) {
+            return ViveMain.NMS.creeperVrCheck(this.creeper);
+        }
+        return super.canUse();
+    }
+}

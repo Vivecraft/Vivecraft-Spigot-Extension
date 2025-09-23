@@ -68,4 +68,26 @@ public class ClassGetter {
 
         throw new ClassNotFoundException("couldn't find any class matching " + pre + ".###." + post);
     }
+
+    public static Class<?> getCompat(String pattern) throws ClassNotFoundException {
+        MCVersion mc = MCVersion.getCurrent();
+        for (int i = mc.minor; i >= 0; i--) {
+            String apiClass;
+            if (i != 0) {
+                apiClass = pattern.replace("X_X", "1_" + mc.major + "_" + i);
+            } else {
+                apiClass = pattern.replace("X_X", "1_" + mc.major);
+            }
+            try {
+                return getRaw(apiClass);
+            } catch (ClassNotFoundException ignored) {}
+        }
+        if (mc.major <= 8) {
+            try {
+                return getRaw(pattern.replace("X_X", "1_8_8"));
+            } catch (ClassNotFoundException ignored) {}
+        }
+
+        throw new ClassNotFoundException("couldn't find any class matching " + pattern);
+    }
 }

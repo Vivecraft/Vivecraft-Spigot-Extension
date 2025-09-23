@@ -1,0 +1,26 @@
+{
+  "VRSwellGoal.java": {
+    "parent": {
+      "class": "net.minecraft.world.entity.ai.goal.SwellGoal",
+      "constructors": {
+        "1": ["net.minecraft.world.entity.monster.Creeper"]
+      },
+      "methods": {
+        "canUse": {
+          "class": "net.minecraft.world.entity.ai.goal.Goal",
+          "type": "boolean",
+          "args": []
+        }
+      }
+    },
+    "mappings": {
+      "classes": [
+        "net.minecraft.world.entity.ai.goal.SwellGoal",
+        "net.minecraft.world.entity.monster.Creeper"
+      ],
+      "methods": {
+        "canUse": "net.minecraft.world.entity.ai.goal.Goal"
+      }
+    }
+  }
+}

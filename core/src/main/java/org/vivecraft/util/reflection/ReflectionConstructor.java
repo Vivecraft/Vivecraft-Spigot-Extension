@@ -113,6 +113,24 @@ public class ReflectionConstructor {
     }
 
     /**
+     * Tries to find any reflection constructor matching the given class pattern for the current mc version
+     *
+     * @param pattern pattern to find the class
+     * @param args    Classes of the arguments for the constructor
+     * @return found reflection constructor
+     * @throws RuntimeException When no matching constructor is found
+     */
+    public static ReflectionConstructor getCompat(String pattern, Class<?>... args) {
+        try {
+            Class<?> c = ClassGetter.getCompat(pattern);
+            return getConstructor(c, args);
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            throw new RuntimeException(
+                "couldn't find constructor matching " + pattern + " with args: " + Arrays.toString(args), e);
+        }
+    }
+
+    /**
      * Tries to find the reflection constructor matching the given class path
      *
      * @param cls  path of the containing class

@@ -1,3 +1,5 @@
 .gradle/
 .idea/
 build/
+gen/stubs/src/main/java/*
+gen/generatedMC/*

@@ -1,0 +1,74 @@
+import java.nio.file.Files
+
+configurations {
+    mappings
+    specialSource
+}
+
+dependencies {
+    api(project(":core"))
+    compileOnly(project(":gen:stubs"))
+    compileOnly("net.md-5:SpecialSource:1.11.5:shaded")
+    mappings("org.spigotmc:minecraft-server:XX_XX-R0.1-SNAPSHOT:maps-mojang@txt")
+    mappings("org.spigotmc:minecraft-server:XX_XX-R0.1-SNAPSHOT:maps-spigot@csrg")
+}
+
+// this is needed to run java code in dolast
+interface InjectedExecOps {
+    @javax.inject.Inject
+    ExecOperations getExecOps()
+}
+
+tasks.jar {
+    finalizedBy "remap"
+}
+
+tasks.register("remap") {
+    inputs.files(configurations.mappings)
+    File mojangmap
+    File spigotmap
+    doLast {
+        configurations.mappings.resolve().each { file ->
+            if (file.name.contains("mojang")) {
+                mojangmap = file
+            } else if (file.name.contains("spigot")) {
+                spigotmap = file
+            }
+        }
+        if (mojangmap == null) {
+            throw new GradleException("mojang mapping file missing")
+        }
+        if (spigotmap == null) {
+            throw new GradleException("spigot mapping file missing")
+        }
+
+        println "spigot mapping file: ${spigotmap.name}"
+        println "mojang mapping file: ${mojangmap.name}"
+
+        File jar = tasks.named("jar").get().archiveFile.get().asFile
+        def obfFile = Files.createTempFile(null, ".jar").toFile()
+
+        def injected = project.objects.newInstance(InjectedExecOps)
+
+        injected.execOps.javaexec {
+            classpath = configurations.compileClasspath
+            mainClass = 'net.md_5.specialsource.SpecialSource'
+            workingDir = jar.parentFile
+            args = ["-i", jar,
+                    "-o", obfFile,
+                    "-m", mojangmap.absolutePath,
+                    "--reverse"]
+        }
+
+        injected.execOps.javaexec {
+            classpath = configurations.compileClasspath
+            mainClass = 'net.md_5.specialsource.SpecialSource'
+            workingDir = jar.parentFile
+            args = ["-i", obfFile,
+                    "-o", jar,
+                    "-m", spigotmap.absolutePath]
+        }
+    }
+}
+
+

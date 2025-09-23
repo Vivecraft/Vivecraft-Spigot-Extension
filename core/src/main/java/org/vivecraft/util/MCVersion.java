@@ -10,6 +10,7 @@ public class MCVersion {
     public final int major;
     public final int minor;
     public final String version;
+    public final String version_;
 
     private static MCVersion CURRENT;
 
@@ -21,6 +22,7 @@ public class MCVersion {
         } else {
             this.version = "1." + this.major + "." + this.minor;
         }
+        this.version_ = this.version.replace(".", "_");
     }
 
     public static MCVersion getCurrent() {

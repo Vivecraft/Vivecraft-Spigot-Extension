@@ -1,0 +1,4 @@
+
+build {
+    dependsOn(":gen:generate:generateStubs")
+}

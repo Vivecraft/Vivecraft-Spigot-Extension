@@ -114,4 +114,26 @@ public interface NMSHelper {
      * gets the vanilla armor level of an item
      */
     double getArmorValue(ItemStack itemStack);
+
+    /**
+     * checks if the given nms entity is a VR player
+     */
+    boolean isVRPlayer(Object nmsEntity);
+
+    /**
+     * returns if the creeper should use the VR check, instead of the vanilla one
+     */
+    boolean creeperShouldDoVrCheck(Object creeper);
+
+    /**
+     * returns if the creeper should charge
+     */
+    boolean creeperVrCheck(Object creeper);
+
+    /**
+     * Modifies the given entity to be VR compatible
+     *
+     * @param entity to modify
+     */
+    void modifyEntity(Entity entity);
 }

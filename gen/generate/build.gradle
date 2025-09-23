@@ -1,0 +1,20 @@
+dependencies {
+    api(project(":core"))
+    implementation("com.google.code.gson:gson:2.13.2")
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+            // we don't want to compile those, they are templates
+            exclude '**/mc_X_X/**'
+        }
+    }
+}
+
+tasks.register("generateStubs", JavaExec) {
+    group = "generate"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "org.vivecraft.Generate"
+}

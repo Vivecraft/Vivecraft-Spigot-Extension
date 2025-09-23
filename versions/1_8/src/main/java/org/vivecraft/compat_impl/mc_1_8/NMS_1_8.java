@@ -1,6 +1,7 @@
 package org.vivecraft.compat_impl.mc_1_8;
 
 import io.netty.channel.Channel;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -8,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.joml.Vector3f;
+import org.vivecraft.ViveMain;
 import org.vivecraft.accessors.*;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat.NMSHelper;
@@ -17,9 +19,12 @@ import org.vivecraft.util.reflection.ClassGetter;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
+import java.util.UUID;
+
 public class NMS_1_8 implements NMSHelper {
 
     protected ReflectionField LivingEntity_BodyYaw;
+    protected ReflectionMethod Entity_getUUID;
 
     protected ReflectionMethod Entity_getViewVector;
     protected ReflectionField Vec3_X;
@@ -62,6 +67,11 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionField ArmorItem_defense;
     protected Class<?> ArmorItem;
 
+    // creeper
+    protected ReflectionMethod Creeper_getSwellDir;
+    protected ReflectionMethod Mob_getTarget;
+    protected ReflectionMethod Entity_distanceToSqr;
+
     public NMS_1_8() {
         this.init();
         this.initVec3();
@@ -71,12 +81,17 @@ public class NMS_1_8 implements NMSHelper {
 
     protected void init() {
         this.LivingEntity_BodyYaw = ReflectionField.getField(LivingEntityMapping.FIELD_Y_BODY_ROT);
+        this.Entity_getUUID = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_UUID);
 
         this.Entity_fallDistance = ReflectionField.getField(EntityMapping.FIELD_FALL_DISTANCE,
             EntityMapping.FIELD_FALL_DISTANCE_1);
         this.ServerPlayer_packetListener = ReflectionField.getField(ServerPlayerMapping.FIELD_CONNECTION);
         this.ServerGamePacketListenerImpl_aboveGroundTicks = ReflectionField.getField(
             ServerGamePacketListenerImplMapping.FIELD_ABOVE_GROUND_TICK_COUNT);
+
+        this.Creeper_getSwellDir = ReflectionMethod.getMethod(CreeperMapping.METHOD_GET_SWELL_DIR);
+        this.Mob_getTarget = ReflectionMethod.getMethod(MobMapping.METHOD_GET_TARGET);
+        this.Entity_distanceToSqr = ReflectionMethod.getMethod(EntityMapping.METHOD_DISTANCE_TO_SQR);
     }
 
     protected void initVec3() {
@@ -307,6 +322,32 @@ public class NMS_1_8 implements NMSHelper {
             return (int) this.ArmorItem_defense.get(item);
         } else {
             return 0;
+        }
+    }
+
+    @Override
+    public boolean isVRPlayer(Object nmsEntity) {
+        return nmsEntity != null && ViveMain.isVRPlayer((UUID) this.Entity_getUUID.invoke(nmsEntity));
+    }
+
+    @Override
+    public boolean creeperShouldDoVrCheck(Object creeper) {
+        Object target = this.Mob_getTarget.invoke(creeper);
+        return target != null && isVRPlayer(target);
+    }
+
+    @Override
+    public boolean creeperVrCheck(Object creeper) {
+        Object target = this.Mob_getTarget.invoke(creeper);
+        return (int) this.Creeper_getSwellDir.invoke(creeper) > 0 ||
+            (double) this.Entity_distanceToSqr.invoke(creeper, target) <
+                ViveMain.CONFIG.creeperSwellDistance.get() * ViveMain.CONFIG.creeperSwellDistance.get();
+    }
+
+    @Override
+    public void modifyEntity(Entity entity) {
+        if (entity instanceof Creeper) {
+
         }
     }
 }
