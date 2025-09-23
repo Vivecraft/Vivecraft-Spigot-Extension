@@ -1,11 +1,13 @@
 package org.vivecraft.util;
 
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 import org.vivecraft.ViveMain;
 
-public class MCVersion {
+public class MCVersion implements Comparable<MCVersion> {
 
     public static final MCVersion INVALID = new MCVersion(-1, -1);
+    public static final MCVersion MAX = new MCVersion(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
     public final int major;
     public final int minor;
@@ -55,5 +57,20 @@ public class MCVersion {
     @Override
     public String toString() {
         return this.version;
+    }
+
+    @Override
+    public int compareTo(@NotNull MCVersion o) {
+        if (this.major < o.major) {
+            return -1;
+        } else if (this.major > o.major) {
+            return 1;
+        } else if (this.minor < o.minor) {
+            return -1;
+        } else if (this.minor > o.minor) {
+            return 1;
+        }  else {
+            return 0;
+        }
     }
 }

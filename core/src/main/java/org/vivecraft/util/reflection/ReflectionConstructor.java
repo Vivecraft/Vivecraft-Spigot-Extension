@@ -14,7 +14,7 @@ import java.util.logging.Level;
  * reflection handler that catches any exceptions on the calls
  */
 public class ReflectionConstructor {
-    private final Constructor<?> constructor;
+    public final Constructor<?> constructor;
 
     private ReflectionConstructor(Constructor<?> constructor) {
         this.constructor = constructor;
@@ -63,6 +63,8 @@ public class ReflectionConstructor {
                 return null;
             }
         }
+        // make sure it is accessible
+        c.setAccessible(true);
         return new ReflectionConstructor(c);
     }
 

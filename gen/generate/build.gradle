@@ -17,4 +17,12 @@ tasks.register("generateStubs", JavaExec) {
     group = "generate"
     classpath = sourceSets.main.runtimeClasspath
     mainClass = "org.vivecraft.Generate"
+    args = []
+}
+
+tasks.register("rebuildStubs", JavaExec) {
+    group = "generate"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "org.vivecraft.Generate"
+    args = ["--clear"]
 }

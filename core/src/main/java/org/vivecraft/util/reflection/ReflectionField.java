@@ -12,7 +12,7 @@ import java.util.logging.Level;
  * reflection handler that catches any exceptions on the calls
  */
 public class ReflectionField {
-    private final Field field;
+    public final Field field;
 
     private ReflectionField(Field field) {
         this.field = field;
@@ -44,6 +44,9 @@ public class ReflectionField {
                 "Unsupported mc version: " + MCVersion.getCurrent().version + ", no mapping found for: " +
                     mappings[0].getParent().getName() + "." + mappings[0].getName());
         }
+
+        // make sure it is accessible
+        f.setAccessible(true);
         return new ReflectionField(f);
     }
 

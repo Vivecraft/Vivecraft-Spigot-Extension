@@ -1,8 +1,7 @@
-import java.nio.file.Files
-
 configurations {
     mappings
     specialSource
+    remapped
 }
 
 dependencies {
@@ -23,11 +22,22 @@ tasks.jar {
     finalizedBy "remap"
 }
 
+artifacts {
+    remapped layout.buildDirectory.file("libs/fin.jar").get().asFile, {
+        builtBy "remap"
+    }
+}
+
 tasks.register("remap") {
-    inputs.files(configurations.mappings)
-    File mojangmap
-    File spigotmap
+    dependsOn(jar)
+
+    inputs.files(jar.outputs.files, configurations.mappings)
+    outputs.file(layout.buildDirectory.file("libs/fin.jar").get().asFile)
+    outputs.cacheIf { true }
+
     doLast {
+        File mojangmap
+        File spigotmap
         configurations.mappings.resolve().each { file ->
             if (file.name.contains("mojang")) {
                 mojangmap = file
@@ -46,7 +56,8 @@ tasks.register("remap") {
         println "mojang mapping file: ${mojangmap.name}"
 
         File jar = tasks.named("jar").get().archiveFile.get().asFile
-        def obfFile = Files.createTempFile(null, ".jar").toFile()
+        def obfFile = new File(jar.parentFile, "obf.jar")
+        def finFile = layout.buildDirectory.file("libs/fin.jar").get().asFile
 
         def injected = project.objects.newInstance(InjectedExecOps)
 
@@ -65,7 +76,7 @@ tasks.register("remap") {
             mainClass = 'net.md_5.specialsource.SpecialSource'
             workingDir = jar.parentFile
             args = ["-i", obfFile,
-                    "-o", jar,
+                    "-o", finFile,
                     "-m", spigotmap.absolutePath]
         }
     }

@@ -7,6 +7,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.joml.Vector3f;
+import org.vivecraft.VivePlayer;
+import org.vivecraft.compat.types.BlockContext;
+import org.vivecraft.compat.types.FluidContext;
 import org.vivecraft.data.PlayerState;
 
 /**
@@ -32,6 +35,11 @@ public interface NMSHelper {
      * but can never know if the y decide to change it gain
      */
     Vector3f getViewVector(Entity entity);
+
+    /**
+     * Converts a mc Vec3 to a bukkit Vector
+     */
+    Vector vec3ToVector(Object vec3);
 
     /**
      * sets the translation key with fallback
@@ -73,6 +81,11 @@ public interface NMSHelper {
      * gets the server this serverPlayer is part of
      */
     Object getServer(Object serverPlayer);
+
+    /**
+     * gets the level this entity is in
+     */
+    Object getLevel(Object entity);
 
     /**
      * runs the given Runnable on the main thread of the given server
@@ -121,14 +134,24 @@ public interface NMSHelper {
     boolean isVRPlayer(Object nmsEntity);
 
     /**
-     * returns if the creeper should use the VR check, instead of the vanilla one
+     * returns if the mobs target is a vr player
      */
-    boolean creeperShouldDoVrCheck(Object creeper);
+    boolean isTargetVrPlayer(Object mob);
 
     /**
-     * returns if the creeper should charge
+     * gets the corresponding vr player
      */
-    boolean creeperVrCheck(Object creeper);
+    VivePlayer getVRPlayer(Object nmsEntity);
+
+    /**
+     * gets the head position of the given entity, accounting for vrplayers
+     */
+    Vector getHeadPosVR(Object nmsEntity);
+
+    /**
+     * gets the head direction of the given entity, accounting for vrplayers
+     */
+    Vector getViewVectorVR(Object nmsEntity);
 
     /**
      * Modifies the given entity to be VR compatible
@@ -136,4 +159,25 @@ public interface NMSHelper {
      * @param entity to modify
      */
     void modifyEntity(Entity entity);
+
+    /**
+     * checks if any blocks are in between from and to, that match the given contexes
+     */
+    boolean clipWorld(
+        Object level, Vector from, Vector to, BlockContext block, FluidContext fluid, Object sourceEntity);
+
+    /**
+     * checks if the player can see targets head
+     *
+     * @param player            player the looks
+     * @param target            entity to look at
+     * @param tolerance         angle the player needs to look at a minimum
+     * @param scaleWithDistance reduces the {@code tolerance} with distance
+     * @param visualClip        checks the visual shape of blocks, instead of their collision boxes
+     * @param yOffsets          offsets to the target head to check, if not set, only checks the head
+     * @return if there are no blocks in the way
+     */
+    boolean canSeeEachOther(
+        Object player, Object target, double tolerance, boolean scaleWithDistance, boolean visualClip,
+        double... yOffsets);
 }

@@ -22,5 +22,42 @@
         "canUse": "net.minecraft.world.entity.ai.goal.Goal"
       }
     }
+  },
+  "VREndermanFreezeWhenLookAt.java": {
+    "versions": {
+      "from": "1.14"
+    },
+    "parent": {
+      "class": "net.minecraft.world.entity.ai.goal.Goal",
+      "methods": {
+        "canUse": {
+          "class": "net.minecraft.world.entity.ai.goal.Goal",
+          "type": "boolean",
+          "args": []
+        },
+        "start": {
+          "class": "net.minecraft.world.entity.ai.goal.Goal",
+          "type": "void",
+          "args": []
+        },
+        "tick": {
+          "class": "net.minecraft.world.entity.ai.goal.Goal",
+          "type": "void",
+          "args": []
+        }
+      }
+    },
+    "mappings": {
+      "classes": [
+        "net.minecraft.world.entity.ai.goal.Goal",
+        "net.minecraft.world.entity.monster.EnderMan",
+        "net.minecraft.world.entity.ai.goal.Goal$Flag"
+      ],
+      "methods": {
+        "canUse": "net.minecraft.world.entity.ai.goal.Goal",
+        "start": "net.minecraft.world.entity.ai.goal.Goal",
+        "tick": "net.minecraft.world.entity.ai.goal.Goal"
+      }
+    }
   }
 }

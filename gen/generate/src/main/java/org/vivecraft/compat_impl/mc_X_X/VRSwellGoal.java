@@ -13,8 +13,8 @@ public class VRSwellGoal extends net.minecraft.world.entity.ai.goal.SwellGoal {
 
     @Override
     public boolean canUse() {
-        if (ViveMain.NMS.creeperShouldDoVrCheck(this.creeper)) {
-            return ViveMain.NMS.creeperVrCheck(this.creeper);
+        if (ViveMain.NMS.isTargetVrPlayer(this.creeper)) {
+            return ViveMain.MC_MODS.creeperHelper().creeperVrCheck(this.creeper);
         }
         return super.canUse();
     }

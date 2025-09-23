@@ -1,24 +1,26 @@
 package org.vivecraft.compat_impl.mc_1_8;
 
 import io.netty.channel.Channel;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.joml.Vector3f;
 import org.vivecraft.ViveMain;
+import org.vivecraft.VivePlayer;
 import org.vivecraft.accessors.*;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat.NMSHelper;
+import org.vivecraft.compat.types.BlockContext;
+import org.vivecraft.compat.types.FluidContext;
 import org.vivecraft.data.PlayerState;
 import org.vivecraft.util.MathUtils;
 import org.vivecraft.util.reflection.ClassGetter;
+import org.vivecraft.util.reflection.ReflectionConstructor;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public class NMS_1_8 implements NMSHelper {
@@ -30,6 +32,7 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionField Vec3_X;
     protected ReflectionField Vec3_Y;
     protected ReflectionField Vec3_Z;
+    protected ReflectionConstructor Vec3;
 
     protected ReflectionField Entity_fallDistance;
     protected ReflectionField ServerPlayer_packetListener;
@@ -60,6 +63,7 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionField Entity_xRotO;
     protected ReflectionField Entity_yRotO;
     protected ReflectionField Entity_eyeHeight;
+    protected ReflectionMethod Entity_getEyePosition;
     protected ReflectionField LivingEntity_yHeadRot;
     protected ReflectionField LivingEntity_yHeadRotO;
 
@@ -67,10 +71,15 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionField ArmorItem_defense;
     protected Class<?> ArmorItem;
 
-    // creeper
-    protected ReflectionMethod Creeper_getSwellDir;
+    protected ReflectionMethod Level_Clip;
+
     protected ReflectionMethod Mob_getTarget;
-    protected ReflectionMethod Entity_distanceToSqr;
+    protected ReflectionField Mob_goalSelector;
+    protected ReflectionField GoalSelector_availableGoals;
+    protected ReflectionMethod GoalSelector_addGoal;
+    protected ReflectionMethod GoalSelector_removeGoal;
+    protected ReflectionField WrappedGoal_goal;
+    protected ReflectionField WrappedGoal_priority;
 
     public NMS_1_8() {
         this.init();
@@ -89,9 +98,21 @@ public class NMS_1_8 implements NMSHelper {
         this.ServerGamePacketListenerImpl_aboveGroundTicks = ReflectionField.getField(
             ServerGamePacketListenerImplMapping.FIELD_ABOVE_GROUND_TICK_COUNT);
 
-        this.Creeper_getSwellDir = ReflectionMethod.getMethod(CreeperMapping.METHOD_GET_SWELL_DIR);
+        this.Level_Clip = ReflectionMethod.getMethod(BlockGetterMapping.METHOD_CLIP,
+            LevelMapping.METHOD_FUNC_200259_A, LevelMapping.METHOD_FUNC_147447_A);
+
+        this.Entity_getEyePosition = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_EYE_POSITION);
+
         this.Mob_getTarget = ReflectionMethod.getMethod(MobMapping.METHOD_GET_TARGET);
-        this.Entity_distanceToSqr = ReflectionMethod.getMethod(EntityMapping.METHOD_DISTANCE_TO_SQR);
+        this.Mob_goalSelector = ReflectionField.getField(MobMapping.FIELD_GOAL_SELECTOR);
+        this.GoalSelector_availableGoals = ReflectionField.getField(GoalSelectorMapping.FIELD_AVAILABLE_GOALS,
+            GoalSelectorMapping.FIELD_FIELD_75782_A, GoalSelectorMapping.FIELD_FIELD_75782_A_1);
+        this.GoalSelector_addGoal = ReflectionMethod.getMethod(GoalSelectorMapping.METHOD_ADD_GOAL);
+        this.GoalSelector_removeGoal = ReflectionMethod.getMethod(GoalSelectorMapping.METHOD_REMOVE_GOAL);
+        this.WrappedGoal_goal = ReflectionField.getField(WrappedGoalMapping.FIELD_GOAL,
+            EntityAITasks$EntityAITaskEntryMapping.FIELD_FIELD_75733_A);
+        this.WrappedGoal_priority = ReflectionField.getField(WrappedGoalMapping.FIELD_PRIORITY,
+            EntityAITasks$EntityAITaskEntryMapping.FIELD_FIELD_75731_B);
     }
 
     protected void initVec3() {
@@ -99,6 +120,7 @@ public class NMS_1_8 implements NMSHelper {
         this.Vec3_X = ReflectionField.getField(Vec3Mapping.FIELD_X);
         this.Vec3_Y = ReflectionField.getField(Vec3Mapping.FIELD_Y);
         this.Vec3_Z = ReflectionField.getField(Vec3Mapping.FIELD_Z);
+        this.Vec3 = ReflectionConstructor.getConstructor(Vec3Mapping.CONSTRUCTOR_0);
     }
 
     protected void initAimFix() {
@@ -129,13 +151,15 @@ public class NMS_1_8 implements NMSHelper {
             BlockableEventLoopMapping.METHOD_EXECUTE_IF_POSSIBLE,
             BlockableEventLoopMapping.METHOD_EXECUTE,
             BlockableEventLoopMapping.METHOD_POST_TO_MAIN_THREAD);
+
+        this.Entity_getLevel = ReflectionMethod.getMethod(EntityMapping.METHOD_LEVEL,
+            EntityMapping.METHOD_GET_COMMAND_SENDER_WORLD);
         initPosition();
         initRotation();
         initServer();
     }
 
     protected void initServer() {
-        this.Entity_getLevel = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_COMMAND_SENDER_WORLD);
         this.ServerLevel_getServer = ReflectionMethod.getMethod(ServerLevelMapping.METHOD_GET_SERVER);
     }
 
@@ -195,6 +219,14 @@ public class NMS_1_8 implements NMSHelper {
     }
 
     @Override
+    public Vector vec3ToVector(Object vec3) {
+        return new Vector(
+            (double) this.Vec3_X.get(vec3),
+            (double) this.Vec3_Y.get(vec3),
+            (double) this.Vec3_Z.get(vec3));
+    }
+
+    @Override
     public ItemStack setItemStackName(ItemStack itemStack, String translationKey, String fallback) {
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(fallback);
@@ -238,6 +270,11 @@ public class NMS_1_8 implements NMSHelper {
     @Override
     public Object getServer(Object serverPlayer) {
         return this.ServerLevel_getServer.invoke(this.Entity_getLevel.invoke(serverPlayer));
+    }
+
+    @Override
+    public Object getLevel(Object entity) {
+        return this.Entity_getLevel.invoke(entity);
     }
 
     @Override
@@ -331,23 +368,121 @@ public class NMS_1_8 implements NMSHelper {
     }
 
     @Override
-    public boolean creeperShouldDoVrCheck(Object creeper) {
-        Object target = this.Mob_getTarget.invoke(creeper);
+    public boolean isTargetVrPlayer(Object mob) {
+        Object target = this.Mob_getTarget.invoke(mob);
         return target != null && isVRPlayer(target);
     }
 
     @Override
-    public boolean creeperVrCheck(Object creeper) {
-        Object target = this.Mob_getTarget.invoke(creeper);
-        return (int) this.Creeper_getSwellDir.invoke(creeper) > 0 ||
-            (double) this.Entity_distanceToSqr.invoke(creeper, target) <
-                ViveMain.CONFIG.creeperSwellDistance.get() * ViveMain.CONFIG.creeperSwellDistance.get();
+    public VivePlayer getVRPlayer(Object nmsEntity) {
+        return ViveMain.getVivePlayer((UUID) this.Entity_getUUID.invoke(nmsEntity));
+    }
+
+    @Override
+    public Vector getHeadPosVR(Object nmsEntity) {
+        if (nmsEntity == null) {
+            return null;
+        } else if (isVRPlayer(nmsEntity)) {
+            VivePlayer vive = getVRPlayer(nmsEntity);
+            return vive.getHMDPos();
+        } else {
+            return vec3ToVector(this.Entity_getEyePosition.invoke(nmsEntity, 1F));
+        }
+    }
+
+    @Override
+    public Vector getViewVectorVR(Object nmsEntity) {
+        if (nmsEntity == null) {
+            return null;
+        } else if (isVRPlayer(nmsEntity)) {
+            VivePlayer vive = getVRPlayer(nmsEntity);
+            return MathUtils.toBukkitVec(vive.getHMDDir());
+        } else {
+            return vec3ToVector(this.Entity_getViewVector.invoke(nmsEntity));
+        }
+    }
+
+    @Override
+    public boolean clipWorld(
+        Object level, Vector from, Vector to, BlockContext block, FluidContext fluid, Object sourceEntity)
+    {
+        return this.Level_Clip.invoke(level,
+            this.Vec3.newInstance(from.getX(), from.getY(), from.getZ()),
+            this.Vec3.newInstance(to.getX(), to.getY(), to.getZ()),
+            fluid == FluidContext.NONE, block != BlockContext.COLLIDER, false) != null;
+    }
+
+    @Override
+    public boolean canSeeEachOther(
+        Object player, Object target, double tolerance, boolean scaleWithDistance, boolean visualClip,
+        double... yOffsets)
+    {
+        if (yOffsets == null || yOffsets.length == 0) {
+            yOffsets = new double[]{0.0};
+        }
+        Vector playerView = ViveMain.NMS.getViewVectorVR(player);
+        Vector playerHead = ViveMain.NMS.getHeadPosVR(player);
+        Vector targetHead = ViveMain.NMS.getHeadPosVR(target);
+        for (double yOffset : yOffsets) {
+            Vector targetHeadOffset = new Vector().copy(targetHead);
+            targetHeadOffset.setY(targetHeadOffset.getY() + yOffset);
+            Vector playerToTarget = new Vector().copy(playerHead).subtract(targetHeadOffset);
+            double dist = scaleWithDistance ? playerToTarget.length() : 1.0;
+            playerToTarget.normalize();
+            if (playerToTarget.dot(playerView) < tolerance / dist) {
+                // looks in the right direction
+                if (!ViveMain.NMS.clipWorld(ViveMain.NMS.getLevel(player), playerHead, targetHeadOffset,
+                    visualClip ? BlockContext.VISUAL : BlockContext.COLLIDER, FluidContext.NONE, player))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
     public void modifyEntity(Entity entity) {
         if (entity instanceof Creeper) {
-
+            Object nmsCreeper = BukkitReflector.getHandle(entity);
+            Object selector = this.Mob_goalSelector.get(nmsCreeper);
+            Collection<?> goals = (Collection<?>) this.GoalSelector_availableGoals.get(selector);
+            int priority = Integer.MAX_VALUE;
+            for (Object wrappedGoal : goals) {
+                Object goal = this.WrappedGoal_goal.get(wrappedGoal);
+                if (ViveMain.MC_MODS.creeperHelper().isSwellGoal(goal)) {
+                    priority = (int) this.WrappedGoal_priority.get(wrappedGoal);
+                    this.GoalSelector_removeGoal.invoke(selector, goal);
+                    break;
+                }
+            }
+            if (priority == Integer.MAX_VALUE) {
+                for (Object wrappedGoal : goals) {
+                    Object goal = this.WrappedGoal_goal.get(wrappedGoal);
+                    ViveMain.LOGGER.info("creper has goal: " + goal.getClass().getName());
+                }
+                throw new RuntimeException("Could not find swell goal for creeper");
+            }
+            this.GoalSelector_addGoal.invoke(selector, priority,
+                ViveMain.MC_MODS.creeperHelper().getCreeperSwellGoal(nmsCreeper));
+        } else if (entity instanceof Enderman) {
+            Object nmsEnderman = BukkitReflector.getHandle(entity);
+            Object selector = this.Mob_goalSelector.get(nmsEnderman);
+            Collection<?> goals = (Collection<?>) this.GoalSelector_availableGoals.get(selector);
+            int priority = Integer.MAX_VALUE;
+            for (Object wrappedGoal : goals) {
+                Object goal = this.WrappedGoal_goal.get(wrappedGoal);
+                if (ViveMain.MC_MODS.endermanHelper().isFreezeGoal(goal)) {
+                    priority = (int) this.WrappedGoal_priority.get(wrappedGoal);
+                    this.GoalSelector_removeGoal.invoke(selector, goal);
+                    break;
+                }
+            }
+            if (priority == Integer.MAX_VALUE) {
+                throw new RuntimeException("Could not find lookat goal for enderman");
+            }
+            this.GoalSelector_addGoal.invoke(selector, priority,
+                ViveMain.MC_MODS.endermanHelper().getEndermanFreezeWhenLookAt(nmsEnderman));
         }
     }
 }

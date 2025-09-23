@@ -26,7 +26,7 @@ public class Helpers {
         return (NMSHelper) getHelper("org.vivecraft.compat_impl.mc_%s.NMS_%s");
     }
 
-    private static Object getHelper(String classTemplate) {
+    public static Object getHelper(String classTemplate) {
         MCVersion mc = MCVersion.getCurrent();
         int major = mc.major;
         int minor = mc.minor;

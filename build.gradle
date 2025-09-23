@@ -90,7 +90,11 @@ allprojects {
 dependencies {
     subprojects.each { subproj ->
         if (subproj.name != "generate" && subproj.name != "stubs") {
-            implementation subproj
+            if (subproj.getTasksByName("remap", false).isEmpty()) {
+                implementation subproj
+            } else {
+                implementation project(path: subproj.path, configuration: "remapped")
+            }
         }
     }
 }

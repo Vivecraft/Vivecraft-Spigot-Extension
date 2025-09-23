@@ -14,7 +14,7 @@ import java.util.logging.Level;
  * reflection handler that catches any exceptions on the calls
  */
 public class ReflectionMethod {
-    private final Method method;
+    public final Method method;
 
     private ReflectionMethod(Method method) {
         this.method = method;
@@ -64,6 +64,8 @@ public class ReflectionMethod {
                 return null;
             }
         }
+        // make sure it is accessible
+        m.setAccessible(true);
         return new ReflectionMethod(m);
     }
 

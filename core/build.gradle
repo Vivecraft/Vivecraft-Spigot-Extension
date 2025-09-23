@@ -65,8 +65,10 @@ accessors {
         method("void", "setYRot", "float")
         method("net.minecraft.server.MinecraftServer", "getServer")
         method("net.minecraft.world.level.Level", "getCommandSenderWorld")
+        method("net.minecraft.world.level.Level", "level")
         method("java.util.UUID", "getUUID")
         method("double", "distanceToSqr", "net.minecraft.world.entity.Entity")
+        method("net.minecraft.world.phys.Vec3", "getEyePosition", "float")
     }
 
     mapClass("net.minecraft.server.level.ServerPlayer") {
@@ -94,6 +96,44 @@ accessors {
         method("net.minecraft.server.MinecraftServer", "getServer")
     }
 
+    mapClass("net.minecraft.world.level.BlockGetter") {
+        method("net.minecraft.world.phys.BlockHitResult", "clip", "net.minecraft.world.level.ClipContext") // 1.14+
+    }
+    mapClass("net.minecraft.world.level.Level") {
+        // 1.13
+        method("net.minecraft.util.math.RayTraceResult", "func_200259_a", "net.minecraft.util.math.Vec3d",
+            "net.minecraft.util.math.Vec3d", "net.minecraft.util.math.RayTraceFluidMode", "boolean", "boolean")
+        // 1.12-
+        method("net.minecraft.util.math.RayTraceResult", "func_147447_a", "net.minecraft.util.math.Vec3d",
+            "net.minecraft.util.math.Vec3d", "boolean", "boolean", "boolean")
+    }
+    mapClass("net.minecraft.world.level.ClipContext") {
+        constructor("net.minecraft.world.phys.Vec3", "net.minecraft.world.phys.Vec3",
+            "net.minecraft.world.level.ClipContext\$Block", "net.minecraft.world.level.ClipContext\$Fluid",
+            "net.minecraft.world.entity.Entity")
+    }
+
+    mapClass("net.minecraft.util.math.RayTraceFluidMode") {
+        field("net.minecraft.util.math.RayTraceFluidMode", "NEVER")
+        field("net.minecraft.util.math.RayTraceFluidMode", "ALWAYS")
+    }
+    mapClass("net.minecraft.world.level.ClipContext\$Fluid") {
+        field("net.minecraft.world.level.ClipContext\$Fluid", "NONE")
+        field("net.minecraft.world.level.ClipContext\$Fluid", "ANY")
+        field("net.minecraft.world.level.ClipContext\$Fluid", "WATER")
+    }
+    mapClass("net.minecraft.world.level.ClipContext\$Block") {
+        field("net.minecraft.world.level.ClipContext\$Block", "COLLIDER")
+        field("net.minecraft.world.level.ClipContext\$Block", "OUTLINE")
+        field("net.minecraft.world.level.ClipContext\$Block", "VISUAL")
+    }
+    mapClass("net.minecraft.world.phys.BlockHitResult") {
+        method("net.minecraft.world.phys.HitResult\$Type", "getType")
+    }
+    mapClass("net.minecraft.world.phys.HitResult\$Type") {
+        field("net.minecraft.world.phys.HitResult\$Type", "MISS")
+    }
+
     mapClass("net.minecraft.server.VVV.EnumParticle") {
         field("net.minecraft.server.VVV.EnumParticle", "CRIT")
         field("net.minecraft.server.VVV.EnumParticle", "REDSTONE")
@@ -101,7 +141,8 @@ accessors {
     }
 
     mapClass("net.minecraft.network.chat.Component") {
-        method("net.minecraft.network.chat.MutableComponent", "translatableWithFallback", "java.lang.String", "java.lang.String")
+        method("net.minecraft.network.chat.MutableComponent", "translatableWithFallback", "java.lang.String",
+            "java.lang.String")
     }
 
     mapClass("net.minecraft.world.item.ItemStack") {
@@ -111,8 +152,10 @@ accessors {
     }
 
     mapClass("net.minecraft.world.item.Item") {
-        method("net.minecraft.world.item.component.ItemAttributeModifiers", "getDefaultAttributeModifiers") // 1.20.6/1.21
-        method("com.google.common.collect.Multimap", "getDefaultAttributeModifiers", "net.minecraft.world.entity.EquipmentSlot")
+        method("net.minecraft.world.item.component.ItemAttributeModifiers", "getDefaultAttributeModifiers")
+        // 1.20.6/1.21
+        method("com.google.common.collect.Multimap", "getDefaultAttributeModifiers",
+            "net.minecraft.world.entity.EquipmentSlot")
         method("com.google.common.collect.Multimap", "func_111205_h") // 1.8.8
         method("int", "getId", "net.minecraft.world.item.Item")
     }
@@ -178,6 +221,7 @@ accessors {
         field("double", "x")
         field("double", "y")
         field("double", "z")
+        constructor("double", "double", "double")
     }
 
     mapClass("net.minecraft.network.Connection") {
@@ -202,10 +246,45 @@ accessors {
         method("int", "getSwellDir")
     }
     mapClass("net.minecraft.world.entity.ai.goal.SwellGoal")
-    mapClass("net.minecraft.world.entity.ai.goal.Goal"){
+    mapClass("net.minecraft.world.entity.ai.goal.Goal") {
         method("boolean", "canUse")
+        method("void", "setFlags", "java.util.EnumSet")
+        method("void", "start")
+        method("void", "tick")
+    }
+    mapClass("net.minecraft.world.entity.ai.goal.Goal\$Flag") {
+        field("net.minecraft.world.entity.ai.goal.Goal\$Flag", "MOVE")
+        field("net.minecraft.world.entity.ai.goal.Goal\$Flag", "JUMP")
     }
     mapClass("net.minecraft.world.entity.Mob") {
+        field("net.minecraft.world.entity.ai.goal.GoalSelector", "goalSelector")
         method("net.minecraft.world.entity.LivingEntity", "getTarget")
+        method("net.minecraft.world.entity.ai.navigation.PathNavigation", "getNavigation")
+        method("net.minecraft.world.entity.ai.control.LookControl", "getLookControl")
     }
+    mapClass("net.minecraft.world.entity.ai.navigation.PathNavigation") {
+        method("void", "stop")
+    }
+    mapClass("net.minecraft.world.entity.ai.control.LookControl") {
+        method("void", "setLookAt", "double", "double", "double")
+    }
+    mapClass("net.minecraft.world.entity.ai.goal.GoalSelector") {
+        field("java.util.Set", "availableGoals")
+        field("java.util.Set", "field_75782_a") // pre 1.14
+        field("java.util.List", "field_75782_a") // pre 1.9
+
+        method("void", "addGoal", "int", "net.minecraft.world.entity.ai.goal.Goal")
+        method("void", "removeGoal", "net.minecraft.world.entity.ai.goal.Goal")
+    }
+    mapClass("net.minecraft.world.entity.ai.goal.WrappedGoal") {
+        field("net.minecraft.world.entity.ai.goal.Goal", "goal")
+        field("int", "priority")
+    }
+    mapClass("net.minecraft.entity.ai.EntityAITasks\$EntityAITaskEntry") { // pre 1.14
+        field("net.minecraft.entity.ai.EntityAIBase", "field_75733_a")
+        field("int", "field_75731_b")
+    }
+
+    mapClass("net.minecraft.world.entity.monster.EnderMan\$EndermanFreezeWhenLookedAt")
+    mapClass("net.minecraft.world.entity.monster.EnderMan")
 }

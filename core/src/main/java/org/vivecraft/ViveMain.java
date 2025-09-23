@@ -1,5 +1,6 @@
 package org.vivecraft;
 
+import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -12,6 +13,7 @@ import org.vivecraft.compat.*;
 import org.vivecraft.config.Config;
 import org.vivecraft.debug.Debug;
 import org.vivecraft.events.DamageEvents;
+import org.vivecraft.events.EntityEvents;
 import org.vivecraft.events.PlayerEvents;
 import org.vivecraft.events.ProjectileEvents;
 import org.vivecraft.linker.Helpers;
@@ -21,6 +23,7 @@ import org.vivecraft.util.JsonUtils;
 import org.vivecraft.util.MCVersion;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -44,7 +47,7 @@ public class ViveMain extends JavaPlugin {
 
     public static NMSHelper NMS;
 
-    private static CustomMcClasses CUSTOM_MC;
+    public static MCMods MC_MODS;
 
     public static String VERSION;
 
@@ -70,7 +73,7 @@ public class ViveMain extends JavaPlugin {
         API = Helpers.getApi();
         MC = Helpers.getMc();
         NMS = Helpers.getNMS();
-        CUSTOM_MC = new CustomMcClasses();
+        MC_MODS = new MCMods();
 
         if (!PermissionManager.checkForVault() && ViveMain.CONFIG.permissionsGroupsEnabled.get()) {
             ViveMain.LOGGER.warning("To use the permission groups feature, 'Vault' needs to be installed");
@@ -111,12 +114,23 @@ public class ViveMain extends JavaPlugin {
             SpigotReflector.setMovedTooQuickly(CONFIG.spigotSettingsMovedTooQuickly.get());
             SpigotReflector.setMovedWrongly(CONFIG.spigotSettingsMovedWronglyThreshold.get());
         }
+        this.modifyEntities();
+    }
+
+    private void modifyEntities() {
+        List<World> wrl = this.getServer().getWorlds();
+        for (World world : wrl) {
+            for (Entity e : world.getLivingEntities()) {
+                NMS.modifyEntity(e);
+            }
+        }
     }
 
     private void registerEvents(PluginManager manager) {
         manager.registerEvents(new ProjectileEvents(), this);
         manager.registerEvents(new PlayerEvents(), this);
         manager.registerEvents(new DamageEvents(), this);
+        manager.registerEvents(new EntityEvents(), this);
     }
 
     private void registerRecipes() {
@@ -158,6 +172,10 @@ public class ViveMain extends JavaPlugin {
 
     public static VivePlayer getVivePlayer(Entity entity) {
         return VIVE_PLAYERS.get(entity.getUniqueId());
+    }
+
+    public static VivePlayer getVivePlayer(UUID uuid) {
+        return VIVE_PLAYERS.get(uuid);
     }
 
     public void toggleParticleTask(boolean enabled) {
