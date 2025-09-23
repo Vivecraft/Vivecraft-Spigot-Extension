@@ -438,10 +438,10 @@ public class NMS_1_8 implements NMSHelper {
         for (double yOffset : yOffsets) {
             Vector targetHeadOffset = new Vector().copy(targetHead);
             targetHeadOffset.setY(targetHeadOffset.getY() + yOffset);
-            Vector playerToTarget = new Vector().copy(playerHead).subtract(targetHeadOffset);
+            Vector playerToTarget = new Vector().copy(targetHeadOffset).subtract(playerHead);
             double dist = scaleWithDistance ? playerToTarget.length() : 1.0;
             playerToTarget.normalize();
-            if (playerToTarget.dot(playerView) < tolerance / dist) {
+            if (playerToTarget.dot(playerView) > 1.0 - tolerance / dist) {
                 // looks in the right direction
                 if (!ViveMain.NMS.clipWorld(ViveMain.NMS.getLevel(player), playerHead, targetHeadOffset,
                     visualClip ? BlockContext.VISUAL : BlockContext.COLLIDER, FluidContext.NONE, player))

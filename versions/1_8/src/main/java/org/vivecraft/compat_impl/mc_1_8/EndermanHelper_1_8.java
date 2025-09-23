@@ -4,7 +4,6 @@ import org.vivecraft.ViveMain;
 import org.vivecraft.accessors.*;
 import org.vivecraft.compat.entities.EndermanHelper;
 import org.vivecraft.compat.entities.EndermanLookForPlayerGoalAccessor;
-import org.vivecraft.debug.Debug;
 import org.vivecraft.util.reflection.ClassGetter;
 import org.vivecraft.util.reflection.ReflectionConstructor;
 import org.vivecraft.util.reflection.ReflectionField;
@@ -71,7 +70,8 @@ public class EndermanHelper_1_8 implements EndermanHelper {
             throw new RuntimeException(e);
         }
         this.NearestAttackableTargetGoal_predicate = ReflectionField.getField(
-            NearestAttackableTargetGoalMapping.FIELD_FIELD_82643_G, NearestAttackableTargetGoalMapping.FIELD_FIELD_82643_G_1);
+            NearestAttackableTargetGoalMapping.FIELD_FIELD_82643_G,
+            NearestAttackableTargetGoalMapping.FIELD_FIELD_82643_G_1);
         this.NearestAttackableTargetGoal_comparator = ReflectionField.getField(
             NearestAttackableTargetGoalMapping.FIELD_FIELD_75306_G);
         this.Entity_getBoundingBox = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_BOUNDING_BOX);
@@ -149,7 +149,7 @@ public class EndermanHelper_1_8 implements EndermanHelper {
         if (goal.getPendingTarget() != null) {
             goal.setAggroTime(goal.getAggroTime() - 1);
             if (goal.getAggroTime() <= 0) {
-                goal.setTarget(goal.getEnderman());
+                goal.setTarget(goal.getPendingTarget());
                 goal.setPendingTarget(null);
                 goal.superStart();
                 this.Entity_makeSound.invoke(goal.getEnderman(), "mob.endermen.stare", 1F, 1F);
