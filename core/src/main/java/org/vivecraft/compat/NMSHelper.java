@@ -149,6 +149,11 @@ public interface NMSHelper {
     Vector getHeadPosVR(Object nmsEntity);
 
     /**
+     * gets teh position of the entity
+     */
+    Vector getEntityPosition(Object nmsEntity);
+
+    /**
      * gets the head direction of the given entity, accounting for vrplayers
      */
     Vector getViewVectorVR(Object nmsEntity);

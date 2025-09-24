@@ -21,4 +21,13 @@ public interface EndermanLookForPlayerGoalAccessor {
     int getTeleportTime();
 
     void superStart();
+
+    // 1.14+
+    void setStartAggroConditions(Object condition);
+
+    Object getStartAggroConditions();
+
+    void setContinueAggroConditions(Object condition);
+
+    Object getContinueAggroConditions();
 }

@@ -3,15 +3,17 @@ package org.vivecraft.compat_impl.mc_1_14;
 import org.bukkit.util.Vector;
 import org.vivecraft.ViveMain;
 import org.vivecraft.accessors.*;
-import org.vivecraft.compat_impl.mc_1_8.EndermanHelper_1_8;
+import org.vivecraft.compat.entities.EndermanLookForPlayerGoalAccessor;
+import org.vivecraft.compat_impl.mc_1_13.EndermanHelper_1_13;
 import org.vivecraft.util.reflection.ClassGetter;
 import org.vivecraft.util.reflection.ReflectionConstructor;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
 import java.util.EnumSet;
+import java.util.function.Predicate;
 
-public class EndermanHelper_1_14 extends EndermanHelper_1_8 {
+public class EndermanHelper_1_14 extends EndermanHelper_1_13 {
 
     protected ReflectionMethod Goal_setFlags;
     protected ReflectionField GoalFlag_MOVE;
@@ -27,9 +29,13 @@ public class EndermanHelper_1_14 extends EndermanHelper_1_8 {
 
     protected Class<?> EndermanFreeze;
 
-    public EndermanHelper_1_14() {
-        this.init();
-    }
+    protected ReflectionMethod EntityGetter_getNearestPlayer;
+    protected ReflectionConstructor TargetingConditions_Constructor;
+    protected ReflectionMethod TargetingConditions_range;
+    protected ReflectionMethod TargetingConditions_allowUnseeable;
+    protected ReflectionMethod TargetingConditions_selector;
+    protected ReflectionMethod TargetingConditions_test;
+    protected ReflectionMethod Entity_isPassanger;
 
     protected void init() {
         super.init();
@@ -48,6 +54,21 @@ public class EndermanHelper_1_14 extends EndermanHelper_1_8 {
             "org.vivecraft.compat_impl.mc_X_X.VREndermanFreezeWhenLookAt",
             ClassGetter.getClass(true, EnderManMapping.MAPPING));
         this.VREndermanFreezeWhenLookAt = this.VREndermanFreezeWhenLookAt_Constructor.constructor.getDeclaringClass();
+    }
+
+    @Override
+    protected void initFindPlayer() {
+        this.EntityGetter_getNearestPlayer = ReflectionMethod.getMethod(EntityGetterMapping.METHOD_GET_NEAREST_PLAYER);
+
+        this.TargetingConditions_Constructor = ReflectionConstructor.getConstructor(false,
+            TargetingConditionsMapping.CONSTRUCTOR_0);
+        this.TargetingConditions_range = ReflectionMethod.getMethod(TargetingConditionsMapping.METHOD_RANGE);
+        this.TargetingConditions_allowUnseeable = ReflectionMethod.getMethod(
+            TargetingConditionsMapping.METHOD_IGNORE_LINE_OF_SIGHT,
+            TargetingConditionsMapping.METHOD_ALLOW_UNSEEABLE);
+        this.TargetingConditions_selector = ReflectionMethod.getMethod(TargetingConditionsMapping.METHOD_SELECTOR);
+        this.TargetingConditions_test = ReflectionMethod.getMethod(TargetingConditionsMapping.METHOD_TEST);
+        this.Entity_isPassanger = ReflectionMethod.getMethod(EntityMapping.METHOD_IS_PASSENGER);
     }
 
     @Override
@@ -90,5 +111,43 @@ public class EndermanHelper_1_14 extends EndermanHelper_1_8 {
     @Override
     public void freezeStart(Object enderman) {
         this.PathNavigation_stop.invoke(this.Mob_getNavigation.invoke(enderman));
+    }
+
+    @Override
+    public void lookForPlayerInit(EndermanLookForPlayerGoalAccessor goal, double distance) {
+        goal.setContinueAggroConditions(
+            this.TargetingConditions_allowUnseeable.invoke(this.TargetingConditions_Constructor.newInstance()));
+        goal.setStartAggroConditions(this.TargetingConditions_selector.invoke(
+            this.TargetingConditions_range.invoke(this.TargetingConditions_Constructor.newInstance(), distance),
+            (Predicate) (player) -> canPlayerSeeEnderman(player, goal.getEnderman())));
+    }
+
+    @Override
+    public Object lookForPlayerNearest(EndermanLookForPlayerGoalAccessor goal, double distance) {
+        Object level = ViveMain.NMS.getLevel(goal.getEnderman());
+        return this.EntityGetter_getNearestPlayer.invoke(level, goal.getStartAggroConditions(), goal.getEnderman());
+    }
+
+    @Override
+    public Boolean lookForPlayerContinueUse(EndermanLookForPlayerGoalAccessor goal) {
+        if (goal.getPendingTarget() != null) {
+            if (!this.canPlayerSeeEnderman(goal.getPendingTarget(), goal.getEnderman())) {
+                return false;
+            }
+            this.Mob_lookAt.invoke(goal.getEnderman(), goal.getPendingTarget(), 10F, 10F);
+            return true;
+        }
+        if (goal.getTarget() != null &&
+            (boolean) this.TargetingConditions_test.invoke(goal.getContinueAggroConditions(), goal.getEnderman(),
+                goal.getTarget()))
+        {
+            return true;
+        }
+        return null;
+    }
+
+    @Override
+    protected boolean canTp(Object enderman) {
+        return !(boolean) this.Entity_isPassanger.invoke(enderman);
     }
 }

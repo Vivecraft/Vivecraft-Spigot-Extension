@@ -71,13 +71,29 @@ accessors {
         method("double", "distanceToSqr", "net.minecraft.world.entity.Entity")
         method("net.minecraft.world.phys.Vec3", "getEyePosition", "float")
         method("float", "getEyeHeight")
-
+        method("boolean", "isAlive")
         method("void", "makeSound", "java.lang.String", "float", "float")
+        method("boolean", "isPassenger")
+        method("boolean", "hasIndirectPassenger", "net.minecraft.world.entity.Entity")
     }
 
-    mapClass("net.minecraft.world.entity.player.Player")
+    mapClass("net.minecraft.world.entity.player.Player") {
+        field("net.minecraft.world.entity.player.Inventory", "inventory")
+        method("net.minecraft.world.entity.player.Inventory", "getInventory")
+    }
     mapClass("net.minecraft.server.level.ServerPlayer") {
         field("net.minecraft.server.network.ServerGamePacketListenerImpl", "connection")
+    }
+    mapClass("net.minecraft.world.entity.player.Inventory") {
+        field("net.minecraft.server.VVV.ItemStack[]", "armor") // 1.8-1.10
+        field("net.minecraft.core.NonNullList", "armor") // 1.11-1.21.4
+    }
+    mapClass("net.minecraft.world.level.block.Blocks") {
+        field("net.minecraft.world.level.block.Block", "CARVED_PUMPKIN")
+        field("net.minecraft.world.level.block.Block", "PUMPKIN")
+    }
+    mapClass("net.minecraft.world.level.block.Block") {
+        method("net.minecraft.world.item.Item", "asItem")
     }
 
     mapClass("net.minecraft.server.network.ServerGamePacketListenerImpl") {
@@ -111,6 +127,17 @@ accessors {
         // 1.12-
         method("net.minecraft.util.math.RayTraceResult", "func_147447_a", "net.minecraft.util.math.Vec3d",
             "net.minecraft.util.math.Vec3d", "boolean", "boolean", "boolean")
+        // 1.9-1.12 getClosestPlayer
+        method("net.minecraft.entity.player.EntityPlayer", "func_184150_a", "double", "double", "double", "double",
+            "double", "com.google.common.base.Function", "com.google.common.base.Predicate")
+        // 1.13 getClosestPlayer
+        method("net.minecraft.entity.player.EntityPlayer", "func_184150_a", "double", "double", "double", "double",
+            "double", "java.util.function.Function", "java.util.function.Predicate")
+    }
+    mapClass("net.minecraft.world.level.EntityGetter") {
+        // 1.14 +
+        method("net.minecraft.world.entity.player.Player", "getNearestPlayer",
+            "net.minecraft.world.entity.ai.targeting.TargetingConditions", "net.minecraft.world.entity.LivingEntity")
     }
     mapClass("net.minecraft.world.level.ClipContext") {
         constructor("net.minecraft.world.phys.Vec3", "net.minecraft.world.phys.Vec3",
@@ -154,6 +181,7 @@ accessors {
         method("net.minecraft.world.item.ItemStack", "setHoverName", "net.minecraft.network.chat.Component")
         method("java.lang.Object", "set", "net.minecraft.core.component.DataComponentType", "java.lang.Object")
         method("net.minecraft.world.item.Item", "getItem")
+        method("boolean", "is", "net.minecraft.world.item.Item")
     }
 
     mapClass("net.minecraft.world.item.Item") {
@@ -163,6 +191,7 @@ accessors {
             "net.minecraft.world.entity.EquipmentSlot")
         method("com.google.common.collect.Multimap", "func_111205_h") // 1.8.8
         method("int", "getId", "net.minecraft.world.item.Item")
+        method("net.minecraft.world.item.Item", "byBlock", "net.minecraft.world.level.block.Block")
     }
 
     mapClass("net.minecraft.world.item.ArmorItem") {
@@ -264,6 +293,7 @@ accessors {
         method("void", "start")
         method("void", "stop")
         method("void", "tick")
+        method("int", "adjustedTickDelay", "int")
     }
     mapClass("net.minecraft.world.entity.ai.goal.Goal\$Flag") {
         field("net.minecraft.world.entity.ai.goal.Goal\$Flag", "MOVE")
@@ -282,6 +312,9 @@ accessors {
         method("net.minecraft.world.entity.ai.navigation.PathNavigation", "getNavigation")
         method("net.minecraft.world.entity.ai.control.LookControl", "getLookControl")
         method("void", "lookAt", "net.minecraft.world.entity.Entity", "float", "float")
+    }
+    mapClass("net.minecraft.world.entity.NeutralMob") {
+        method("boolean", "isAngryAt", "net.minecraft.world.entity.LivingEntity")
     }
     mapClass("net.minecraft.world.entity.ai.goal.target.TargetGoal") {
         method("double", "getFollowDistance")
@@ -317,6 +350,17 @@ accessors {
         method("void", "func_70819_e", "boolean")
         method("boolean", "teleportTowards", "net.minecraft.world.entity.Entity")
         method("boolean", "teleport")
+        method("void", "setBeingStaredAt")
     }
     mapClass("net.minecraft.world.entity.PathfinderMob")
+
+    mapClass("net.minecraft.world.entity.ai.targeting.TargetingConditions") {
+        constructor()
+        method("net.minecraft.world.entity.ai.targeting.TargetingConditions", "forCombat")
+        method("net.minecraft.world.entity.ai.targeting.TargetingConditions", "range", "double")
+        method("net.minecraft.world.entity.ai.targeting.TargetingConditions", "allowUnseeable")
+        method("net.minecraft.world.entity.ai.targeting.TargetingConditions", "ignoreLineOfSight")
+        method("net.minecraft.world.entity.ai.targeting.TargetingConditions", "selector", "java.util.function.Predicate")
+        method("boolean", "test", "net.minecraft.world.entity.LivingEntity", "net.minecraft.world.entity.LivingEntity")
+    }
 }

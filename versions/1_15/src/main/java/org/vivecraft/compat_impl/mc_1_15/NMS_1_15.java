@@ -16,8 +16,8 @@ public class NMS_1_15 extends NMS_1_14_4 {
     }
 
     @Override
-    protected Vector getPosition(Object serverPlayer) {
-        Object pos = this.Entity_position.invoke(serverPlayer);
+    public Vector getEntityPosition(Object nmsEntity) {
+        Object pos = this.Entity_position.invoke(nmsEntity);
         return new Vector(
             (double) this.Vec3_X.get(pos),
             (double) this.Vec3_Y.get(pos),

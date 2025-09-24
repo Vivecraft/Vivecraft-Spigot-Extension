@@ -105,7 +105,7 @@ public class Generate {
             if (type.contains(".")) {
                 classes.add(type);
             }
-            String method = "    public " + type + " " + methodName + "(";
+            String method = "    " + (current.has("access") ? current.get("access").getAsString() : "public") + " " + type + " " + methodName + "(";
             char argName = 'a';
             boolean firstArg = true;
 
@@ -179,7 +179,11 @@ public class Generate {
                     content += "import " + getClass(imp, version) + ";\n";
                 }
 
-                content += "\npublic class " + parentName + " {\n";
+                content += "\npublic class " + parentName;
+                if (parent.has("parent")) {
+                    content += " extends " + parent.get("parent").getAsString();
+                }
+                content += " {\n";
 
                 if (!fields.isEmpty()) {
                     content += "\n";
@@ -263,11 +267,13 @@ public class Generate {
     private static void writeAndRemapTemplate(
         VersionLimit limit, String template, JsonObject parent, JsonObject mappings) throws IOException
     {
-        String codeOrg = String.join("\n",
-            Files.readAllLines(new File("src/main/java/org/vivecraft/compat_impl/mc_X_X/" + template).toPath()));
+        List<String> lines = Files.readAllLines(
+            new File("src/main/java/org/vivecraft/compat_impl/mc_X_X/" + template).toPath());
         for (String version : getVersions(parent.get("class").getAsString())) {
             MCVersion mc = MCVersion.parse(version, true);
             if (!limit.valid(mc)) continue;
+
+            String code = preprocessLines(lines, mc);
             File target = new File(generatedMC,
                 mc.version_ + "_gen/src/main/java/org/vivecraft/compat_impl/mc_" + mc.version_ + "/" + template);
             target.getParentFile().mkdirs();
@@ -277,7 +283,7 @@ public class Generate {
                 new File(generatedMC, mc.version_ + "_gen/build.gradle"), Utils.MapOf("XX_XX", version));
 
             try (FileWriter writer = new FileWriter(target)) {
-                String code = codeOrg.replace("mc_X_X", "mc_" + mc.version_);
+                code = code.replace("mc_X_X", "mc_" + mc.version_);
 
                 for (String clazz : mappings.getAsJsonArray("classes").asList().stream().map(JsonElement::getAsString)
                     .sorted(Comparator.comparing(String::length).reversed()).collect(Collectors.toList())) {
@@ -302,6 +308,22 @@ public class Generate {
                 writer.write(code);
             }
         }
+    }
+
+    private static String preprocessLines(List<String> lines, MCVersion mc) {
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines) {
+            if (line.startsWith("//#")) {
+                String condition = line.substring(0, line.lastIndexOf("#") + 1);
+                String[] versions = condition.replace("/", "").replace("#", "").split("-");
+                if (!new VersionLimit(versions[0], versions[1]).valid(mc)) {
+                    continue;
+                }
+                line = line.substring(condition.length());
+            }
+            sb.append(line).append("\n");
+        }
+        return sb.toString();
     }
 
     private static void copyFile(File src, File dst, Map<String, String> replacements) throws IOException {

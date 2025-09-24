@@ -5,17 +5,28 @@ import org.vivecraft.compat.entities.EndermanLookForPlayerGoalAccessor;
 
 public class VREndermanLookForPlayerGoal
     extends net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal
-    implements EndermanLookForPlayerGoalAccessor {
+    implements EndermanLookForPlayerGoalAccessor
+{
 
     private final net.minecraft.world.entity.monster.EnderMan enderman;
     private Object pendingTarget;
     private int aggroTime;
     private int teleportTime;
 
+    private Object startAggroConditions;
+    private Object continueAggroConditions;
+
     public VREndermanLookForPlayerGoal(net.minecraft.world.entity.monster.EnderMan enderman) {
-        super((net.minecraft.world.entity.PathfinderMob) (Object) enderman, net.minecraft.world.entity.player.Player.class,
-            ViveMain.MC_MODS.endermanHelper().lookForPlayerMustSee());
+        super(
+//#1.8-1.13.2#        (net.minecraft.world.entity.PathfinderMob) (Object) enderman,
+//#1.14-1.99.99#        (net.minecraft.world.entity.Mob) (Object) enderman,
+            net.minecraft.world.entity.player.Player.class,
+//#1.16-1.99.99#        10,
+            ViveMain.MC_MODS.endermanHelper().lookForPlayerMustSee()
+//#1.16-1.99.99#        , false, ViveMain.MC_MODS.endermanHelper().isAngryAtPredicate(enderman)
+        );
         this.enderman = enderman;
+        ViveMain.MC_MODS.endermanHelper().lookForPlayerInit(this, this.getFollowDistance());
     }
 
     @Override
@@ -71,7 +82,7 @@ public class VREndermanLookForPlayerGoal
     public void setTarget(Object target) {
         if (target != null) {
             this.target = (net.minecraft.world.entity.LivingEntity) target;
-        } else  {
+        } else {
             this.target = null;
         }
     }
@@ -104,5 +115,25 @@ public class VREndermanLookForPlayerGoal
     @Override
     public void superStart() {
         super.start();
+    }
+
+    @Override
+    public void setStartAggroConditions(Object condition) {
+        this.startAggroConditions = condition;
+    }
+
+    @Override
+    public Object getStartAggroConditions() {
+        return this.startAggroConditions;
+    }
+
+    @Override
+    public void setContinueAggroConditions(Object condition) {
+        this.continueAggroConditions = condition;
+    }
+
+    @Override
+    public Object getContinueAggroConditions() {
+        return this.continueAggroConditions;
     }
 }

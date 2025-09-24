@@ -111,6 +111,8 @@ gradle.projectsEvaluated {
 shadowJar {
     archiveClassifier.set('')
     //relocate 'org.joml', 'shadow.io.org.joml'
+    // exclude the minecraft files that slip in there from the remapping process
+    exclude "net/**"
     /*minimize() {
         subprojects.each { subproj ->
             exclude dependency(subproj)

@@ -66,6 +66,8 @@ tasks.register("remap") {
             mainClass = 'net.md_5.specialsource.SpecialSource'
             workingDir = jar.parentFile
             args = ["-i", jar,
+                    // need the stups for parent resolving
+                    "-i", project(':gen:stubs').jar.outputs.files.getFiles()[0],
                     "-o", obfFile,
                     "-m", mojangmap.absolutePath,
                     "--reverse"]

@@ -29,10 +29,10 @@ public class NMS_1_14 extends NMS_1_13_2 {
     @Override
     protected void init() {
         super.init();
-        this.FluidClipContext_WATER = ReflectionField.getField(ClipContext$FluidMapping.FIELD_WATER);
+        this.FluidClipContext_WATER = ReflectionField.getField(false, ClipContext$FluidMapping.FIELD_WATER);
         this.BlockClipContext_COLLIDER = ReflectionField.getField(ClipContext$BlockMapping.FIELD_COLLIDER);
         this.BlockClipContext_OUTLINE = ReflectionField.getField(ClipContext$BlockMapping.FIELD_OUTLINE);
-        this.BlockClipContext_VISUAL = ReflectionField.getField(ClipContext$BlockMapping.FIELD_VISUAL);
+        this.BlockClipContext_VISUAL = ReflectionField.getField(false, ClipContext$BlockMapping.FIELD_VISUAL);
         this.ClipContext = ReflectionConstructor.getConstructor(ClipContextMapping.CONSTRUCTOR_0);
         this.BlockHitResult_getType = ReflectionMethod.getMethod(BlockHitResultMapping.METHOD_GET_TYPE);
         this.HitResultType_MISS = ReflectionField.getField(HitResult$TypeMapping.FIELD_MISS);
@@ -71,7 +71,11 @@ public class NMS_1_14 extends NMS_1_13_2 {
                 fluidContext = this.FluidClipContext_ANY.get();
                 break;
             case WATER:
-                fluidContext = this.FluidClipContext_WATER.get();
+                if (this.FluidClipContext_WATER != null) {
+                    fluidContext = this.FluidClipContext_WATER.get();
+                } else {
+                    fluidContext = this.FluidClipContext_NONE.get();
+                }
                 break;
             case NONE:
                 fluidContext = this.FluidClipContext_NONE.get();
@@ -86,7 +90,11 @@ public class NMS_1_14 extends NMS_1_13_2 {
                 blockContext = this.BlockClipContext_OUTLINE.get();
                 break;
             case VISUAL:
-                blockContext = this.BlockClipContext_VISUAL.get();
+                if (this.BlockClipContext_VISUAL != null) {
+                    blockContext = this.BlockClipContext_VISUAL.get();
+                } else {
+                    blockContext = this.BlockClipContext_OUTLINE.get();
+                }
                 break;
         }
         return this.BlockHitResult_getType.invoke(this.Level_Clip.invoke(level,

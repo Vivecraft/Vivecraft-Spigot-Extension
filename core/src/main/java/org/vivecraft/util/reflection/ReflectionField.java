@@ -30,6 +30,18 @@ public class ReflectionField {
      * @throws RuntimeException When no matching field is found
      */
     public static ReflectionField getField(FieldMapping... mappings) {
+        return getField(true, mappings);
+    }
+
+    /**
+     * Tries to find any reflection field matching the given mappings
+     *
+     * @param critical when true, this will fail with an exception, instead of returning {@code null}
+     * @param mappings one or multiple mappings to try
+     * @return found reflection field, or {@code null}, if not found and {@code critical} is false
+     * @throws RuntimeException When no matching field is found and {@code critical} is true
+     */
+    public static ReflectionField getField(boolean critical, FieldMapping... mappings) {
         // get the matching field with the closest matching version, preferring older ones, unless there is none
         Field f = null;
         // need to also try mojang, because of paper
@@ -40,9 +52,13 @@ public class ReflectionField {
 
         if (f == null) {
             // if it is still null we don't support it yet
-            throw new RuntimeException(
-                "Unsupported mc version: " + MCVersion.getCurrent().version + ", no mapping found for: " +
-                    mappings[0].getParent().getName() + "." + mappings[0].getName());
+            if (critical) {
+                throw new RuntimeException(
+                    "Unsupported mc version: " + MCVersion.getCurrent().version + ", no mapping found for: " +
+                        mappings[0].getParent().getName() + "." + mappings[0].getName());
+            } else {
+                return null;
+            }
         }
 
         // make sure it is accessible

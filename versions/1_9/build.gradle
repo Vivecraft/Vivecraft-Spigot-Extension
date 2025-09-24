@@ -1,4 +1,5 @@
 dependencies {
     compileOnly('org.spigotmc:spigot-api:1.9-R0.1-SNAPSHOT')
+    compileOnly("com.google.guava:guava:17.0")
     api(project(":versions:1_8"))
 }

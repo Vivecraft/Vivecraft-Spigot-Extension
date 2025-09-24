@@ -180,11 +180,12 @@ public class NMS_1_8 implements NMSHelper {
         this.ArmorItem = ClassGetter.getClass(true, ArmorItemMapping.MAPPING);
     }
 
-    protected Vector getPosition(Object serverPlayer) {
+    @Override
+    public Vector getEntityPosition(Object nmsEntity) {
         return new Vector(
-            (double) this.Entity_x.get(serverPlayer),
-            (double) this.Entity_y.get(serverPlayer),
-            (double) this.Entity_z.get(serverPlayer));
+            (double) this.Entity_x.get(nmsEntity),
+            (double) this.Entity_y.get(nmsEntity),
+            (double) this.Entity_z.get(nmsEntity));
     }
 
     protected void setPosition(Object serverPlayer, double x, double y, double z) {
@@ -301,7 +302,7 @@ public class NMS_1_8 implements NMSHelper {
 
     @Override
     public PlayerState getPlayerState(Object serverPlayer) {
-        Vector pos = this.getPosition(serverPlayer);
+        Vector pos = this.getEntityPosition(serverPlayer);
         Vector rot = this.getRotation(serverPlayer);
         return new PlayerState(pos.getX(), pos.getY(), pos.getZ(), (double) this.Entity_xo.get(serverPlayer),
             (double) this.Entity_yo.get(serverPlayer), (double) this.Entity_zo.get(serverPlayer),
@@ -338,7 +339,7 @@ public class NMS_1_8 implements NMSHelper {
         this.LivingEntity_yHeadRotO.set(serverPlayer, original.prevYHeadRot);
         this.Entity_eyeHeight.set(serverPlayer, original.eyeHeight);
 
-        Vector newPos = this.getPosition(serverPlayer);
+        Vector newPos = this.getEntityPosition(serverPlayer);
         double x = newPos.getX();
         double y = newPos.getY();
         double z = newPos.getZ();

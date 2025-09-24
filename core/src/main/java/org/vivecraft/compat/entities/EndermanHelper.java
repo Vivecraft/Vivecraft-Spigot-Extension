@@ -1,5 +1,7 @@
 package org.vivecraft.compat.entities;
 
+import java.util.function.Predicate;
+
 public interface EndermanHelper {
 
     /**
@@ -54,6 +56,16 @@ public interface EndermanHelper {
     boolean lookForPlayerMustSee();
 
     /**
+     * creates objects in the goal instance
+     */
+    void lookForPlayerInit(EndermanLookForPlayerGoalAccessor goal, double distance);
+
+    /**
+     * creates a predicate that returns if the enderman is angry at a living entity
+     */
+    Predicate isAngryAtPredicate(Object enderman);
+
+    /**
      * gets the closest player in the area
      */
     Object lookForPlayerNearest(EndermanLookForPlayerGoalAccessor goal, double distance);
@@ -77,4 +89,9 @@ public interface EndermanHelper {
      * teleports the enderman, and returns if the super tick should be called
      */
     boolean lookForPlayerTick(EndermanLookForPlayerGoalAccessor goal);
+
+    /**
+     * checks if the player has a pumpkin
+     */
+    boolean hasProtection(Object nmsPlayer);
 }

@@ -11,6 +11,7 @@ import org.vivecraft.util.reflection.ReflectionMethod;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class EndermanHelper_1_8 implements EndermanHelper {
 
@@ -31,6 +32,12 @@ public class EndermanHelper_1_8 implements EndermanHelper {
     protected ReflectionMethod AttributeInstance_addModifier;
     protected ReflectionField Enderman_SPEED_MODIFIER_ATTACKING;
 
+    protected ReflectionField Player_inventory;
+    protected ReflectionField Inventory_armor;
+    protected ReflectionMethod ItemStack_getItem;
+    protected ReflectionMethod Item_byBlock;
+    protected ReflectionField Blocks_CARVED_PUMPKIN;
+
     protected ReflectionMethod Mob_getTarget;
 
     protected ReflectionMethod Entity_distanceToSqr;
@@ -43,12 +50,15 @@ public class EndermanHelper_1_8 implements EndermanHelper {
     public EndermanHelper_1_8() {
         this.init();
         this.initFindPlayer();
+        this.initInventory();
     }
 
     protected void init() {
-
         this.Mob_getTarget = ReflectionMethod.getMethod(MobMapping.METHOD_GET_TARGET);
         this.Entity_distanceToSqr = ReflectionMethod.getMethod(EntityMapping.METHOD_DISTANCE_TO_SQR);
+        this.Mob_lookAt = ReflectionMethod.getMethod(MobMapping.METHOD_LOOK_AT);
+        this.Enderman_teleport = ReflectionMethod.getMethod(EnderManMapping.METHOD_TELEPORT);
+        this.Enderman_teleportTowards = ReflectionMethod.getMethod(EnderManMapping.METHOD_TELEPORT_TOWARDS);
 
         this.EndermanLookForPlayer = ClassGetter.getClass(true, EnderMan$EndermanLookForPlayerGoalMapping.MAPPING);
 
@@ -77,7 +87,6 @@ public class EndermanHelper_1_8 implements EndermanHelper {
         this.Entity_getBoundingBox = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_BOUNDING_BOX);
         this.Enderman_setCreepy = ReflectionMethod.getMethod(EnderManMapping.METHOD_FUNC_70819_E);
         this.Enderman_isAggressive = ReflectionField.getField(EnderManMapping.FIELD_FIELD_104003_G);
-        this.Mob_lookAt = ReflectionMethod.getMethod(MobMapping.METHOD_LOOK_AT);
         this.LivingEntity_getAttribute = ReflectionMethod.getMethod(LivingEntityMapping.METHOD_GET_ATTRIBUTE);
         this.Attributes_MOVEMENT_SPEED = ReflectionField.getField(AttributesMapping.FIELD_MOVEMENT_SPEED);
         this.AttributeInstance_removeModifier = ReflectionMethod.getMethod(
@@ -85,10 +94,20 @@ public class EndermanHelper_1_8 implements EndermanHelper {
         this.AttributeInstance_addModifier = ReflectionMethod.getMethod(AttributeInstanceMapping.METHOD_ADD_MODIFIER);
         this.Enderman_SPEED_MODIFIER_ATTACKING = ReflectionField.getField(
             EnderManMapping.FIELD_SPEED_MODIFIER_ATTACKING);
-        this.Enderman_teleport = ReflectionMethod.getMethod(EnderManMapping.METHOD_TELEPORT);
-        this.Enderman_teleportTowards = ReflectionMethod.getMethod(EnderManMapping.METHOD_TELEPORT_TOWARDS);
         this.Entity_makeSound = ReflectionMethod.getMethod(EntityMapping.METHOD_MAKE_SOUND);
         this.AABB_inflate = ReflectionMethod.getMethod(AABBMapping.METHOD_INFLATE);
+    }
+
+    protected void initInventory() {
+        this.Player_inventory = ReflectionField.getField(PlayerMapping.FIELD_INVENTORY);
+        this.Inventory_armor = ReflectionField.getField(InventoryMapping.FIELD_ARMOR_1, InventoryMapping.FIELD_ARMOR);
+        this.ItemStack_getItem = ReflectionMethod.getMethod(ItemStackMapping.METHOD_GET_ITEM);
+        this.Item_byBlock = ReflectionMethod.getMethod(ItemMapping.METHOD_BY_BLOCK);
+        this.Blocks_CARVED_PUMPKIN = ReflectionField.getField(BlocksMapping.FIELD_CARVED_PUMPKIN, BlocksMapping.FIELD_PUMPKIN);
+    }
+
+    protected int adjustedTickDelay(Object goal, int tickDelay) {
+        return tickDelay;
     }
 
     @Override
@@ -103,7 +122,16 @@ public class EndermanHelper_1_8 implements EndermanHelper {
 
     @Override
     public boolean lookForPlayerMustSee() {
+        // only true for 1.8
         return true;
+    }
+
+    @Override
+    public void lookForPlayerInit(EndermanLookForPlayerGoalAccessor goal, double distance) {}
+
+    @Override
+    public Predicate isAngryAtPredicate(Object enderman) {
+        throw new AssertionError();
     }
 
     @Override
@@ -118,7 +146,7 @@ public class EndermanHelper_1_8 implements EndermanHelper {
 
     @Override
     public void lookForPlayerStart(EndermanLookForPlayerGoalAccessor goal) {
-        goal.setAggroTime(5);
+        goal.setAggroTime(this.adjustedTickDelay(goal, 5));
         goal.setTeleportTime(0);
     }
 
@@ -170,9 +198,7 @@ public class EndermanHelper_1_8 implements EndermanHelper {
                     goal.setTeleportTime(0);
                 } else if ((double) this.Entity_distanceToSqr.invoke(goal.getTarget(), goal.getEnderman()) > 256.0) {
                     goal.setTeleportTime(goal.getTeleportTime() + 1);
-                    if (goal.getTeleportTime() > 30) {
-                    }
-                    if (goal.getTeleportTime() > 30 &&
+                    if (goal.getTeleportTime() > this.adjustedTickDelay(goal, 30) &&
                         (boolean) this.Enderman_teleportTowards.invoke(goal.getEnderman(), goal.getTarget()))
                     {
                         goal.setTeleportTime(0);
@@ -213,8 +239,15 @@ public class EndermanHelper_1_8 implements EndermanHelper {
         throw new AssertionError();
     }
 
+    @Override
+    public boolean hasProtection(Object nmsPlayer) {
+        Object headitem = ((Object[]) this.Inventory_armor.get(this.Player_inventory.get(nmsPlayer)))[3];
+        return headitem != null &&
+            this.ItemStack_getItem.invoke(headitem) == this.Item_byBlock.invokes(this.Blocks_CARVED_PUMPKIN.get());
+    }
+
     protected boolean canPlayerSeeEnderman(Object target, Object enderman) {
-        return ViveMain.NMS.canSeeEachOther(target, enderman, ViveMain.NMS.isVRPlayer(target) ? 0.1 : 0.025,
-            true, false);
+        return !this.hasProtection(target) &&
+            ViveMain.NMS.canSeeEachOther(target, enderman, ViveMain.NMS.isVRPlayer(target) ? 0.1 : 0.025, true, false);
     }
 }
