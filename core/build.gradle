@@ -284,8 +284,11 @@ accessors {
     mapClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     mapClass("net.minecraft.world.entity.monster.Creeper") {
         method("int", "getSwellDir")
+        method("void", "setSwellDir", "int")
     }
-    mapClass("net.minecraft.world.entity.ai.goal.SwellGoal")
+    mapClass("net.minecraft.world.entity.ai.goal.SwellGoal") {
+        field("net.minecraft.world.entity.LivingEntity", "target")
+    }
     mapClass("net.minecraft.world.entity.ai.goal.Goal") {
         method("boolean", "canUse")
         method("boolean", "canContinueToUse")
@@ -312,6 +315,10 @@ accessors {
         method("net.minecraft.world.entity.ai.navigation.PathNavigation", "getNavigation")
         method("net.minecraft.world.entity.ai.control.LookControl", "getLookControl")
         method("void", "lookAt", "net.minecraft.world.entity.Entity", "float", "float")
+        method("net.minecraft.world.entity.ai.sensing.Sensing", "getSensing")
+    }
+    mapClass("net.minecraft.world.entity.ai.sensing.Sensing") {
+        method("boolean", "hasLineOfSight", "net.minecraft.world.entity.Entity")
     }
     mapClass("net.minecraft.world.entity.NeutralMob") {
         method("boolean", "isAngryAt", "net.minecraft.world.entity.LivingEntity")

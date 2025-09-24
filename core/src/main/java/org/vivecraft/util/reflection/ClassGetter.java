@@ -17,24 +17,29 @@ public class ClassGetter {
         // get the matching filed with the closest matching version, preferring older ones, unless there is none
         MCVersion mc = MCVersion.getCurrent();
         Class<?> c = null;
-        for (ClassMapping mapping : mappings) {
-            int major = mc.major;
-            int minor = mc.minor;
-            while (major > 7 && c == null) {
-                while (minor >= 0 && c == null) {
-                    if (minor == 0) {
-                        c = mapping.getClass("1." + major, "spigot");
-                    } else {
-                        c = mapping.getClass("1." + major + "." + minor, "spigot");
+        for (String namespace : new String[]{"spigot", "mojang"}) {
+            for (ClassMapping mapping : mappings) {
+                int major = mc.major;
+                int minor = mc.minor;
+                while (major > 7 && c == null) {
+                    while (minor >= 0 && c == null) {
+                        if (minor == 0) {
+                            c = mapping.getClass("1." + major, namespace);
+                        } else {
+                            c = mapping.getClass("1." + major + "." + minor, namespace);
+                        }
+                        minor--;
                     }
-                    minor--;
+                    minor = 10;
+                    major--;
                 }
-                minor = 10;
-                major--;
-            }
-            if (c == null && mc.major <= 8) {
-                // get 1.8.8 in this case, that is the oldest mapping that takenaka supports
-                c = mapping.getClass("1.8.8", "spigot");
+                if (c == null && mc.major <= 8) {
+                    // get 1.8.8 in this case, that is the oldest mapping that takenaka supports
+                    c = mapping.getClass("1.8.8", namespace);
+                }
+                if (c != null) {
+                    break;
+                }
             }
             if (c != null) {
                 break;

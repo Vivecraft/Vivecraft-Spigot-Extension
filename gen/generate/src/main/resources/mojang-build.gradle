@@ -29,6 +29,7 @@ artifacts {
 }
 
 tasks.register("remap") {
+    dependsOn ':gen:stubs:jar'
     dependsOn(jar)
 
     inputs.files(jar.outputs.files, configurations.mappings)

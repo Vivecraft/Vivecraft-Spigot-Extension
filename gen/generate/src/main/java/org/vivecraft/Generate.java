@@ -1,6 +1,5 @@
 package org.vivecraft;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -25,9 +24,9 @@ public class Generate {
     private static final File mojangGradle = new File("src/main/resources/mojang-build.gradle");
 
     public static void main(String[] args) throws Exception {
-        JsonObject templates;
+        JsonObject allData;
         try (FileReader reader = new FileReader("src/main/resources/templates.json")) {
-            templates = JsonParser.parseReader(reader).getAsJsonObject();
+            allData = JsonParser.parseReader(reader).getAsJsonObject();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -40,34 +39,21 @@ public class Generate {
 
         Map<String, Set<String>> processedClasses = new HashMap<>();
 
+        JsonObject templates = allData.getAsJsonObject("templates");
+        JsonObject mappings = allData.getAsJsonObject("mappings");
         for (String key : templates.keySet()) {
             JsonObject root = templates.getAsJsonObject(key);
             // there needs to be an implementation for all mappings of this class,
             // and stubs need to be generated for this
-            VersionLimit limit;
-            if (root.has("versions")) {
-                String from = null;
-                String to = null;
-                if (root.getAsJsonObject("versions").has("from")) {
-                    from = root.getAsJsonObject("versions").get("from").getAsString();
-                }
-                if (root.getAsJsonObject("versions").has("to")) {
-                    to = root.getAsJsonObject("versions").get("to").getAsString();
-                }
-                limit = new VersionLimit(from, to);
-            } else {
-                limit = VersionLimit.UNLIMITED;
+            VersionLimit limit = parseVersionlimit(root);
+
+            // generate stubs
+            for (String clazz : mappings.keySet()) {
+                generateStubs(limit, clazz, mappings.getAsJsonObject(clazz), processedClasses);
             }
 
-            // generate parent stubs
-            generateStubs(limit, root.getAsJsonObject("parent"), processedClasses);
-
-            generateBasicStubs(limit, root.getAsJsonObject("mappings").get("classes").getAsJsonArray(),
-                processedClasses);
-
             // generate classes for all mc versions
-            writeAndRemapTemplate(limit, key, root.getAsJsonObject("parent"),
-                root.getAsJsonObject("mappings"));
+            writeAndRemapTemplate(limit, key, root, mappings);
         }
 
         System.out.println("generation finished");
@@ -87,71 +73,79 @@ public class Generate {
     }
 
     private static void generateStubs(
-        VersionLimit limit, JsonObject parent, Map<String, Set<String>> processedClasses) throws Exception
+        VersionLimit limit, String clazz, JsonObject content,
+        Map<String, Set<String>> processedClasses) throws Exception
     {
         // iterate over all methods and collect needed imports
-        String clazz = parent.get("class").getAsString();
         Set<String> imports = new HashSet<>();
         List<MethodHolder> methods = new ArrayList<>();
         List<FieldHolder> fields = new ArrayList<>();
         List<ConstructorHolder> constructors = new ArrayList<>();
 
-        for (String methodName : parent.getAsJsonObject("methods").keySet()) {
-            Set<String> classes = new HashSet<>();
-            JsonObject current = parent.getAsJsonObject("methods").getAsJsonObject(methodName);
+        if (content.has("methods")) {
+            for (String methodName : content.getAsJsonObject("methods").keySet()) {
+                Set<String> classes = new HashSet<>();
+                JsonObject current = content.getAsJsonObject("methods").getAsJsonObject(methodName);
 
-            // type
-            String type = current.get("type").getAsString();
-            if (type.contains(".")) {
-                classes.add(type);
-            }
-            String method = "    " + (current.has("access") ? current.get("access").getAsString() : "public") + " " + type + " " + methodName + "(";
-            char argName = 'a';
-            boolean firstArg = true;
-
-            // args
-            for (JsonElement arg : current.getAsJsonArray("args")) {
-                if (arg.getAsString().contains(".")) {
-                    classes.add(arg.getAsString());
+                // type
+                String type = current.get("type").getAsString();
+                if (type.contains(".")) {
+                    classes.add(type);
                 }
-                method += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
-                firstArg = false;
+                String method =
+                    "    " + (current.has("access") ? current.get("access").getAsString() : "public") + " " + type +
+                        " " + methodName + "(";
+                char argName = 'a';
+                boolean firstArg = true;
+
+                // args
+                for (JsonElement arg : current.getAsJsonArray("args")) {
+                    if (arg.getAsString().contains(".")) {
+                        classes.add(arg.getAsString());
+                    }
+                    method += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
+                    firstArg = false;
+                }
+                method += ") {\n        throw new AssertionError();\n    }\n\n";
+                methods.add(new MethodHolder(method, methodName, clazz, classes));
+                imports.addAll(classes);
             }
-            method += ") {\n        throw new AssertionError();\n    }\n\n";
-            methods.add(new MethodHolder(method, methodName, current.get("class").getAsString(), classes));
-            imports.addAll(classes);
         }
 
-        for (String fieldName : parent.getAsJsonObject("fields").keySet()) {
-            JsonObject current = parent.getAsJsonObject("fields").getAsJsonObject(fieldName);
+        if (content.has("fields")) {
+            for (String fieldName : content.getAsJsonObject("fields").keySet()) {
+                JsonObject current = content.getAsJsonObject("fields").getAsJsonObject(fieldName);
 
-            // type
-            String type = current.get("type").getAsString();
-            if (type.contains(".")) {
-                imports.add(type);
+                // type
+                String type = current.get("type").getAsString();
+                if (type.contains(".")) {
+                    imports.add(type);
+                }
+                String field = "    public " + type + " " + fieldName + ";\n\n";
+                fields.add(new FieldHolder(field, fieldName, clazz, type));
             }
-            String field = "    public " + type + " " + fieldName + ";\n\n";
-            fields.add(new FieldHolder(field, fieldName, current.get("class").getAsString(), type));
         }
 
-        for (String con : parent.getAsJsonObject("constructors").keySet()) {
-            Set<String> classes = new HashSet<>();
+        if (content.has("constructors")) {
+            for (String con : content.getAsJsonObject("constructors").keySet()) {
+                Set<String> classes = new HashSet<>();
 
-            String code = "    public " + clazz + "(";
-            char argName = 'a';
-            boolean firstArg = true;
+                String code = "    public " + clazz + "(";
+                char argName = 'a';
+                boolean firstArg = true;
 
-            // args
-            for (JsonElement arg : parent.getAsJsonObject("constructors").getAsJsonArray(con)) {
-                if (arg.getAsString().contains(".")) {
-                    classes.add(arg.getAsString());
+                // args
+                for (JsonElement arg : content.getAsJsonObject("constructors").getAsJsonArray(con)) {
+                    if (arg.getAsString().contains(".")) {
+                        classes.add(arg.getAsString());
+                    }
+                    code += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
+                    firstArg = false;
                 }
-                code += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
-                firstArg = false;
+                code += ") {}\n\n";
+                constructors.add(new ConstructorHolder(code, clazz, classes));
+                imports.addAll(classes);
             }
-            code += ") {}\n\n";
-            constructors.add(new ConstructorHolder(code, clazz, classes));
-            imports.addAll(classes);
         }
 
         // writing file
@@ -169,24 +163,24 @@ public class Generate {
             File target = new File(stubs, parentClass.replace(".", "/") + ".java");
             target.getParentFile().mkdirs();
             try (FileWriter writer = new FileWriter(target)) {
-                String content = "package " + parentPackage + ";\n";
+                String code = "package " + parentPackage + ";\n";
 
                 if (!imports.isEmpty()) {
-                    content += "\n";
+                    code += "\n";
                 }
 
                 for (String imp : imports) {
-                    content += "import " + getClass(imp, version) + ";\n";
+                    code += "import " + getClass(imp, version) + ";\n";
                 }
 
-                content += "\npublic class " + parentName;
-                if (parent.has("parent")) {
-                    content += " extends " + parent.get("parent").getAsString();
+                code += "\npublic class " + parentName;
+                if (content.has("parent")) {
+                    code += " extends " + getClass(content.get("parent").getAsString(), version);
                 }
-                content += " {\n";
+                code += " {\n";
 
                 if (!fields.isEmpty()) {
-                    content += "\n";
+                    code += "\n";
                 }
 
                 for (FieldHolder field : fields) {
@@ -195,11 +189,11 @@ public class Generate {
                         line = line.replace(field.type, getClass(field.type, version));
                     }
                     line = line.replace(field.name, getField(field.clazz, field.name, version));
-                    content += line;
+                    code += line;
                 }
 
                 if (!constructors.isEmpty()) {
-                    content += "\n";
+                    code += "\n";
                 }
 
                 for (ConstructorHolder con : constructors) {
@@ -208,11 +202,11 @@ public class Generate {
                     for (String c : con.argClasses) {
                         line = line.replace(c, getClass(c, version));
                     }
-                    content += line;
+                    code += line;
                 }
 
                 if (!methods.isEmpty()) {
-                    content += "\n";
+                    code += "\n";
                 }
 
                 for (MethodHolder method : methods) {
@@ -221,55 +215,24 @@ public class Generate {
                         line = line.replace(c, getClass(c, version));
                     }
                     line = line.replace(method.name, getMethod(method.clazz, method.name, version));
-                    content += line;
+                    code += line;
                 }
 
-                content += "}\n";
-                writer.write(content);
+                code += "}\n";
+                writer.write(code);
             }
             writtenFiles.add(version);
         }
     }
 
-    private static void generateBasicStubs(
-        VersionLimit limit, JsonArray classes, Map<String, Set<String>> processedClasses) throws Exception
-    {
-
-        // writing file
-        Set<String> writtenFiles = new HashSet<>();
-        for (JsonElement element : classes) {
-            String clazz = element.getAsString();
-            for (String version : getVersions(clazz)) {
-                if (processedClasses.getOrDefault(version, new HashSet<>()).contains(clazz)) {
-                    continue;
-                }
-                if (!limit.valid(version)) continue;
-                addCreate(processedClasses, version, clazz);
-                String parentClass = getClass(clazz, version);
-                if (writtenFiles.contains(parentClass)) {
-                    continue;
-                }
-                String parentPackage = parentClass.substring(0, parentClass.lastIndexOf('.'));
-                String parentName = parentClass.substring(parentPackage.length() + 1);
-
-                File target = new File(stubs, parentClass.replace(".", "/") + ".java");
-                target.getParentFile().mkdirs();
-                try (FileWriter writer = new FileWriter(target)) {
-                    String content = "package " + parentPackage + ";\n";
-                    content += "\npublic abstract class " + parentName + " {}\n";
-                    writer.write(content);
-                }
-                writtenFiles.add(version);
-            }
-        }
-    }
-
     private static void writeAndRemapTemplate(
-        VersionLimit limit, String template, JsonObject parent, JsonObject mappings) throws IOException
+        VersionLimit limit, String template, JsonObject templateData, JsonObject mappings) throws IOException
     {
         List<String> lines = Files.readAllLines(
             new File("src/main/java/org/vivecraft/compat_impl/mc_X_X/" + template).toPath());
-        for (String version : getVersions(parent.get("class").getAsString())) {
+        List<String> validClasses = templateData.get("mappingClasses").getAsJsonArray().asList().stream()
+            .map(JsonElement::getAsString).collect(Collectors.toList());
+        for (String version : getVersions(templateData.get("parent").getAsString())) {
             MCVersion mc = MCVersion.parse(version, true);
             if (!limit.valid(mc)) continue;
 
@@ -285,25 +248,33 @@ public class Generate {
             try (FileWriter writer = new FileWriter(target)) {
                 code = code.replace("mc_X_X", "mc_" + mc.version_);
 
-                for (String clazz : mappings.getAsJsonArray("classes").asList().stream().map(JsonElement::getAsString)
+                for (String clazz : mappings.keySet().stream()
                     .sorted(Comparator.comparing(String::length).reversed()).collect(Collectors.toList())) {
+                    if (!parseVersionlimit(mappings.getAsJsonObject(clazz)).valid(mc) ||
+                        !validClasses.contains(clazz))
+                    {
+                        continue;
+                    }
                     code = code.replace(clazz, getClass(clazz, version));
                 }
-                for (String method : mappings.getAsJsonObject("methods").keySet()) {
-                    code = code.replace(method,
-                        getMethod(mappings.getAsJsonObject("methods").get(method).getAsString(), method, version));
-                }
-                // also remap methods from the parent
-                for (String method : parent.getAsJsonObject("methods").keySet()) {
-                    code = code.replace(method,
-                        getMethod(parent.getAsJsonObject("methods").getAsJsonObject(method).get("class").getAsString(),
-                            method, version));
-                }
-                // and fields
-                for (String field : parent.getAsJsonObject("fields").keySet()) {
-                    code = code.replace(field,
-                        getField(parent.getAsJsonObject("fields").getAsJsonObject(field).get("class").getAsString(),
-                            field, version));
+
+                for (String clazz : mappings.keySet()) {
+                    if (!parseVersionlimit(mappings.getAsJsonObject(clazz)).valid(mc) ||
+                        !validClasses.contains(clazz))
+                    {
+                        continue;
+                    }
+                    JsonObject c = mappings.getAsJsonObject(clazz);
+                    if (c.has("methods")) {
+                        for (String method : c.getAsJsonObject("methods").keySet()) {
+                            code = code.replace(method, getMethod(clazz, method, version));
+                        }
+                    }
+                    if (c.has("fields")) {
+                        for (String field : c.getAsJsonObject("fields").keySet()) {
+                            code = code.replace(field, getField(clazz, field, version));
+                        }
+                    }
                 }
                 writer.write(code);
             }
@@ -324,6 +295,22 @@ public class Generate {
             sb.append(line).append("\n");
         }
         return sb.toString();
+    }
+
+    private static VersionLimit parseVersionlimit(JsonObject root) {
+        if (root.has("versions")) {
+            String from = null;
+            String to = null;
+            if (root.getAsJsonObject("versions").has("from")) {
+                from = root.getAsJsonObject("versions").get("from").getAsString();
+            }
+            if (root.getAsJsonObject("versions").has("to")) {
+                to = root.getAsJsonObject("versions").get("to").getAsString();
+            }
+            return new VersionLimit(from, to);
+        } else {
+            return VersionLimit.UNLIMITED;
+        }
     }
 
     private static void copyFile(File src, File dst, Map<String, String> replacements) throws IOException {

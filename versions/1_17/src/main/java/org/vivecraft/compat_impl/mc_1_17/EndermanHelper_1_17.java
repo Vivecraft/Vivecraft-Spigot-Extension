@@ -45,8 +45,7 @@ public class EndermanHelper_1_17 extends EndermanHelper_1_16 {
     @Override
     public boolean hasProtection(Object nmsPlayer) {
         Object headitem = ((List) this.Inventory_armor.get(this.Player_getInventory.invoke(nmsPlayer))).get(3);
-        return (boolean) this.ItemStack_Is.invoke(headitem,
-            this.Block_asItem.invokes(this.Blocks_CARVED_PUMPKIN.get()));
+        return (boolean) this.ItemStack_Is.invoke(headitem, this.Block_asItem.invoke(this.Blocks_CARVED_PUMPKIN.get()));
     }
 
     protected boolean isAngerInducing(Object target, Object enderman) {

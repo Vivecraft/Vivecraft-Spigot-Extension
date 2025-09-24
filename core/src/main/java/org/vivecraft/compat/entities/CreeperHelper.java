@@ -15,5 +15,10 @@ public interface CreeperHelper {
     /**
      * returns if the creeper should charge
      */
-    boolean creeperVrCheck(Object creeper);
+    boolean creeperVrSwellCheck(Object creeper);
+
+    /**
+     * does the swellgoal tick
+     */
+    void creeperVrSwellTick(Object creeper, Object swellGoal);
 }
