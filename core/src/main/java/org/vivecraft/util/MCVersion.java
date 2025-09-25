@@ -69,7 +69,7 @@ public class MCVersion implements Comparable<MCVersion> {
             return -1;
         } else if (this.minor > o.minor) {
             return 1;
-        }  else {
+        } else {
             return 0;
         }
     }

@@ -10,7 +10,7 @@ public class EntityEvents implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void makeVrCompatible(CreatureSpawnEvent event) {
-        if(!event.isCancelled()){
+        if (!event.isCancelled()) {
             ViveMain.NMS.modifyEntity(event.getEntity());
         }
     }

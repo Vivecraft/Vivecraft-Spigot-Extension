@@ -103,7 +103,8 @@ public class EndermanHelper_1_8 implements EndermanHelper {
         this.Inventory_armor = ReflectionField.getField(InventoryMapping.FIELD_ARMOR_1, InventoryMapping.FIELD_ARMOR);
         this.ItemStack_getItem = ReflectionMethod.getMethod(ItemStackMapping.METHOD_GET_ITEM);
         this.Item_byBlock = ReflectionMethod.getMethod(ItemMapping.METHOD_BY_BLOCK);
-        this.Blocks_CARVED_PUMPKIN = ReflectionField.getField(BlocksMapping.FIELD_CARVED_PUMPKIN, BlocksMapping.FIELD_PUMPKIN);
+        this.Blocks_CARVED_PUMPKIN = ReflectionField.getField(BlocksMapping.FIELD_CARVED_PUMPKIN,
+            BlocksMapping.FIELD_PUMPKIN);
     }
 
     protected int adjustedTickDelay(Object goal, int tickDelay) {

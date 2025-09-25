@@ -472,7 +472,9 @@ public class NMS_1_8 implements NMSHelper {
         }
     }
 
-    protected boolean replaceGoal(Entity entity, boolean isTarget, Predicate<Object> isGoal, Function<Object, Object> newGoal) {
+    protected boolean replaceGoal(
+        Entity entity, boolean isTarget, Predicate<Object> isGoal, Function<Object, Object> newGoal)
+    {
         Object nmsEntity = BukkitReflector.getHandle(entity);
         Object selector = isTarget ? this.Mob_targetSelector.get(nmsEntity) : this.Mob_goalSelector.get(nmsEntity);
         Collection<?> goals = (Collection<?>) this.GoalSelector_availableGoals.get(selector);
