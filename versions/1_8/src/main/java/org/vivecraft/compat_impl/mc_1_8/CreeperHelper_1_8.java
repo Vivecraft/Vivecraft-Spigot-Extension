@@ -28,7 +28,7 @@ public class CreeperHelper_1_8 implements CreeperHelper {
     }
 
     protected void init() {
-        this.VRSwellGoal_Constructor = ReflectionConstructor.getCompat("org.vivecraft.compat_impl.mc_X_X.VRSwellGoal",
+        this.VRSwellGoal_Constructor = ReflectionConstructor.getCompat("VRSwellGoal",
             ClassGetter.getClass(true, CreeperMapping.MAPPING));
         this.VRSwellGoal = this.VRSwellGoal_Constructor.constructor.getDeclaringClass();
         this.SwellGoal = ClassGetter.getClass(true, SwellGoalMapping.MAPPING);

@@ -25,4 +25,11 @@ public interface McHelper {
      * @return if the entity is animal like
      */
     boolean hasAnimalHead(LivingEntity entity);
+
+    /**
+     * check if crawling is supported
+     *
+     * @return if the current mc version supports crawling
+     */
+    boolean supportsCrawling();
 }

@@ -1,6 +1,7 @@
 dependencies {
     api(project(":core"))
     implementation("com.google.code.gson:gson:2.13.2")
+    compileOnly('org.spigotmc:spigot-api:1.8-R0.1-SNAPSHOT')
 }
 
 sourceSets {

@@ -67,13 +67,13 @@ public class ViveMain extends JavaPlugin {
         // spigot only or overrides
         TRANSLATIONS.putAll(JsonUtils.readJsonMap(getResource("lang/spigot_en_us.json")));
 
-        // set up config
-        CONFIG = new Config(this);
-
         API = Helpers.getApi();
         MC = Helpers.getMc();
         NMS = Helpers.getNMS();
         MC_MODS = new MCMods();
+
+        // set up config
+        CONFIG = new Config(this);
 
         if (!PermissionManager.checkForVault() && ViveMain.CONFIG.permissionsGroupsEnabled.get()) {
             ViveMain.LOGGER.warning("To use the permission groups feature, 'Vault' needs to be installed");

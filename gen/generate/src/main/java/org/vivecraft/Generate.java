@@ -125,7 +125,12 @@ public class Generate {
                 if (type.contains(".")) {
                     imports.add(type);
                 }
-                String field = "    public " + type + " " + fieldName + ";\n\n";
+
+                String field = "    public ";
+                if (current.has("static")) {
+                    field += "static ";
+                }
+                field += type + " " + fieldName + ";\n\n";
                 fields.add(new FieldHolder(field, fieldName, clazz, type));
             }
         }
@@ -228,7 +233,7 @@ public class Generate {
                 code += "}\n";
                 writer.write(code);
             }
-            writtenFiles.add(version);
+            writtenFiles.add(parentClass);
         }
     }
 
@@ -373,9 +378,10 @@ public class Generate {
             "no mapping of field: " + field + " in class: " + clazz + " with version: " + version);
     }
 
-    private static Set<String> getVersions(String clazz) {
+    private static List<String> getVersions(String clazz) {
         return Objects.requireNonNull(Mappings.LOOKUP.getClass(clazz), "no mapping for class: " + clazz).getMappings()
-            .keySet();
+            .keySet().stream().sorted(Comparator.comparing(v -> MCVersion.parse((String) v, true)).reversed())
+            .collect(Collectors.toList());
     }
 
     private static String getNameSpace(String version) {

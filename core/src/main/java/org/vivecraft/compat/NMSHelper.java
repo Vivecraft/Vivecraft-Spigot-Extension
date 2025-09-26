@@ -185,4 +185,18 @@ public interface NMSHelper {
     boolean canSeeEachOther(
         Object player, Object target, double tolerance, boolean scaleWithDistance, boolean visualClip,
         double... yValues);
+
+    /**
+     * sets teh players pose to swimming
+     *
+     * @param player player to modify
+     */
+    void setSwimPose(Player player);
+
+    /**
+     * adds a crawl pose wrapper to the player, the sets the swim pose when crawling
+     *
+     * @param player player to modify
+     */
+    void addCrawlPoseWrapper(Player player);
 }

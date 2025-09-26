@@ -361,7 +361,8 @@ public class Config {
         this.crawlingEnabled = this.builder
             .push("enabled")
             .define(true)
-            .setPacketFunction((v, p) -> new CrawlPayloadS2C(v, p.networkVersion));
+            .setPacketFunction(
+                ViveMain.MC.supportsCrawling() ? ((v, p) -> new CrawlPayloadS2C(v, p.networkVersion)) : null);
         // end crawling
         this.builder.pop();
 

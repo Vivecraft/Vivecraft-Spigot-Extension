@@ -455,6 +455,16 @@ public class NMS_1_8 implements NMSHelper {
     }
 
     @Override
+    public void setSwimPose(Player player) {
+        throw new UnsupportedOperationException("No Pose Support");
+    }
+
+    @Override
+    public void addCrawlPoseWrapper(Player player) {
+        throw new UnsupportedOperationException("No Pose Support");
+    }
+
+    @Override
     public void modifyEntity(Entity entity) {
         if (entity instanceof Creeper) {
             if (!replaceGoal(entity, false, goal -> ViveMain.MC_MODS.creeperHelper().isSwellGoal(goal),

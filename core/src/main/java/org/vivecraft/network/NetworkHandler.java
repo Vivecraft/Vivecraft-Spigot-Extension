@@ -182,8 +182,13 @@ public class NetworkHandler implements PluginMessageListener {
             sendPacket(vivePlayer, PacketUtils.getThirdPersonItemsCustomOverridePayload());
         }
 
-        if (ViveMain.CONFIG.crawlingEnabled.get()) {
-            sendPacket(vivePlayer, new CrawlPayloadS2C(true, vivePlayer.networkVersion));
+        if (ViveMain.MC.supportsCrawling()) {
+            if (vivePlayer.isVR()) {
+                ViveMain.NMS.addCrawlPoseWrapper(vivePlayer.player);
+            }
+            if (ViveMain.CONFIG.crawlingEnabled.get()) {
+                sendPacket(vivePlayer, new CrawlPayloadS2C(true, vivePlayer.networkVersion));
+            }
         }
 
         // send if hotswitching is allowed
@@ -219,6 +224,8 @@ public class NetworkHandler implements PluginMessageListener {
             // send all nearby players that the state changed
             // this is only needed for OFF, to delete the clientside vr player state
             sendPacketToTrackingPlayers(vivePlayer, new VRActivePayloadS2C(false, vivePlayer.player.getUniqueId()));
+        } else if (ViveMain.MC.supportsCrawling()) {
+            ViveMain.NMS.addCrawlPoseWrapper(vivePlayer.player);
         }
     }
 
@@ -278,12 +285,9 @@ public class NetworkHandler implements PluginMessageListener {
     }
 
     private void handleCrawl(VivePlayer vivePlayer, CrawlPayloadC2S crawl) {
-        if (!ViveMain.CONFIG.crawlingEnabled.get()) return;
+        if (!ViveMain.MC.supportsCrawling() || !ViveMain.CONFIG.crawlingEnabled.get()) return;
         vivePlayer.crawling = crawl.crawling;
-        // TODO crawling pose NMS
-        /*if (vivePlayer.crawling) {
-            player.setPose(Pose.SWIMMING);
-        }*/
+        ViveMain.NMS.setSwimPose(vivePlayer.player);
     }
 
     private void handleLegacyData(VivePlayer vivePlayer, VivecraftPayloadC2S payload) {

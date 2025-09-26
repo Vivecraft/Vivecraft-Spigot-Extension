@@ -49,10 +49,10 @@ public class NMS_1_21_3 extends NMS_1_21 {
 
         this.ServerLevel_addFreshEntity = ReflectionMethod.getMethod(ServerLevelMapping.METHOD_ADD_FRESH_ENTITY);
 
-        this.VREnderMan_Constructor = ReflectionConstructor.getCompat("org.vivecraft.compat_impl.mc_X_X.VREnderMan",
+        this.VREnderMan_Constructor = ReflectionConstructor.getCompat("VREnderMan",
             ClassGetter.getClass(true, EntityTypeMapping.MAPPING), ClassGetter.getClass(true, LevelMapping.MAPPING));
         this.VREnderMan = this.VREnderMan_Constructor.constructor.getDeclaringClass();
-        this.VRCreaking_Constructor = ReflectionConstructor.getCompat("org.vivecraft.compat_impl.mc_X_X.VRCreaking",
+        this.VRCreaking_Constructor = ReflectionConstructor.getCompat("VRCreaking",
             ClassGetter.getClass(true, EntityTypeMapping.MAPPING), ClassGetter.getClass(true, LevelMapping.MAPPING));
         this.VRCreaking = this.VRCreaking_Constructor.constructor.getDeclaringClass();
     }

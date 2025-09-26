@@ -2,17 +2,21 @@ package org.vivecraft.compat_impl.mc_1_14;
 
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.vivecraft.ViveMain;
 import org.vivecraft.accessors.*;
+import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat.types.BlockContext;
 import org.vivecraft.compat.types.FluidContext;
 import org.vivecraft.compat_impl.mc_1_13_2.NMS_1_13_2;
+import org.vivecraft.util.reflection.ClassGetter;
 import org.vivecraft.util.reflection.ReflectionConstructor;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
 import java.util.Collection;
+import java.util.Map;
 
 public class NMS_1_14 extends NMS_1_13_2 {
     protected ReflectionField AttributeModifierOperation_ADD_VALUE;
@@ -26,6 +30,18 @@ public class NMS_1_14 extends NMS_1_13_2 {
     protected ReflectionMethod BlockHitResult_getType;
     protected ReflectionField HitResultType_MISS;
 
+    protected ReflectionField Pose_STANDING;
+    protected ReflectionField Pose_SWIMMING;
+    protected ReflectionMethod Entity_getPose;
+    protected ReflectionMethod Entity_setPose;
+    protected ReflectionField Entity_DATA_POSE;
+    protected ReflectionMethod Entity_getEntityData;
+    protected ReflectionField SynchedEntityData_itemsById;
+    protected ReflectionMethod DataItem_getAccessor;
+    protected ReflectionMethod EntityDataAccessor_id;
+
+    protected ReflectionConstructor CrawlPoseDataItem_Constructor;
+
     @Override
     protected void init() {
         super.init();
@@ -36,6 +52,22 @@ public class NMS_1_14 extends NMS_1_13_2 {
         this.ClipContext = ReflectionConstructor.getConstructor(ClipContextMapping.CONSTRUCTOR_0);
         this.BlockHitResult_getType = ReflectionMethod.getMethod(BlockHitResultMapping.METHOD_GET_TYPE);
         this.HitResultType_MISS = ReflectionField.getField(HitResult$TypeMapping.FIELD_MISS);
+
+        this.Entity_getPose = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_POSE);
+        this.Entity_setPose = ReflectionMethod.getMethod(EntityMapping.METHOD_SET_POSE);
+        this.Pose_STANDING = ReflectionField.getField(PoseMapping.FIELD_STANDING);
+        this.Pose_SWIMMING = ReflectionField.getField(PoseMapping.FIELD_SWIMMING);
+
+        this.Entity_DATA_POSE = ReflectionField.getField(EntityMapping.FIELD_DATA_POSE);
+        this.Entity_getEntityData = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_ENTITY_DATA);
+        this.SynchedEntityData_itemsById = ReflectionField.getField(SynchedEntityDataMapping.FIELD_ITEMS_BY_ID);
+        this.DataItem_getAccessor = ReflectionMethod.getMethod(SynchedEntityData$DataItemMapping.METHOD_GET_ACCESSOR);
+        this.EntityDataAccessor_id = ReflectionMethod.getMethod(EntityDataAccessorMapping.METHOD_ID,
+            EntityDataAccessorMapping.METHOD_GET_ID);
+
+        this.CrawlPoseDataItem_Constructor = ReflectionConstructor.getCompat("CrawlPoseDataItem",
+            ClassGetter.getClass(true, EntityDataAccessorMapping.MAPPING),
+            ClassGetter.getClass(true, PoseMapping.MAPPING), Player.class);
     }
 
     @Override
@@ -114,5 +146,30 @@ public class NMS_1_14 extends NMS_1_13_2 {
             }
         }
         super.modifyEntity(entity);
+    }
+
+    @Override
+    public void setSwimPose(Player player) {
+        this.Entity_setPose.invoke(BukkitReflector.getEntityHandle(player), this.Pose_SWIMMING.get());
+    }
+
+    @Override
+    public void addCrawlPoseWrapper(Player player) {
+        Object nsmPlayer = BukkitReflector.getEntityHandle(player);
+        Object pose = this.Entity_getPose.invoke(nsmPlayer);
+
+        placeDataItem(this.CrawlPoseDataItem_Constructor.newInstance(this.Entity_DATA_POSE.get(),
+                this.Pose_STANDING.get(), player),
+            (int) this.EntityDataAccessor_id.invoke(this.Entity_DATA_POSE.get()),
+            this.Entity_getEntityData.invoke(nsmPlayer));
+
+        // restore old pose
+        this.Entity_setPose.invoke(nsmPlayer, pose);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void placeDataItem(Object dataItem, int id, Object entityData) {
+        Map idMap = (Map) this.SynchedEntityData_itemsById.get(entityData);
+        idMap.put(id, dataItem);
     }
 }

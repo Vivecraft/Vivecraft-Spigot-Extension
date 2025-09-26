@@ -124,11 +124,12 @@ public class ReflectionConstructor {
      */
     public static ReflectionConstructor getCompat(String pattern, Class<?>... args) {
         try {
-            Class<?> c = ClassGetter.getCompat(pattern);
+            Class<?> c = ClassGetter.getCompat("org.vivecraft.compat_impl.mc_X_X." + pattern);
             return getConstructor(c, args);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException(
-                "couldn't find constructor matching " + pattern + " with args: " + Arrays.toString(args), e);
+                "couldn't find constructor matching org.vivecraft.compat_impl.mc_X_X." + pattern + " with args: " +
+                    Arrays.toString(args), e);
         }
     }
 

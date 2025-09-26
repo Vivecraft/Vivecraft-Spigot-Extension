@@ -62,8 +62,7 @@ public class EndermanHelper_1_8 implements EndermanHelper {
 
         this.EndermanLookForPlayer = ClassGetter.getClass(true, EnderMan$EndermanLookForPlayerGoalMapping.MAPPING);
 
-        this.VREndermanLookForPlayer_Constructor = ReflectionConstructor.getCompat(
-            "org.vivecraft.compat_impl.mc_X_X.VREndermanLookForPlayerGoal",
+        this.VREndermanLookForPlayer_Constructor = ReflectionConstructor.getCompat("VREndermanLookForPlayerGoal",
             ClassGetter.getClass(true, EnderManMapping.MAPPING));
         this.VREndermanLookForPlayer = this.VREndermanLookForPlayer_Constructor.constructor.getDeclaringClass();
 

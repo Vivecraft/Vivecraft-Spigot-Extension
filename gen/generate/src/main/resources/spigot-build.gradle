@@ -2,4 +2,5 @@
 dependencies {
     api(project(":core"))
     compileOnly(project(":gen:stubs"))
+    compileOnly('org.spigotmc:spigot-api:1.8-R0.1-SNAPSHOT')
 }

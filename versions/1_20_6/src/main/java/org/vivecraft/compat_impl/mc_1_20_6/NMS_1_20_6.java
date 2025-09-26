@@ -4,6 +4,7 @@ import org.bukkit.inventory.ItemStack;
 import org.vivecraft.accessors.*;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat_impl.mc_1_19_4.NMS_1_19_4;
+import org.vivecraft.debug.Debug;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
@@ -75,5 +76,15 @@ public class NMS_1_20_6 extends NMS_1_19_4 {
             .collect(Collectors.toList());
 
         return applyAttributeModifiers(0, modifiers);
+    }
+
+    @Override
+    protected void placeDataItem(Object dataItem, int id, Object entityData) {
+        Object[] idMap = (Object[]) this.SynchedEntityData_itemsById.get(entityData);
+        if (id < idMap.length) {
+            idMap[id] = dataItem;
+        } else {
+            Debug.log("Data pose index is higher than data array size???");
+        }
     }
 }

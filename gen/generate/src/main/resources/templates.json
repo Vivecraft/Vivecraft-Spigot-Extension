@@ -54,6 +54,17 @@
         "net.minecraft.world.entity.EntityType",
         "net.minecraft.world.level.Level"
       ]
+    },
+    "CrawlPoseDataItem.java": {
+      "versions": {
+        "from": "1.14"
+      },
+      "parent": "net.minecraft.network.syncher.SynchedEntityData$DataItem",
+      "mappingClasses": [
+        "net.minecraft.network.syncher.SynchedEntityData$DataItem",
+        "net.minecraft.network.syncher.EntityDataAccessor",
+        "net.minecraft.world.entity.Pose"
+      ]
     }
   },
   "mappings": {
@@ -162,6 +173,26 @@
       }
     },
     "net.minecraft.world.entity.EntityType": {},
-    "net.minecraft.world.level.Level": {}
+    "net.minecraft.world.level.Level": {},
+    "net.minecraft.network.syncher.SynchedEntityData$DataItem": {
+      "constructors": {
+        "1": ["net.minecraft.network.syncher.EntityDataAccessor", "Object"]
+      },
+      "methods": {
+        "setValue": {
+          "type": "void",
+          "args": ["Object"]
+        }
+      }
+    },
+    "net.minecraft.network.syncher.EntityDataAccessor": {},
+    "net.minecraft.world.entity.Pose": {
+      "fields": {
+        "SWIMMING": {
+          "type": "net.minecraft.world.entity.Pose",
+          "static": true
+        }
+      }
+    }
   }
 }

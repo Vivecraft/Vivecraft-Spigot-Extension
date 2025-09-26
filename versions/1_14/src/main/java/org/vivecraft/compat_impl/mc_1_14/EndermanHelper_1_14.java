@@ -50,8 +50,7 @@ public class EndermanHelper_1_14 extends EndermanHelper_1_13 {
 
         this.EndermanFreeze = ClassGetter.getClass(true, EnderMan$EndermanFreezeWhenLookedAtMapping.MAPPING);
 
-        this.VREndermanFreezeWhenLookAt_Constructor = ReflectionConstructor.getCompat(
-            "org.vivecraft.compat_impl.mc_X_X.VREndermanFreezeWhenLookAt",
+        this.VREndermanFreezeWhenLookAt_Constructor = ReflectionConstructor.getCompat("VREndermanFreezeWhenLookAt",
             ClassGetter.getClass(true, EnderManMapping.MAPPING));
         this.VREndermanFreezeWhenLookAt = this.VREndermanFreezeWhenLookAt_Constructor.constructor.getDeclaringClass();
     }

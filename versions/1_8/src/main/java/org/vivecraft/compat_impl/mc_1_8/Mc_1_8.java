@@ -28,4 +28,9 @@ public class Mc_1_8 implements McHelper {
     public boolean hasAnimalHead(LivingEntity entity) {
         return !(entity instanceof EnderDragon);
     }
+
+    @Override
+    public boolean supportsCrawling() {
+        return false;
+    }
 }

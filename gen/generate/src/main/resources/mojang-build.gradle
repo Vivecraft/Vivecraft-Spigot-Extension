@@ -8,6 +8,7 @@ dependencies {
     api(project(":core"))
     compileOnly(project(":gen:stubs"))
     compileOnly("net.md-5:SpecialSource:1.11.5:shaded")
+    compileOnly('org.spigotmc:spigot-api:1.8-R0.1-SNAPSHOT')
     mappings("org.spigotmc:minecraft-server:XX_XX-R0.1-SNAPSHOT:maps-mojang@txt")
     mappings("org.spigotmc:minecraft-server:XX_XX-R0.1-SNAPSHOT:maps-spigot@csrg")
 }

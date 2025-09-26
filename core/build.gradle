@@ -60,6 +60,7 @@ accessors {
         field("double", "locZ") // up to 1.14
         field("float", "eyeHeight") // 1.14+
         field("float", "length") // up to 1.13.2
+        field("net.minecraft.network.syncher.EntityDataAccessor", "DATA_POSE")
         method("net.minecraft.world.phys.AABB", "getBoundingBox")
         method("net.minecraft.world.phys.Vec3", "getLookAngle")
         method("net.minecraft.world.phys.Vec3", "position") // 1.15+
@@ -86,6 +87,9 @@ accessors {
         method("boolean", "startRiding", "net.minecraft.world.entity.Entity", "boolean")
         method("void", "removeAfterChangingDimensions")
         method("net.minecraft.world.entity.EntityType", "getType")
+        method("void", "setPose", "net.minecraft.world.entity.Pose")
+        method("net.minecraft.world.entity.Pose", "getPose")
+        method("net.minecraft.network.syncher.SynchedEntityData", "getEntityData")
     }
 
     mapClass("net.minecraft.world.entity.player.Player") {
@@ -384,4 +388,21 @@ accessors {
     }
     mapClass("net.minecraft.world.entity.EntityType")
     mapClass("net.minecraft.world.entity.monster.creaking.Creaking")
+    mapClass("net.minecraft.network.syncher.SynchedEntityData\$DataItem") {
+        method("void", "setValue", "java.lang.Object")
+        method("net.minecraft.network.syncher.EntityDataAccessor", "getAccessor")
+    }
+    mapClass("net.minecraft.network.syncher.EntityDataAccessor") {
+        method("int", "id")
+        method("int", "getId") // pre 1.20.6
+    }
+    mapClass("net.minecraft.world.entity.Pose") {
+        field("net.minecraft.world.entity.Pose", "STANDING")
+        field("net.minecraft.world.entity.Pose", "SWIMMING")
+    }
+    mapClass("net.minecraft.network.syncher.SynchedEntityData") {
+        field("net.minecraft.network.syncher.SynchedEntityData\$DataItem[]", "itemsById")
+        field("it.unimi.dsi.fastutil.ints.Int2ObjectMap", "itemsById") // pre 1.20.6
+        field("java.util.Map", "itemsById") // pre 1.17
+    }
 }
