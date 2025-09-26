@@ -27,11 +27,11 @@ public class BukkitReflector {
         "org.bukkit.craftbukkit", "inventory.CraftItemStack", "asBukkitCopy",
         ClassGetter.getClass(true, ItemStackMapping.MAPPING));
 
-    public static Object getHandle(Entity entity) {
+    public static Object getEntityHandle(Entity entity) {
         return CraftEntity_getHandle.invoke(entity);
     }
 
-    public static Object getHandle(World world) {
+    public static Object getWorldHandle(World world) {
         return CraftWorld_getHandle.invoke(world);
     }
 

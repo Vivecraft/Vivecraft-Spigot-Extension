@@ -87,6 +87,10 @@ public class Generate {
                 Set<String> classes = new HashSet<>();
                 JsonObject current = content.getAsJsonObject("methods").getAsJsonObject(methodName);
 
+                VersionLimit versionLimit = VersionLimit.UNLIMITED;
+                if (current.has("versions")) {
+                    versionLimit = parseVersionlimit(current);
+                }
                 // type
                 String type = current.get("type").getAsString();
                 if (type.contains(".")) {
@@ -101,14 +105,14 @@ public class Generate {
                 // args
                 for (JsonElement arg : current.getAsJsonArray("args")) {
                     if (arg.getAsString().contains(".")) {
-                        classes.add(arg.getAsString());
+                        classes.add(arg.getAsString().replace("...", ""));
                     }
                     method += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
                     firstArg = false;
                 }
                 method += ") {\n        throw new AssertionError();\n    }\n\n";
-                methods.add(new MethodHolder(method, methodName, clazz, classes));
-                imports.addAll(classes);
+                methods.add(new MethodHolder(method, methodName, clazz, classes, versionLimit));
+                //imports.addAll(classes);
             }
         }
 
@@ -212,9 +216,12 @@ public class Generate {
                 for (MethodHolder method : methods) {
                     String line = method.code;
                     for (String c : method.argClasses) {
+                        if (!c.contains(".")) continue;
                         line = line.replace(c, getClass(c, version));
                     }
-                    line = line.replace(method.name, getMethod(method.clazz, method.name, version));
+                    if (method.limit.valid(version)) {
+                        line = line.replace(method.name, getMethod(method.clazz, method.name, version));
+                    }
                     code += line;
                 }
 
@@ -267,11 +274,15 @@ public class Generate {
                     JsonObject c = mappings.getAsJsonObject(clazz);
                     if (c.has("methods")) {
                         for (String method : c.getAsJsonObject("methods").keySet()) {
+                            JsonObject m = c.getAsJsonObject("methods").getAsJsonObject(method);
+                            if (m.has("versions") && !parseVersionlimit(m).valid(version)) continue;
                             code = code.replace(method, getMethod(clazz, method, version));
                         }
                     }
                     if (c.has("fields")) {
                         for (String field : c.getAsJsonObject("fields").keySet()) {
+                            JsonObject f = c.getAsJsonObject("fields").getAsJsonObject(field);
+                            if (f.has("versions") && !parseVersionlimit(f).valid(version)) continue;
                             code = code.replace(field, getField(clazz, field, version));
                         }
                     }
@@ -327,7 +338,7 @@ public class Generate {
     private static String getClass(String clazz, String version) {
         try {
             // don't try to remap java native classes
-            Class.forName(clazz);
+            Class.forName(clazz.replace("...", ""));
             return clazz;
         } catch (Exception ignore) {}
         return Objects.requireNonNull(
@@ -337,17 +348,27 @@ public class Generate {
     }
 
     private static String getMethod(String clazz, String method, String version) {
+        String[] parts = method.split("_");
+        int index = 0;
+        if (parts.length > 1) {
+            index = Integer.parseInt(parts[1]);
+        }
         return Objects.requireNonNull(Objects.requireNonNull(
                     Objects.requireNonNull(Mappings.LOOKUP.getClass(clazz), "no mapping for class: " + clazz)
-                        .getMethod(method, 0), "no mapping of method: " + method + " in class: " + clazz)
+                        .getMethod(parts[0], index), "no mapping of method: " + method + " in class: " + clazz)
                 .getName(version, getNameSpace(version)),
             "no mapping of method: " + method + " in class: " + clazz + " with version: " + version).getName();
     }
 
     private static String getField(String clazz, String field, String version) {
+        String[] parts = field.split("_");
+        int index = 0;
+        if (parts.length > 1) {
+            index = Integer.parseInt(parts[1]);
+        }
         return Objects.requireNonNull(Objects.requireNonNull(
                     Objects.requireNonNull(Mappings.LOOKUP.getClass(clazz), "no mapping for class: " + clazz)
-                        .getField(field, 0), "no mapping of field: " + field + " in class: " + clazz)
+                        .getField(parts[0], index), "no mapping of field: " + field + " in class: " + clazz)
                 .getName(version, getNameSpace(version)),
             "no mapping of field: " + field + " in class: " + clazz + " with version: " + version);
     }
@@ -376,12 +397,14 @@ public class Generate {
         public final String name;
         public final String clazz;
         public final Set<String> argClasses;
+        public final VersionLimit limit;
 
-        public MethodHolder(String code, String name, String clazz, Set<String> argClasses) {
+        public MethodHolder(String code, String name, String clazz, Set<String> argClasses, VersionLimit limit) {
             this.code = code;
             this.name = name;
             this.clazz = clazz;
             this.argClasses = argClasses;
+            this.limit = limit;
         }
     }
 

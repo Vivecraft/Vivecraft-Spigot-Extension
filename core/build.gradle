@@ -38,6 +38,10 @@ accessors {
         field("float", "yHeadRot")
         field("float", "yHeadRotO")
         method("net.minecraft.world.entity.ai.attributes.AttributeInstance", "getAttribute", "net.minecraft.world.entity.ai.attributes.Attribute")
+        method("boolean", "isLookingAtMe", "net.minecraft.world.entity.LivingEntity", "double", "boolean", "boolean",
+            "java.util.function.Predicate", "java.util.function.DoubleSupplier[]")
+        method("boolean", "isLookingAtMe", "net.minecraft.world.entity.LivingEntity", "double", "boolean", "boolean",
+            "double[]")
     }
 
     mapClass("net.minecraft.world.entity.Entity") {
@@ -75,6 +79,13 @@ accessors {
         method("void", "makeSound", "java.lang.String", "float", "float")
         method("boolean", "isPassenger")
         method("boolean", "hasIndirectPassenger", "net.minecraft.world.entity.Entity")
+        method("void", "restoreFrom", "net.minecraft.world.entity.Entity")
+        method("net.minecraft.world.entity.Entity", "getVehicle")
+        method("void", "ejectPassengers")
+        method("java.util.List", "getPassengers")
+        method("boolean", "startRiding", "net.minecraft.world.entity.Entity", "boolean")
+        method("void", "removeAfterChangingDimensions")
+        method("net.minecraft.world.entity.EntityType", "getType")
     }
 
     mapClass("net.minecraft.world.entity.player.Player") {
@@ -115,6 +126,7 @@ accessors {
         method("void", "func_180505_a", "net.minecraft.util.EnumParticleTypes",
             "boolean", "double", "double", "double", "int", "double", "double", "double", "double", "int[]")
         method("net.minecraft.server.MinecraftServer", "getServer")
+        method("boolean", "addFreshEntity", "net.minecraft.world.entity.Entity")
     }
 
     mapClass("net.minecraft.world.level.BlockGetter") {
@@ -370,4 +382,6 @@ accessors {
         method("net.minecraft.world.entity.ai.targeting.TargetingConditions", "selector", "java.util.function.Predicate")
         method("boolean", "test", "net.minecraft.world.entity.LivingEntity", "net.minecraft.world.entity.LivingEntity")
     }
+    mapClass("net.minecraft.world.entity.EntityType")
+    mapClass("net.minecraft.world.entity.monster.creaking.Creaking")
 }

@@ -212,12 +212,12 @@ public class NMS_1_8 implements NMSHelper {
 
     @Override
     public float getLivingEntityBodyYaw(LivingEntity entity) {
-        return (float) this.LivingEntity_BodyYaw.get(BukkitReflector.getHandle(entity));
+        return (float) this.LivingEntity_BodyYaw.get(BukkitReflector.getEntityHandle(entity));
     }
 
     @Override
     public Vector3f getViewVector(Entity entity) {
-        Object vec3 = this.Entity_getViewVector.invoke(BukkitReflector.getHandle(entity));
+        Object vec3 = this.Entity_getViewVector.invoke(BukkitReflector.getEntityHandle(entity));
         return new Vector3f(
             (float) (double) this.Vec3_X.get(vec3),
             (float) (double) this.Vec3_Y.get(vec3),
@@ -242,15 +242,15 @@ public class NMS_1_8 implements NMSHelper {
 
     @Override
     public void resetFallDistance(Player player) {
-        this.Entity_fallDistance.set(BukkitReflector.getHandle(player), 0);
+        this.Entity_fallDistance.set(BukkitReflector.getEntityHandle(player), 0);
         this.ServerGamePacketListenerImpl_aboveGroundTicks.set(
-            this.ServerPlayer_packetListener.get(BukkitReflector.getHandle(player)), 0);
+            this.ServerPlayer_packetListener.get(BukkitReflector.getEntityHandle(player)), 0);
     }
 
     @Override
     public Object getConnection(Player player) {
         return this.ServerCommonPacketListenerImpl_connection.get(
-            this.ServerPlayer_packetListener.get(BukkitReflector.getHandle(player)));
+            this.ServerPlayer_packetListener.get(BukkitReflector.getEntityHandle(player)));
     }
 
     @Override
@@ -428,23 +428,23 @@ public class NMS_1_8 implements NMSHelper {
     @Override
     public boolean canSeeEachOther(
         Object player, Object target, double tolerance, boolean scaleWithDistance, boolean visualClip,
-        double... yOffsets)
+        double... yValues)
     {
-        if (yOffsets == null || yOffsets.length == 0) {
-            yOffsets = new double[]{0.0};
-        }
         Vector playerView = ViveMain.NMS.getViewVectorVR(player);
         Vector playerHead = ViveMain.NMS.getHeadPosVR(player);
-        Vector targetHead = ViveMain.NMS.getHeadPosVR(target);
-        for (double yOffset : yOffsets) {
-            Vector targetHeadOffset = new Vector().copy(targetHead);
-            targetHeadOffset.setY(targetHeadOffset.getY() + yOffset);
-            Vector playerToTarget = new Vector().copy(targetHeadOffset).subtract(playerHead);
+        Vector targetPos = ViveMain.NMS.getEntityPosition(target);
+        if (yValues == null || yValues.length == 0) {
+            yValues = new double[]{targetPos.getY() + (float) this.Entity_getEyeHeight.invoke(target)};
+        }
+        for (double yValue : yValues) {
+            Vector targetOffsetPos = new Vector().copy(targetPos);
+            targetOffsetPos.setY(yValue);
+            Vector playerToTarget = new Vector().copy(targetOffsetPos).subtract(playerHead);
             double dist = scaleWithDistance ? playerToTarget.length() : 1.0;
             playerToTarget.normalize();
             if (playerToTarget.dot(playerView) > 1.0 - tolerance / dist) {
                 // looks in the right direction
-                if (!ViveMain.NMS.clipWorld(ViveMain.NMS.getLevel(player), playerHead, targetHeadOffset,
+                if (!ViveMain.NMS.clipWorld(ViveMain.NMS.getLevel(player), playerHead, targetOffsetPos,
                     visualClip ? BlockContext.VISUAL : BlockContext.COLLIDER, FluidContext.NONE, player))
                 {
                     return true;
@@ -475,7 +475,7 @@ public class NMS_1_8 implements NMSHelper {
     protected boolean replaceGoal(
         Entity entity, boolean isTarget, Predicate<Object> isGoal, Function<Object, Object> newGoal)
     {
-        Object nmsEntity = BukkitReflector.getHandle(entity);
+        Object nmsEntity = BukkitReflector.getEntityHandle(entity);
         Object selector = isTarget ? this.Mob_targetSelector.get(nmsEntity) : this.Mob_goalSelector.get(nmsEntity);
         Collection<?> goals = (Collection<?>) this.GoalSelector_availableGoals.get(selector);
         int priority = Integer.MAX_VALUE;

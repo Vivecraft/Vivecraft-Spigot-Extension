@@ -188,6 +188,7 @@ public class ViveMain extends JavaPlugin {
     }
 
     public void toggleDataTask(boolean enabled) {
+        Debug.log("setting data task to %s", enabled);
         if (enabled && this.dataTask == null) {
             this.dataTask = this.getServer().getScheduler().runTaskTimer(this, ViveMain::sendViveData, 20, 1);
         } else if (!enabled && this.dataTask != null) {

@@ -83,15 +83,15 @@ public class Api_1_8 implements ApiHelper {
         Particles particle, World world, Vector pos, int count, Vector data, double speed, boolean force, T pData)
     {
         if (particle == Particles.CRIT) {
-            this.Level_spawnParticle.invoke(BukkitReflector.getHandle(world), this.EnumParticle_CRIT.get(), force,
+            this.Level_spawnParticle.invoke(BukkitReflector.getWorldHandle(world), this.EnumParticle_CRIT.get(), force,
                 pos.getX(), pos.getY(), pos.getZ(), count, data.getX(), data.getY(), data.getZ(), speed, null);
         } else if (particle == Particles.DEBUG) {
-            this.Level_spawnParticle.invoke(BukkitReflector.getHandle(world), this.EnumParticle_REDSTONE.get(),
+            this.Level_spawnParticle.invoke(BukkitReflector.getWorldHandle(world), this.EnumParticle_REDSTONE.get(),
                 force, pos.getX(), pos.getY(), pos.getZ(), 0, data.getX(), data.getY(), data.getZ(), 1, null);
         } else if (particle == Particles.ITEM_BREAK && pData instanceof ItemStack) {
             int[] intData = new int[]{(int) this.Item_getId.invokes(
                 this.ItemStack_getItem.invoke(BukkitReflector.asNMSCopy((ItemStack) pData))), 0};
-            this.Level_spawnParticle.invoke(BukkitReflector.getHandle(world), this.EnumParticle_ITEM_CRACK.get(),
+            this.Level_spawnParticle.invoke(BukkitReflector.getWorldHandle(world), this.EnumParticle_ITEM_CRACK.get(),
                 force, pos.getX(), pos.getY(), pos.getZ(), count, data.getX(), data.getY(), data.getZ(), speed,
                 intData);
         }
@@ -110,7 +110,7 @@ public class Api_1_8 implements ApiHelper {
     @Override
     public float getEntityWidth(Entity entity) {
         // up to including some versions of 1.11.2 there is no api for that
-        return (float) this.Entity_width.get(BukkitReflector.getHandle(entity));
+        return (float) this.Entity_width.get(BukkitReflector.getEntityHandle(entity));
     }
 
     @Override
@@ -177,7 +177,7 @@ public class Api_1_8 implements ApiHelper {
 
     @Override
     public AABB getEntityAABB(Entity entity) {
-        Object aabb = this.Entity_getBoundingBox.invoke(BukkitReflector.getHandle(entity));
+        Object aabb = this.Entity_getBoundingBox.invoke(BukkitReflector.getEntityHandle(entity));
         return new AABB(
             (double) this.AABB_minX.get(aabb), (double) this.AABB_minY.get(aabb), (double) this.AABB_minZ.get(aabb),
             (double) this.AABB_maxX.get(aabb), (double) this.AABB_maxY.get(aabb), (double) this.AABB_maxZ.get(aabb));

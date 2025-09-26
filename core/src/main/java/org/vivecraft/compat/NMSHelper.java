@@ -179,10 +179,10 @@ public interface NMSHelper {
      * @param tolerance         angle the player needs to look at a minimum
      * @param scaleWithDistance reduces the {@code tolerance} with distance
      * @param visualClip        checks the visual shape of blocks, instead of their collision boxes
-     * @param yOffsets          offsets to the target head to check, if not set, only checks the head
+     * @param yValues           y values at the targets X/Z to check, if not set, only checks the head
      * @return if there are no blocks in the way
      */
     boolean canSeeEachOther(
         Object player, Object target, double tolerance, boolean scaleWithDistance, boolean visualClip,
-        double... yOffsets);
+        double... yValues);
 }

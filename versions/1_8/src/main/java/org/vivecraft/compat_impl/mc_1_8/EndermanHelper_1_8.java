@@ -247,8 +247,13 @@ public class EndermanHelper_1_8 implements EndermanHelper {
             this.ItemStack_getItem.invoke(headitem) == this.Item_byBlock.invokes(this.Blocks_CARVED_PUMPKIN.get());
     }
 
+    @Override
+    public double adjustedVRTolerance(double tolerance, Object targetEntity) {
+        return ViveMain.NMS.isVRPlayer(targetEntity) ? 0.1 : tolerance;
+    }
+
     protected boolean canPlayerSeeEnderman(Object target, Object enderman) {
         return !this.hasProtection(target) &&
-            ViveMain.NMS.canSeeEachOther(target, enderman, ViveMain.NMS.isVRPlayer(target) ? 0.1 : 0.025, true, false);
+            ViveMain.NMS.canSeeEachOther(target, enderman, adjustedVRTolerance(0.025, target), true, false);
     }
 }

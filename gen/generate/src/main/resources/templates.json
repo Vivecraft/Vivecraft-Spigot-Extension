@@ -30,6 +30,30 @@
         "net.minecraft.world.entity.ai.goal.target.TargetGoal",
         "net.minecraft.world.entity.ai.goal.Goal"
       ]
+    },
+    "VREnderMan.java": {
+      "versions": {
+        "from": "1.21.2"
+      },
+      "parent": "net.minecraft.world.entity.monster.EnderMan",
+      "mappingClasses": [
+        "net.minecraft.world.entity.monster.EnderMan",
+        "net.minecraft.world.entity.LivingEntity",
+        "net.minecraft.world.entity.EntityType",
+        "net.minecraft.world.level.Level"
+      ]
+    },
+    "VRCreaking.java": {
+      "versions": {
+        "from": "1.21.2"
+      },
+      "parent": "net.minecraft.world.entity.monster.creaking.Creaking",
+      "mappingClasses": [
+        "net.minecraft.world.entity.monster.creaking.Creaking",
+        "net.minecraft.world.entity.LivingEntity",
+        "net.minecraft.world.entity.EntityType",
+        "net.minecraft.world.level.Level"
+      ]
     }
   },
   "mappings": {
@@ -71,9 +95,41 @@
         }
       }
     },
-    "net.minecraft.world.entity.monster.EnderMan": {},
+    "net.minecraft.world.entity.monster.creaking.Creaking": {
+      "parent": "net.minecraft.world.entity.LivingEntity",
+      "constructors": {
+        "1": ["net.minecraft.world.entity.EntityType", "net.minecraft.world.level.Level"]
+      }
+    },
+    "net.minecraft.world.entity.monster.EnderMan": {
+      "parent": "net.minecraft.world.entity.LivingEntity",
+      "constructors": {
+        "1": ["net.minecraft.world.entity.EntityType", "net.minecraft.world.level.Level"]
+      }
+    },
     "net.minecraft.world.entity.player.Player": {},
-    "net.minecraft.world.entity.LivingEntity": {},
+    "net.minecraft.world.entity.LivingEntity": {
+      "methods": {
+        "isLookingAtMe": {
+          "versions": {
+            "from": "1.21.2",
+            "to": "1.21.3"
+          },
+          "type": "boolean",
+          "args": [
+            "net.minecraft.world.entity.LivingEntity", "double", "boolean", "boolean",
+            "java.util.function.Predicate", "java.util.function.DoubleSupplier..."
+          ]
+        },
+        "isLookingAtMe_1": {
+          "versions": {
+            "from": "1.21.4"
+          },
+          "type": "boolean",
+          "args": ["net.minecraft.world.entity.LivingEntity", "double", "boolean", "boolean", "double..."]
+        }
+      }
+    },
     "net.minecraft.world.entity.Mob": {},
     "net.minecraft.world.entity.PathfinderMob": {},
     "net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal": {
@@ -104,6 +160,8 @@
           "args": []
         }
       }
-    }
+    },
+    "net.minecraft.world.entity.EntityType": {},
+    "net.minecraft.world.level.Level": {}
   }
 }

@@ -1,5 +1,6 @@
 package org.vivecraft.util.reflection;
 
+import me.kcra.takenaka.accessor.mapping.ClassMapping;
 import me.kcra.takenaka.accessor.mapping.FieldMapping;
 import org.jetbrains.annotations.Nullable;
 import org.vivecraft.ViveMain;
@@ -64,6 +65,25 @@ public class ReflectionField {
         // make sure it is accessible
         f.setAccessible(true);
         return new ReflectionField(f);
+    }
+
+    /**
+     * Tries to find any reflection field matching the given mappings
+     *
+     * @param mapping mapping of the class
+     * @return found reflection field
+     * @throws RuntimeException When no matching field is found
+     */
+    public static ReflectionField getField(ClassMapping mapping, String fieldName) {
+        try {
+            ReflectionField f = getField(ClassGetter.getClass(true, mapping), fieldName);
+            f.field.setAccessible(true);
+            return f;
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(
+                "Unsupported mc version: " + MCVersion.getCurrent().version + ", no mapping found for: " +
+                    mapping.getName() + "." + fieldName);
+        }
     }
 
     @Nullable

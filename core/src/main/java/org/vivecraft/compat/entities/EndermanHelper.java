@@ -94,4 +94,9 @@ public interface EndermanHelper {
      * checks if the player has a pumpkin
      */
     boolean hasProtection(Object nmsPlayer);
+
+    /**
+     * adjusts the visibility tolerance for VR
+     */
+    double adjustedVRTolerance(double tolerance, Object targetEntity);
 }
