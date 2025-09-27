@@ -287,7 +287,10 @@ public class ConfigBuilder {
             T oldValue = this.get();
             this.cachedValue = newValue;
             this.config.getConfig().set(this.path, newValue);
-            onUpdate(oldValue, newValue);
+            if (oldValue != null) {
+                // we don't want to call update, if we first create the config
+                onUpdate(oldValue, newValue);
+            }
         }
 
         public T reset() {
