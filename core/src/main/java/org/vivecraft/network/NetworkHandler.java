@@ -130,7 +130,6 @@ public class NetworkHandler implements PluginMessageListener {
                 // unsupported version, send notification, and disregard
                 player.sendMessage("Unsupported vivecraft version, VR features will not work");
                 Debug.log(
-                    // TODO test if %s works here
                     "%s networking not supported. client range [%s,%s], server range [%s,%s]",
                     player.getName(),
                     version.minVersion,
