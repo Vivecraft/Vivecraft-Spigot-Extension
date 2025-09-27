@@ -1,11 +1,11 @@
 package org.vivecraft.events;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.vivecraft.ViveMain;
+import org.vivecraft.compat.Platform;
 
 public class EntityEvents implements Listener {
 
@@ -15,7 +15,7 @@ public class EntityEvents implements Listener {
             // replace the entity on next tick,
             // creakings set some stuff immediately after the spawn to the original entity,
             // and we wouldn't get that info elsewise
-            Bukkit.getScheduler().scheduleSyncDelayedTask(ViveMain.INSTANCE, () -> {
+            Platform.getInstance().getScheduler().runEntityDelayed(event.getEntity(), () -> {
                 if (event.getEntity().isValid()) {
                     ViveMain.NMS.modifyEntity(event.getEntity());
                 }

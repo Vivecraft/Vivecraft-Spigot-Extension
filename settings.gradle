@@ -12,6 +12,7 @@ rootProject.name = plugin_name
 
 // the main plugin
 include("core")
+include 'folia'
 include("gen:stubs")
 include("gen:generate")
 

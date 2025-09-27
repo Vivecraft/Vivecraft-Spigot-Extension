@@ -9,6 +9,7 @@ import org.bukkit.util.Vector;
 import org.joml.Vector3fc;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
+import org.vivecraft.compat.Platform;
 import org.vivecraft.data.PlayerState;
 import org.vivecraft.debug.Debug;
 
@@ -34,8 +35,6 @@ public class AimFixHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         Object listener = ViveMain.NMS.getPacketListener(this.netManager);
 
-        Player bplayer = Bukkit.getPlayer(this.palyerId);
-
         if (!ViveMain.VIVE_PLAYERS.containsKey(this.palyerId) || !ViveMain.VIVE_PLAYERS.get(this.palyerId).isVR() ||
             !ViveMain.NMS.needsAimfixHandling(msg))
         {
@@ -46,7 +45,7 @@ public class AimFixHandler extends ChannelInboundHandlerAdapter {
 
         Object player = ViveMain.NMS.getPlayer(listener);
 
-        ViveMain.NMS.runOnMainThread(ViveMain.NMS.getServer(player), () -> {
+        Platform.getInstance().getScheduler().runEntity(Bukkit.getPlayer(this.palyerId), () -> {
             // Save all the current orientation data
             PlayerState oldState = ViveMain.NMS.getPlayerState(player);
 

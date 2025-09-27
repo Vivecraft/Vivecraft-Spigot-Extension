@@ -1,0 +1,17 @@
+repositories {
+    maven {
+        url = "https://repo.papermc.io/repository/maven-public/"
+    }
+}
+
+dependencies {
+    // folia
+    compileOnly('dev.folia:folia-api:1.19.4-R0.1-SNAPSHOT') {
+        attributes {
+            // folia is only available for java 17, we compile against java 8 though
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
+        }
+    }
+
+    compileOnly(project(":core"))
+}

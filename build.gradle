@@ -23,14 +23,6 @@ allprojects {
     }
 
     repositories {
-        mavenLocal {
-            content {
-                // this repository *only* contains artifacts with group
-                includeGroup "org.spigotmc"
-                includeGroup "org.bukkit"
-                includeGroup "com.mojang"
-            }
-        }
         maven {
             url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
             content {

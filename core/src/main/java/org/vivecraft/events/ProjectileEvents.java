@@ -14,6 +14,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
+import org.vivecraft.compat.Platform;
 import org.vivecraft.compat.types.Particles;
 import org.vivecraft.config.enums.HeadshotIndicator;
 import org.vivecraft.util.Headshot;
@@ -78,8 +79,7 @@ public class ProjectileEvents implements Listener {
                 loc.setYaw(-loc.getYaw());
 
                 double velo = proj.getVelocity().length();
-                proj.teleport(loc); //paper sets velocity to 0 on teleport.
-                proj.setVelocity(aim.multiply(velo * velocity));
+                Platform.getInstance().teleportEntity(proj, loc, aim.multiply(velo * velocity));
             }
         }
     }

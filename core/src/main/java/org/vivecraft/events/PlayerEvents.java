@@ -1,6 +1,5 @@
 package org.vivecraft.events;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.vivecraft.PermissionManager;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
+import org.vivecraft.compat.Platform;
 import org.vivecraft.compat.types.Item;
 import org.vivecraft.debug.Debug;
 import org.vivecraft.network.AimFixHandler;
@@ -43,7 +43,7 @@ public class PlayerEvents implements Listener {
         Debug.log(player.getName() + " has joined the server");
         Debug.log("Waiting for Vivecraft info of: " + player.getName());
 
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(ViveMain.INSTANCE, () -> {
+        Platform.getInstance().getScheduler().runGlobalDelayed(() -> {
             // only do stuff, if the player is still on the server
             if (player.isOnline()) {
                 VivePlayer vivePlayer = ViveMain.getVivePlayer(player);
@@ -82,9 +82,9 @@ public class PlayerEvents implements Listener {
 
         if (ViveMain.CONFIG.checkForUpdates.get() && player.isOp()) {
             // check for update on not the main thread
-            Bukkit.getServer().getScheduler().runTaskAsynchronously(ViveMain.INSTANCE, () -> {
+            Platform.getInstance().getScheduler().runAsync(() -> {
                 if (UpdateChecker.checkForUpdates()) {
-                    Bukkit.getServer().getScheduler().runTask(ViveMain.INSTANCE,
+                    Platform.getInstance().getScheduler().runGlobal(
                         () -> player.sendMessage("Vivecraft update available: §a" + UpdateChecker.NEWEST_VERSION));
                 }
             });

@@ -6,7 +6,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 import org.vivecraft.commands.ConfigCommandExecutor;
 import org.vivecraft.commands.ConfigCommandTabCompleter;
 import org.vivecraft.compat.*;
@@ -53,8 +52,8 @@ public class ViveMain extends JavaPlugin {
 
     public static Map<String, String> TRANSLATIONS;
 
-    private BukkitTask dataTask;
-    private BukkitTask particleTask;
+    private Task dataTask;
+    private Task particleTask;
 
     @Override
     public void onEnable() {
@@ -109,7 +108,7 @@ public class ViveMain extends JavaPlugin {
         registerRecipes();
 
         this.toggleParticleTask(CONFIG.debugParticlesEnabled.get());
-        this.toggleDataTask(CONFIG.debugParticlesEnabled.get());
+        this.toggleDataTask(CONFIG.sendData.get());
         if (CONFIG.spigotSettingsEnabled.get()) {
             SpigotReflector.setMovedTooQuickly(CONFIG.spigotSettingsMovedTooQuickly.get());
             SpigotReflector.setMovedWrongly(CONFIG.spigotSettingsMovedWronglyThreshold.get());
@@ -180,7 +179,7 @@ public class ViveMain extends JavaPlugin {
 
     public void toggleParticleTask(boolean enabled) {
         if (enabled && this.particleTask == null) {
-            this.particleTask = this.getServer().getScheduler().runTaskTimer(this, Debug::debugParticles, 20, 1);
+            this.particleTask = Platform.getInstance().getScheduler().runGlobalRepeating(Debug::debugParticles, 20, 1);
         } else if (!enabled && this.particleTask != null) {
             this.particleTask.cancel();
             this.particleTask = null;
@@ -190,7 +189,7 @@ public class ViveMain extends JavaPlugin {
     public void toggleDataTask(boolean enabled) {
         Debug.log("setting data task to %s", enabled);
         if (enabled && this.dataTask == null) {
-            this.dataTask = this.getServer().getScheduler().runTaskTimer(this, ViveMain::sendViveData, 20, 1);
+            this.dataTask = Platform.getInstance().getScheduler().runGlobalRepeating(ViveMain::sendViveData, 20, 1);
         } else if (!enabled && this.dataTask != null) {
             this.dataTask.cancel();
             this.dataTask = null;
