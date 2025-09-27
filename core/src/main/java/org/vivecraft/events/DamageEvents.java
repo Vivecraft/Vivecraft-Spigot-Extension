@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.joml.Vector3f;
@@ -17,6 +18,8 @@ import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.debug.Debug;
+import org.vivecraft.network.NetworkHandler;
+import org.vivecraft.network.packet.s2c.DamageDirectionPayloadS2C;
 import org.vivecraft.util.AABB;
 import org.vivecraft.util.MathUtils;
 
@@ -193,6 +196,36 @@ public class DamageEvents implements Listener {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void damageDirection(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player && ViveMain.isVRPlayer(event.getEntity())) {
+            VivePlayer vivePlayer = ViveMain.getVivePlayer(event.getEntity());
+            if (vivePlayer.wantsDamageDirection) {
+                Vector3fc direction = MathUtils.ZERO;
+                switch (event.getCause()) {
+                    case FALLING_BLOCK:
+                        // damage from the above
+                        direction = MathUtils.UP;
+                        break;
+                    case FALL:
+                        // damage from the below
+                        direction = MathUtils.DOWN;
+                        break;
+                    case PROJECTILE:
+                    case ENTITY_ATTACK:
+                        // just make sure that this is te case, it should be, but maybe some implementations don't do that
+                        if (event instanceof EntityDamageByEntityEvent) {
+                            direction = MathUtils.subToJomlVec(
+                                ((EntityDamageByEntityEvent) event).getDamager().getLocation().toVector(),
+                                event.getEntity().getLocation().toVector()).normalize();
+                        }
+                        break;
+                }
+                NetworkHandler.sendPacket(vivePlayer, new DamageDirectionPayloadS2C(direction));
             }
         }
     }
