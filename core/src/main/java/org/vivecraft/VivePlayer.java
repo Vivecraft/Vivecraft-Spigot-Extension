@@ -14,6 +14,7 @@ import org.vivecraft.data.VrPlayerState;
 import org.vivecraft.network.NetworkConstants;
 import org.vivecraft.util.MCVersion;
 import org.vivecraft.util.MathUtils;
+import org.vivecraft.util.MetadataHelper;
 
 public class VivePlayer {
     // player movement state
@@ -256,6 +257,7 @@ public class VivePlayer {
         this.vrPlayerStateAsPose = null;
         VRAPIImpl.INSTANCE.addPoseToHistory(this.player.getUniqueId(),
             vrPlayerState.asVRPose(this.player.getLocation().toVector()));
+        MetadataHelper.updateMetadata(this);
     }
 
     public VRPose asVRPose() {

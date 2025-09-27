@@ -42,6 +42,11 @@ public interface NMSHelper {
     Vector vec3ToVector(Object vec3);
 
     /**
+     * creates a new MC Vec3
+     */
+    Object newVec3(double x, double y, double z);
+
+    /**
      * sets the translation key with fallback
      *
      * @param itemStack      ItemStack to modify

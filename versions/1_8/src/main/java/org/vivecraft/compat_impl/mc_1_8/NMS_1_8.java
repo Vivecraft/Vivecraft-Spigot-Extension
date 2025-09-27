@@ -233,6 +233,11 @@ public class NMS_1_8 implements NMSHelper {
     }
 
     @Override
+    public Object newVec3(double x, double y, double z) {
+        return this.Vec3.newInstance(x, y, z);
+    }
+
+    @Override
     public ItemStack setItemStackName(ItemStack itemStack, String translationKey, String fallback) {
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(fallback);

@@ -19,6 +19,7 @@ import org.vivecraft.network.packet.PayloadIdentifier;
 import org.vivecraft.network.packet.c2s.*;
 import org.vivecraft.network.packet.s2c.*;
 import org.vivecraft.util.LazySupplier;
+import org.vivecraft.util.MetadataHelper;
 import org.vivecraft.util.Utils;
 
 import java.io.*;
@@ -224,6 +225,7 @@ public class NetworkHandler implements PluginMessageListener {
             // send all nearby players that the state changed
             // this is only needed for OFF, to delete the clientside vr player state
             sendPacketToTrackingPlayers(vivePlayer, new VRActivePayloadS2C(false, vivePlayer.player.getUniqueId()));
+            MetadataHelper.cleanupMetadata(vivePlayer.player);
         } else if (ViveMain.MC.supportsCrawling()) {
             ViveMain.NMS.addCrawlPoseWrapper(vivePlayer.player);
         }

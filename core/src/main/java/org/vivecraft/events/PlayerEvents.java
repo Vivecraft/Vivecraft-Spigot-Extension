@@ -16,6 +16,7 @@ import org.vivecraft.compat.types.Item;
 import org.vivecraft.debug.Debug;
 import org.vivecraft.network.AimFixHandler;
 import org.vivecraft.network.NetworkUtils;
+import org.vivecraft.util.MetadataHelper;
 import org.vivecraft.util.UpdateChecker;
 
 import java.util.Random;
@@ -28,8 +29,7 @@ public class PlayerEvents implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         ViveMain.VIVE_PLAYERS.remove(player.getUniqueId());
-        // TODO metadata
-        // MetadataHelper.cleanupMetadata(event.getPlayer());
+        MetadataHelper.cleanupMetadata(player);
 
         if (ViveMain.CONFIG.messagesEnabled.get() && !ViveMain.CONFIG.messagesLeaveMessage.get().isEmpty()) {
             NetworkUtils.sendMessageToAll(ViveMain.CONFIG.messagesLeaveMessage.get(), player.getDisplayName(), "");
