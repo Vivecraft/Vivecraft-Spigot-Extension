@@ -9,6 +9,7 @@ import org.joml.Vector3f;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.accessors.*;
+import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat.NMSHelper;
 import org.vivecraft.compat.types.BlockContext;
@@ -40,6 +41,11 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionField Entity_fallDistance;
     protected ReflectionField ServerPlayer_packetListener;
     protected ReflectionField ServerGamePacketListenerImpl_aboveGroundTicks;
+
+    protected ReflectionField ServerPlayer_gameMode;
+    protected ReflectionField ServerPlayerGameMode_destroyProgressStart;
+    protected ReflectionField ServerboundPlayerActionPacket_action;
+    protected ReflectionField ServerboundPlayerActionPacketAction_STOP_DESTROY_BLOCK;
 
     protected ReflectionField ServerCommonPacketListenerImpl_connection;
     protected ReflectionField ServerGamePacketListenerImpl_player;
@@ -85,11 +91,16 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionField WrappedGoal_goal;
     protected ReflectionField WrappedGoal_priority;
 
+    protected ReflectionField Player_inventory;
+    protected ReflectionField Inventory_items;
+    protected ReflectionField Inventory_selected;
+
     public NMS_1_8() {
         this.init();
         this.initVec3();
         this.initAimFix();
         this.initArmor();
+        this.initInventory();
     }
 
     protected void init() {
@@ -118,6 +129,15 @@ public class NMS_1_8 implements NMSHelper {
             EntityAITasks$EntityAITaskEntryMapping.FIELD_FIELD_75733_A);
         this.WrappedGoal_priority = ReflectionField.getField(WrappedGoalMapping.FIELD_PRIORITY,
             EntityAITasks$EntityAITaskEntryMapping.FIELD_FIELD_75731_B);
+
+        this.ServerPlayer_gameMode = ReflectionField.getField(ServerPlayerMapping.FIELD_GAME_MODE);
+        this.ServerPlayerGameMode_destroyProgressStart = ReflectionField.getField(
+            ServerPlayerGameModeMapping.FIELD_DESTROY_PROGRESS_START);
+
+        this.ServerboundPlayerActionPacket_action = ReflectionField.getField(
+            ServerboundPlayerActionPacketMapping.FIELD_ACTION);
+        this.ServerboundPlayerActionPacketAction_STOP_DESTROY_BLOCK = ReflectionField.getField(
+            ServerboundPlayerActionPacket$ActionMapping.FIELD_STOP_DESTROY_BLOCK);
     }
 
     protected void initVec3() {
@@ -178,6 +198,12 @@ public class NMS_1_8 implements NMSHelper {
         this.ItemStack_getItem = ReflectionMethod.getMethod(ItemStackMapping.METHOD_GET_ITEM);
         this.ArmorItem_defense = ReflectionField.getField(ArmorItemMapping.FIELD_DEFENSE);
         this.ArmorItem = ClassGetter.getClass(true, ArmorItemMapping.MAPPING);
+    }
+
+    protected void initInventory() {
+        this.Player_inventory = ReflectionField.getField(PlayerMapping.FIELD_INVENTORY);
+        this.Inventory_items = ReflectionField.getField(InventoryMapping.FIELD_ITEMS, InventoryMapping.FIELD_ITEMS_1);
+        this.Inventory_selected = ReflectionField.getField(InventoryMapping.FIELD_SELECTED);
     }
 
     @Override
@@ -294,7 +320,15 @@ public class NMS_1_8 implements NMSHelper {
     }
 
     @Override
-    public void handlePacket(Object packet, Object packetListener, float xRot, float yRot) {
+    public void handlePacket(Object player, Object packet, Object packetListener, float xRot, float yRot) {
+        if (this.ServerboundPlayerActionPacket.isInstance(packet) &&
+            this.ServerboundPlayerActionPacket_action.get(packet) ==
+                this.ServerboundPlayerActionPacketAction_STOP_DESTROY_BLOCK.get() &&
+            ViveMain.CONFIG.allowFasterBlockBreaking.get())
+        {
+            // set to 0 to make the game think the block has been breaking for a long time
+            this.ServerPlayerGameMode_destroyProgressStart.set(this.ServerPlayer_gameMode.get(player), 0);
+        }
         this.Packet_handle.invoke(packet, packetListener);
     }
 
@@ -512,5 +546,22 @@ public class NMS_1_8 implements NMSHelper {
         this.GoalSelector_addGoal.invoke(selector, priority,
             newGoal.apply(nmsEntity));
         return true;
+    }
+
+    @Override
+    public Object getHandItemInternal(Player player, VRBodyPart hand) {
+        if (hand == VRBodyPart.MAIN_HAND) {
+            Object inventory = this.Player_inventory.get(BukkitReflector.getEntityHandle(player));
+            return ((Object[]) this.Inventory_items.get(inventory))[(int) this.Inventory_selected.get(inventory)];
+        }
+        return null;
+    }
+
+    @Override
+    public void setHandItemInternal(Player player, VRBodyPart hand, Object itemStack) {
+        if (hand == VRBodyPart.MAIN_HAND) {
+            Object inventory = this.Player_inventory.get(BukkitReflector.getEntityHandle(player));
+            ((Object[]) this.Inventory_items.get(inventory))[(int) this.Inventory_selected.get(inventory)] = itemStack;
+        }
     }
 }

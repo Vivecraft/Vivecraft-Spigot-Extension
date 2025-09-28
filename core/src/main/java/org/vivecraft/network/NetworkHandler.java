@@ -18,6 +18,7 @@ import org.vivecraft.debug.Debug;
 import org.vivecraft.network.packet.PayloadIdentifier;
 import org.vivecraft.network.packet.c2s.*;
 import org.vivecraft.network.packet.s2c.*;
+import org.vivecraft.util.CachedHandItem;
 import org.vivecraft.util.LazySupplier;
 import org.vivecraft.util.MetadataHelper;
 import org.vivecraft.util.Utils;
@@ -252,11 +253,32 @@ public class NetworkHandler implements PluginMessageListener {
         vivePlayer.useBodyPartForAim = activeBodypart.useForAim;
         if (vivePlayer.activeBodyPart != newBodyPart) {
             // handle equipment changes
-            // TODO dualwielding
-            //ItemStack oldItem = player.getItemBySlot(EquipmentSlot.MAINHAND);
+            if (vivePlayer.cachedItemStack != null) {
+                // restore previous item
+                // the item that has to return to the cached bodypart
+                ViveMain.NMS.setHandItemInternal(vivePlayer.player,
+                    vivePlayer.cachedItemStack.bodyPart,
+                    ViveMain.NMS.getHandItemInternal(vivePlayer.player, VRBodyPart.MAIN_HAND));
+
+                ViveMain.NMS.setHandItemInternal(vivePlayer.player,
+                    VRBodyPart.MAIN_HAND,
+                    vivePlayer.cachedItemStack.mainItem);
+                vivePlayer.cachedItemStack = null;
+            }
+
+            // we only need to cache it if the old hand was the main hand
+            if (vivePlayer.activeBodyPart == VRBodyPart.MAIN_HAND) {
+                vivePlayer.cachedItemStack = new CachedHandItem(VRBodyPart.MAIN_HAND,
+                    ViveMain.NMS.getHandItemInternal(vivePlayer.player, VRBodyPart.MAIN_HAND));
+            }
             vivePlayer.activeBodyPart = newBodyPart;
 
-            // TODO dualwielding
+            // set the new active item
+            ViveMain.NMS.setHandItemInternal(vivePlayer.player,
+                VRBodyPart.MAIN_HAND,
+                ViveMain.NMS.getHandItemInternal(vivePlayer.player, newBodyPart));
+
+            // TODO do we need to do equipment changes?
             /*
             ItemStack newItem = player.getItemBySlot(EquipmentSlot.MAINHAND);
 

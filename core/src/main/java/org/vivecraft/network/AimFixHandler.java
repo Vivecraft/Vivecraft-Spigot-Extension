@@ -45,7 +45,7 @@ public class AimFixHandler extends ChannelInboundHandlerAdapter {
 
         Object player = ViveMain.NMS.getPlayer(listener);
 
-        Platform.getInstance().getScheduler().runEntity(Bukkit.getPlayer(this.palyerId), () -> {
+        Runnable task = () -> {
             // Save all the current orientation data
             PlayerState oldState = ViveMain.NMS.getPlayerState(player);
 
@@ -77,7 +77,7 @@ public class AimFixHandler extends ChannelInboundHandlerAdapter {
             try {
                 if (ViveMain.NMS.isConnectionConnected(this.netManager)) {
                     try {
-                        ViveMain.NMS.handlePacket(msg, listener, xRot, yRot);
+                        ViveMain.NMS.handlePacket(player, msg, listener, xRot, yRot);
                     } catch (Exception ignored) {
                         // Apparently might get thrown and can be ignored
                     }
@@ -97,6 +97,13 @@ public class AimFixHandler extends ChannelInboundHandlerAdapter {
             if (vivePlayer != null) {
                 vivePlayer.offset.zero();
             }
-        });
+        };
+        if (Platform.FOLIA) {
+            // with folia we need to schedule it for the player thread
+            Platform.getInstance().getScheduler().runEntity(Bukkit.getPlayer(this.palyerId), task);
+        } else {
+            // without folia try to run it immediately
+            ViveMain.NMS.runOnMainThread(ViveMain.NMS.getServer(player), task);
+        }
     }
 }

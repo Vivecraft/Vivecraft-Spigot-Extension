@@ -132,7 +132,7 @@ public interface ApiHelper {
     ItemStack getHandItem(Player player, VRBodyPart hand);
 
     /**
-     * sets the item from the specific hand
+     * sets the item for the specific hand
      *
      * @param player    Player to set the item from
      * @param hand      Hand to set

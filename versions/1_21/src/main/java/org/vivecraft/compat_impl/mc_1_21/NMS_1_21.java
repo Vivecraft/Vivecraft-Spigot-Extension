@@ -19,11 +19,11 @@ public class NMS_1_21 extends NMS_1_20_6 {
     }
 
     @Override
-    public void handlePacket(Object packet, Object packetListener, float xRot, float yRot) {
+    public void handlePacket(Object player, Object packet, Object packetListener, float xRot, float yRot) {
         if (this.ServerboundUseItemPacket.isInstance(packet)) {
             this.ServerboundUseItemPacket_xRot.set(packet, xRot);
             this.ServerboundUseItemPacket_yRot.set(packet, yRot);
         }
-        this.Packet_handle.invoke(packet, packetListener);
+        super.handlePacket(player, packet, packetListener, xRot, yRot);
     }
 }

@@ -1,8 +1,10 @@
 package org.vivecraft.compat_impl.mc_1_9;
 
 import com.google.common.collect.Multimap;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.vivecraft.accessors.*;
+import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat_impl.mc_1_8.NMS_1_8;
 import org.vivecraft.util.reflection.ReflectionField;
@@ -19,6 +21,8 @@ public class NMS_1_9 extends NMS_1_8 {
     protected ReflectionMethod Item_getDefaultAttributeModifiers;
     protected ReflectionMethod AttributeModifier_getAmount;
     protected ReflectionMethod AttributeModifier_getOperation;
+
+    protected ReflectionField Inventory_offhandSlot;
 
     @Override
     protected void initServer() {
@@ -44,6 +48,13 @@ public class NMS_1_9 extends NMS_1_8 {
             AttributeModifierMapping.METHOD_GET_AMOUNT);
         this.AttributeModifier_getOperation = ReflectionMethod.getMethod(AttributeModifierMapping.METHOD_OPERATION,
             AttributeModifierMapping.METHOD_GET_OPERATION, AttributeModifierMapping.METHOD_FUNC_111169_C);
+    }
+
+    @Override
+    protected void initInventory() {
+        super.initInventory();
+        this.Inventory_offhandSlot = ReflectionField.getField(InventoryMapping.FIELD_OFFHAND,
+            InventoryMapping.FIELD_EXTRA_SLOTS);
     }
 
     @Override
@@ -77,5 +88,25 @@ public class NMS_1_9 extends NMS_1_8 {
             }
         }
         return original;
+    }
+
+    @Override
+    public Object getHandItemInternal(Player player, VRBodyPart hand) {
+        if (hand == VRBodyPart.OFF_HAND) {
+            Object inventory = this.Player_inventory.get(BukkitReflector.getEntityHandle(player));
+            return ((Object[]) this.Inventory_offhandSlot.get(inventory))[0];
+        } else {
+            return super.getHandItemInternal(player, hand);
+        }
+    }
+
+    @Override
+    public void setHandItemInternal(Player player, VRBodyPart hand, Object itemStack) {
+        if (hand == VRBodyPart.OFF_HAND) {
+            Object inventory = this.Player_inventory.get(BukkitReflector.getEntityHandle(player));
+            ((Object[]) this.Inventory_offhandSlot.get(inventory))[0] = itemStack;
+        } else {
+            super.setHandItemInternal(player, hand, itemStack);
+        }
     }
 }

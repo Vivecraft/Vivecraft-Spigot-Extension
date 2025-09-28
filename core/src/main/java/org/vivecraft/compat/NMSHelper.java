@@ -6,8 +6,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.vivecraft.VivePlayer;
+import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.types.BlockContext;
 import org.vivecraft.compat.types.FluidContext;
 import org.vivecraft.data.PlayerState;
@@ -105,7 +107,7 @@ public interface NMSHelper {
     /**
      * handles the given packet using the given listener
      */
-    void handlePacket(Object packet, Object packetListener, float xRot, float yRot);
+    void handlePacket(Object player, Object packet, Object packetListener, float xRot, float yRot);
 
     /**
      * checks if the Packet needs aimfix handling
@@ -204,4 +206,25 @@ public interface NMSHelper {
      * @param player player to modify
      */
     void addCrawlPoseWrapper(Player player);
+
+    /**
+     * gets the item from the specific hand
+     * bypasses spigots api to just change the server state without notifying clients
+     *
+     * @param player Player to get the item from
+     * @param hand   Hand to get
+     * @return hand ItemStack
+     */
+    @Nullable
+    Object getHandItemInternal(Player player, VRBodyPart hand);
+
+    /**
+     * sets the item for the specific hand
+     * bypasses spigots api to just change the server state without notifying clients
+     *
+     * @param player    Player to set the item from
+     * @param hand      Hand to set
+     * @param itemStack ItemStack to set
+     */
+    void setHandItemInternal(Player player, VRBodyPart hand, @Nullable Object itemStack);
 }

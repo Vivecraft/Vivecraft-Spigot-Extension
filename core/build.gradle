@@ -94,14 +94,27 @@ accessors {
 
     mapClass("net.minecraft.world.entity.player.Player") {
         field("net.minecraft.world.entity.player.Inventory", "inventory")
-        method("net.minecraft.world.entity.player.Inventory", "getInventory")
     }
     mapClass("net.minecraft.server.level.ServerPlayer") {
         field("net.minecraft.server.network.ServerGamePacketListenerImpl", "connection")
+        field("net.minecraft.server.level.ServerPlayerGameMode", "gameMode")
     }
     mapClass("net.minecraft.world.entity.player.Inventory") {
         field("net.minecraft.server.VVV.ItemStack[]", "armor") // 1.8-1.10
         field("net.minecraft.core.NonNullList", "armor") // 1.11-1.21.4
+        // offhand
+        field("net.minecraft.world.entity.EntityEquipment", "equipment") // 1.21.5+
+        field("net.minecraft.core.NonNullList", "offhand") // 1.11+
+        field("net.minecraft.server.VVV.ItemStack[]", "extraSlots")
+        // items
+        field("net.minecraft.core.NonNullList", "items") // 1.11+
+        field("net.minecraft.server.VVV.ItemStack[]", "items")
+        field("int", "selected")
+    }
+    mapClass("net.minecraft.world.entity.EntityEquipment") {
+        method("net.minecraft.world.item.ItemStack", "get", "net.minecraft.world.entity.EquipmentSlot")
+        method("net.minecraft.world.item.ItemStack", "set", "net.minecraft.world.entity.EquipmentSlot",
+            "net.minecraft.world.item.ItemStack")
     }
     mapClass("net.minecraft.world.level.block.Blocks") {
         field("net.minecraft.world.level.block.Block", "CARVED_PUMPKIN")
@@ -123,6 +136,20 @@ accessors {
 
     mapClass("net.minecraft.network.protocol.Packet") {
         method("void", "handle", "net.minecraft.network.PacketListener")
+    }
+    mapClass("net.minecraft.network.protocol.game.ServerboundUseItemPacket") {
+        field("float", "yRot")
+        field("float", "xRot")
+    }
+    mapClass("net.minecraft.network.protocol.game.ServerboundUseItemOnPacket")
+    mapClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket") {
+        field("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket\$Action", "action")
+    }
+    mapClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket\$Action") {
+        field("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket\$Action", "STOP_DESTROY_BLOCK")
+    }
+    mapClass("net.minecraft.server.level.ServerPlayerGameMode") {
+        field("int", "destroyProgressStart")
     }
 
     mapClass("net.minecraft.server.level.ServerLevel") {
@@ -194,6 +221,7 @@ accessors {
     }
 
     mapClass("net.minecraft.world.item.ItemStack") {
+        field("net.minecraft.world.item.ItemStack", "EMPTY")
         method("net.minecraft.world.item.ItemStack", "setHoverName", "net.minecraft.network.chat.Component")
         method("java.lang.Object", "set", "net.minecraft.core.component.DataComponentType", "java.lang.Object")
         method("net.minecraft.world.item.Item", "getItem")
@@ -216,6 +244,7 @@ accessors {
 
     mapClass("net.minecraft.world.entity.EquipmentSlot") {
         field("net.minecraft.world.entity.EquipmentSlot", "FEET")
+        field("net.minecraft.world.entity.EquipmentSlot", "OFFHAND")
     }
 
     mapClass("net.minecraft.core.component.DataComponents") {
@@ -292,12 +321,6 @@ accessors {
         method("com.google.common.util.concurrent.ListenableFuture", "postToMainThread", "java.lang.Runnable")
     }
 
-    mapClass("net.minecraft.network.protocol.game.ServerboundUseItemPacket") {
-        field("float", "yRot")
-        field("float", "xRot")
-    }
-    mapClass("net.minecraft.network.protocol.game.ServerboundUseItemOnPacket")
-    mapClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket")
     mapClass("net.minecraft.world.entity.monster.Creeper") {
         method("int", "getSwellDir")
         method("void", "setSwellDir", "int")

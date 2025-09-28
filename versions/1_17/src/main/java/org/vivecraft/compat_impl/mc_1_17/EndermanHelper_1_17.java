@@ -11,7 +11,6 @@ import java.util.function.Predicate;
 
 public class EndermanHelper_1_17 extends EndermanHelper_1_16 {
 
-    protected ReflectionMethod Player_getInventory;
     protected ReflectionMethod ItemStack_Is;
     protected ReflectionMethod Block_asItem;
     protected ReflectionField Blocks_CARVED_PUMPKIN;
@@ -26,7 +25,7 @@ public class EndermanHelper_1_17 extends EndermanHelper_1_16 {
 
     @Override
     protected void initInventory() {
-        this.Player_getInventory = ReflectionMethod.getMethod(PlayerMapping.METHOD_GET_INVENTORY);
+        this.Player_inventory = ReflectionField.getField(PlayerMapping.FIELD_INVENTORY);
         this.Inventory_armor = ReflectionField.getField(InventoryMapping.FIELD_ARMOR_1);
         this.ItemStack_Is = ReflectionMethod.getMethod(ItemStackMapping.METHOD_IS);
         this.Block_asItem = ReflectionMethod.getMethod(BlockMapping.METHOD_AS_ITEM);
@@ -44,7 +43,7 @@ public class EndermanHelper_1_17 extends EndermanHelper_1_16 {
 
     @Override
     public boolean hasProtection(Object nmsPlayer) {
-        Object headitem = ((List) this.Inventory_armor.get(this.Player_getInventory.invoke(nmsPlayer))).get(3);
+        Object headitem = ((List) this.Inventory_armor.get(this.Player_inventory.get(nmsPlayer))).get(3);
         return (boolean) this.ItemStack_Is.invoke(headitem, this.Block_asItem.invoke(this.Blocks_CARVED_PUMPKIN.get()));
     }
 
