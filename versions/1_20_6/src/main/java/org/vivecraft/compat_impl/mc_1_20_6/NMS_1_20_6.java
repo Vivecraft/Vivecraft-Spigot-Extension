@@ -1,5 +1,6 @@
 package org.vivecraft.compat_impl.mc_1_20_6;
 
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.vivecraft.accessors.*;
 import org.vivecraft.compat.BukkitReflector;
@@ -9,6 +10,7 @@ import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public class NMS_1_20_6 extends NMS_1_19_4 {
@@ -25,6 +27,11 @@ public class NMS_1_20_6 extends NMS_1_19_4 {
     protected ReflectionMethod ItemAttributeModifiersEntry_attribute;
     protected ReflectionMethod ItemAttributeModifiersEntry_modifier;
     protected ReflectionMethod Holder_is;
+
+    protected ReflectionMethod ItemStack_forEachModifier;
+    protected ReflectionMethod AttributeMap_getInstance;
+    protected ReflectionMethod AttributeInstance_addTransientModifier;
+    protected ReflectionMethod AttributeInstance_removeModifier;
 
     @Override
     protected void init() {
@@ -47,6 +54,16 @@ public class NMS_1_20_6 extends NMS_1_19_4 {
         this.ItemAttributeModifiersEntry_modifier = ReflectionMethod.getMethod(
             ItemAttributeModifiers$EntryMapping.METHOD_MODIFIER);
         this.Holder_is = ReflectionMethod.getMethod(HolderMapping.METHOD_IS);
+    }
+
+    @Override
+    protected void initDualWielding() {
+        this.ItemStack_forEachModifier = ReflectionMethod.getMethod(ItemStackMapping.METHOD_FOR_EACH_MODIFIER);
+        this.AttributeInstance_addTransientModifier = ReflectionMethod.getMethod(
+            AttributeInstanceMapping.METHOD_ADD_TRANSIENT_MODIFIER);
+        this.AttributeInstance_removeModifier = ReflectionMethod.getMethod(
+            AttributeInstanceMapping.METHOD_REMOVE_MODIFIER);
+        this.AttributeMap_getInstance = ReflectionMethod.getMethod(AttributeMapMapping.METHOD_GET_INSTANCE);
     }
 
     @Override
@@ -85,6 +102,32 @@ public class NMS_1_20_6 extends NMS_1_19_4 {
             idMap[id] = dataItem;
         } else {
             Debug.log("Data pose index is higher than data array size???");
+        }
+    }
+
+    @Override
+    public void applyEquipmentChange(Player player, Object oldItemStack, Object newItemStack) {
+        if (!(boolean) this.ItemStack_matches.invokes(oldItemStack, newItemStack)) {
+            Object attributes = this.LivingEntity_getAttributes.invoke(BukkitReflector.getEntityHandle(player));
+            if (!(boolean) this.ItemStack_isEmpty.invoke(oldItemStack)) {
+                this.ItemStack_forEachModifier.invoke(oldItemStack, this.EquipmentSlot_MAINHAND.get(),
+                    (BiConsumer) (holder, modifier) -> {
+                        Object instance = this.AttributeMap_getInstance.invoke(attributes, holder);
+                        if (modifier != null) {
+                            this.AttributeInstance_removeModifier.invoke(instance, modifier);
+                        }
+                    });
+            }
+            if (!(boolean) this.ItemStack_isEmpty.invoke(newItemStack)) {
+                this.ItemStack_forEachModifier.invoke(newItemStack, this.EquipmentSlot_MAINHAND.get(),
+                    (BiConsumer) (holder, modifier) -> {
+                        Object instance = this.AttributeMap_getInstance.invoke(attributes, holder);
+                        if (modifier != null) {
+                            this.AttributeInstance_removeModifier.invoke(instance, modifier);
+                            this.AttributeInstance_addTransientModifier.invoke(instance, modifier);
+                        }
+                    });
+            }
         }
     }
 }

@@ -229,8 +229,15 @@ public class Api_1_8 implements ApiHelper {
     @Override
     public void breakItem(Player player, VRBodyPart hand) {
         ItemStack itemStack = getHandItem(player, hand);
+        breakItemEffects(player, hand, itemStack);
         if (itemStack != null && itemStack.getType() != Material.AIR) {
             setHandItem(player, hand, null);
+        }
+    }
+
+    @Override
+    public void breakItemEffects(Player player, VRBodyPart hand, ItemStack itemStack) {
+        if (itemStack != null && itemStack.getType() != Material.AIR) {
             Location loc = player.getEyeLocation();
             Vector pPos =
                 ViveMain.isVRPlayer(player) ? ViveMain.getVivePlayer(player).getBodyPartPos(hand) : loc.toVector();

@@ -186,4 +186,13 @@ public interface ApiHelper {
      * @apiNote there is no native call for this, need to do it manually
      */
     void breakItem(Player player, VRBodyPart hand);
+
+    /**
+     * creates item break particles and sound at the players hand
+     *
+     * @param player    to break the ItemStack of
+     * @param hand      hand to break the ItemStack in
+     * @param itemStack ItemStack to make the particles for
+     */
+    void breakItemEffects(Player player, VRBodyPart hand, ItemStack itemStack);
 }

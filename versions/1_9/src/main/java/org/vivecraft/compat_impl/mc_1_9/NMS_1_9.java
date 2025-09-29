@@ -24,6 +24,25 @@ public class NMS_1_9 extends NMS_1_8 {
 
     protected ReflectionField Inventory_offhandSlot;
 
+    protected ReflectionMethod ItemStack_getAttributeModifiers;
+
+    protected ReflectionMethod LivingEntity_getAttributes;
+    protected ReflectionMethod AttributeMap_addAttributeModifiers;
+    protected ReflectionMethod AttributeMap_removeAttributeModifiers;
+    protected ReflectionField EquipmentSlot_MAINHAND;
+
+    public NMS_1_9() {
+        super();
+        initDualWielding();
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.LivingEntity_getAttributes = ReflectionMethod.getMethod(LivingEntityMapping.METHOD_GET_ATTRIBUTES);
+        this.EquipmentSlot_MAINHAND = ReflectionField.getField(EquipmentSlotMapping.FIELD_MAINHAND);
+    }
+
     @Override
     protected void initServer() {
         this.ServerPlayer_getServer = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_SERVER);
@@ -55,6 +74,16 @@ public class NMS_1_9 extends NMS_1_8 {
         super.initInventory();
         this.Inventory_offhandSlot = ReflectionField.getField(InventoryMapping.FIELD_OFFHAND,
             InventoryMapping.FIELD_EXTRA_SLOTS);
+    }
+
+    protected void initDualWielding() {
+        this.ItemStack_getAttributeModifiers = ReflectionMethod.getMethod(
+            ItemStackMapping.METHOD_GET_ATTRIBUTE_MODIFIERS);
+        this.AttributeMap_addAttributeModifiers = ReflectionMethod.getMethod(
+            AttributeMapMapping.METHOD_ADD_TRANSIENT_ATTRIBUTE_MODIFIERS,
+            AttributeMapMapping.METHOD_ADD_ATTRIBUTE_MODIFIERS);
+        this.AttributeMap_removeAttributeModifiers = ReflectionMethod.getMethod(
+            AttributeMapMapping.METHOD_REMOVE_ATTRIBUTE_MODIFIERS);
     }
 
     @Override
@@ -105,8 +134,23 @@ public class NMS_1_9 extends NMS_1_8 {
         if (hand == VRBodyPart.OFF_HAND) {
             Object inventory = this.Player_inventory.get(BukkitReflector.getEntityHandle(player));
             ((Object[]) this.Inventory_offhandSlot.get(inventory))[0] = itemStack;
-        } else {
+        } else if (hand == VRBodyPart.MAIN_HAND) {
             super.setHandItemInternal(player, hand, itemStack);
+        }
+    }
+
+    @Override
+    public void applyEquipmentChange(Player player, Object oldItemStack, Object newItemStack) {
+        if (!(boolean) this.ItemStack_matches.invokes(oldItemStack, newItemStack)) {
+            Object attributes = this.LivingEntity_getAttributes.invoke(BukkitReflector.getEntityHandle(player));
+            if (oldItemStack != null) {
+                this.AttributeMap_removeAttributeModifiers.invoke(attributes,
+                    this.ItemStack_getAttributeModifiers.invoke(oldItemStack, this.EquipmentSlot_MAINHAND.get()));
+            }
+            if (newItemStack != null) {
+                this.AttributeMap_addAttributeModifiers.invoke(attributes,
+                    this.ItemStack_getAttributeModifiers.invoke(newItemStack, this.EquipmentSlot_MAINHAND.get()));
+            }
         }
     }
 }

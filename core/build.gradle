@@ -42,6 +42,7 @@ accessors {
             "java.util.function.Predicate", "java.util.function.DoubleSupplier[]")
         method("boolean", "isLookingAtMe", "net.minecraft.world.entity.LivingEntity", "double", "boolean", "boolean",
             "double[]")
+        method("net.minecraft.world.entity.ai.attributes.AttributeMap", "getAttributes")
     }
 
     mapClass("net.minecraft.world.entity.Entity") {
@@ -222,10 +223,17 @@ accessors {
 
     mapClass("net.minecraft.world.item.ItemStack") {
         field("net.minecraft.world.item.ItemStack", "EMPTY")
+        method("boolean", "isEmpty")
+        method("net.minecraft.world.item.ItemStack", "copy")
         method("net.minecraft.world.item.ItemStack", "setHoverName", "net.minecraft.network.chat.Component")
         method("java.lang.Object", "set", "net.minecraft.core.component.DataComponentType", "java.lang.Object")
         method("net.minecraft.world.item.Item", "getItem")
         method("boolean", "is", "net.minecraft.world.item.Item")
+        method("boolean", "matches", "net.minecraft.world.item.ItemStack", "net.minecraft.world.item.ItemStack")
+        // 1.20.5+
+        method("void", "forEachModifier", "net.minecraft.world.entity.EquipmentSlot", "java.util.function.BiConsumer")
+        // 1.9+
+        method("com.google.common.collect.Multimap", "getAttributeModifiers", "net.minecraft.world.entity.EquipmentSlot")
     }
 
     mapClass("net.minecraft.world.item.Item") {
@@ -244,6 +252,7 @@ accessors {
 
     mapClass("net.minecraft.world.entity.EquipmentSlot") {
         field("net.minecraft.world.entity.EquipmentSlot", "FEET")
+        field("net.minecraft.world.entity.EquipmentSlot", "MAINHAND")
         field("net.minecraft.world.entity.EquipmentSlot", "OFFHAND")
     }
 
@@ -286,7 +295,14 @@ accessors {
     }
     mapClass("net.minecraft.world.entity.ai.attributes.AttributeInstance") {
         method("void", "addModifier", "net.minecraft.world.entity.ai.attributes.AttributeModifier")
+        method("void", "addTransientModifier", "net.minecraft.world.entity.ai.attributes.AttributeModifier")
         method("void", "removeModifier", "net.minecraft.world.entity.ai.attributes.AttributeModifier")
+    }
+    mapClass("net.minecraft.world.entity.ai.attributes.AttributeMap") {
+        method("net.minecraft.world.entity.ai.attributes.AttributeInstance", "getInstance", "net.minecraft.core.Holder")
+        method("void", "removeAttributeModifiers", "com.google.common.collect.Multimap")
+        method("void", "addTransientAttributeModifiers", "com.google.common.collect.Multimap") // 1.16+
+        method("void", "addAttributeModifiers", "com.google.common.collect.Multimap") // pre 1.16
     }
     mapClass("net.minecraft.core.Holder") {
         method("boolean", "is", "net.minecraft.core.Holder")

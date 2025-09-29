@@ -23,6 +23,7 @@ public class NMS_1_21_5 extends NMS_1_21_3 {
         this.ItemStack_EMPTY = ReflectionField.getField(ItemStackMapping.FIELD_EMPTY);
         this.Inventory_equipment = ReflectionField.getField(InventoryMapping.FIELD_EQUIPMENT);
         this.EntityEquipment_get = ReflectionMethod.getMethod(EntityEquipmentMapping.METHOD_GET);
+        this.EntityEquipment_set = ReflectionMethod.getMethod(EntityEquipmentMapping.METHOD_SET);
         this.EquipmentSlot_OFFHAND = ReflectionField.getField(EquipmentSlotMapping.FIELD_OFFHAND);
     }
 
@@ -38,12 +39,12 @@ public class NMS_1_21_5 extends NMS_1_21_3 {
 
     @Override
     public void setHandItemInternal(Player player, VRBodyPart hand, Object itemStack) {
-        if (hand == VRBodyPart.OFF_HAND) {
+        if (hand.isHand()) {
+            Object slot =
+                hand == VRBodyPart.MAIN_HAND ? this.EquipmentSlot_MAINHAND.get() : this.EquipmentSlot_OFFHAND.get();
             Object equipment = this.Inventory_equipment.get(
                 this.Player_inventory.get(BukkitReflector.getEntityHandle(player)));
-            this.EntityEquipment_set.invoke(equipment, this.EquipmentSlot_OFFHAND.get(), itemStack);
-        } else {
-            super.setHandItemInternal(player, hand, itemStack);
+            this.EntityEquipment_set.invoke(equipment, slot, itemStack);
         }
     }
 }

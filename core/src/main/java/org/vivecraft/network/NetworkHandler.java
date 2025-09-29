@@ -2,7 +2,9 @@ package org.vivecraft.network;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.util.Vector;
@@ -11,6 +13,7 @@ import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.api.data.FBTMode;
 import org.vivecraft.api.data.VRBodyPart;
+import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.config.ConfigBuilder;
 import org.vivecraft.data.Pose;
 import org.vivecraft.data.VrPlayerState;
@@ -18,7 +21,7 @@ import org.vivecraft.debug.Debug;
 import org.vivecraft.network.packet.PayloadIdentifier;
 import org.vivecraft.network.packet.c2s.*;
 import org.vivecraft.network.packet.s2c.*;
-import org.vivecraft.util.CachedHandItem;
+import org.vivecraft.util.ItemOverride;
 import org.vivecraft.util.LazySupplier;
 import org.vivecraft.util.MetadataHelper;
 import org.vivecraft.util.Utils;
@@ -251,59 +254,60 @@ public class NetworkHandler implements PluginMessageListener {
             newBodyPart = VRBodyPart.MAIN_HAND;
         }
         vivePlayer.useBodyPartForAim = activeBodypart.useForAim;
-        if (vivePlayer.activeBodyPart != newBodyPart) {
+        if (vivePlayer.activeBodyPart != newBodyPart && ViveMain.CONFIG.dualWielding.get() &&
+            vivePlayer.networkVersion >= NetworkConstants.NETWORK_VERSION_DUAL_WIELDING)
+        {
             // handle equipment changes
-            if (vivePlayer.cachedItemStack != null) {
-                // restore previous item
-                // the item that has to return to the cached bodypart
+            if (vivePlayer.itemOverride != null) {
+                // restore original items
+
+                // if the item broke, make itembreak effects
+                Object newNmsItem = ViveMain.NMS.getHandItemInternal(vivePlayer.player, VRBodyPart.MAIN_HAND);
+                if (!ViveMain.NMS.itemStackMatch(vivePlayer.itemOverride.override, newNmsItem)) {
+                    ItemStack newItem = BukkitReflector.asBukkitCopy(newNmsItem);
+                    if (newItem == null || newItem.getType() == Material.AIR) {
+                        ViveMain.API.breakItemEffects(vivePlayer.player, vivePlayer.itemOverride.overridePart,
+                            BukkitReflector.asBukkitCopy(vivePlayer.itemOverride.override));
+                    }
+                }
+
+                // in case the item broke, we need to move the new empty item to the old slot
                 ViveMain.NMS.setHandItemInternal(vivePlayer.player,
-                    vivePlayer.cachedItemStack.bodyPart,
+                    vivePlayer.itemOverride.overridePart,
                     ViveMain.NMS.getHandItemInternal(vivePlayer.player, VRBodyPart.MAIN_HAND));
 
                 ViveMain.NMS.setHandItemInternal(vivePlayer.player,
                     VRBodyPart.MAIN_HAND,
-                    vivePlayer.cachedItemStack.mainItem);
-                vivePlayer.cachedItemStack = null;
+                    vivePlayer.itemOverride.original);
+
+                // undo the overridden equipment change
+                ViveMain.NMS.applyEquipmentChange(vivePlayer.player,
+                    vivePlayer.itemOverride.override,
+                    vivePlayer.itemOverride.original);
+
+                vivePlayer.itemOverride = null;
             }
 
-            // we only need to cache it if the old hand was the main hand
-            if (vivePlayer.activeBodyPart == VRBodyPart.MAIN_HAND) {
-                vivePlayer.cachedItemStack = new CachedHandItem(VRBodyPart.MAIN_HAND,
-                    ViveMain.NMS.getHandItemInternal(vivePlayer.player, VRBodyPart.MAIN_HAND));
+            // we only need to cache it the new hand is not the main hand
+            if (newBodyPart != VRBodyPart.MAIN_HAND) {
+                vivePlayer.itemOverride = new ItemOverride(
+                    newBodyPart,
+                    ViveMain.NMS.getHandItemInternal(vivePlayer.player, VRBodyPart.MAIN_HAND),
+                    // copy because the item break sets it to air
+                    ViveMain.NMS.getItemStackCopy(ViveMain.NMS.getHandItemInternal(vivePlayer.player, newBodyPart)));
             }
+
             vivePlayer.activeBodyPart = newBodyPart;
+
+            // change attributes to the new item
+            ViveMain.NMS.applyEquipmentChange(vivePlayer.player,
+                ViveMain.NMS.getHandItemInternal(vivePlayer.player, VRBodyPart.MAIN_HAND),
+                ViveMain.NMS.getHandItemInternal(vivePlayer.player, newBodyPart));
 
             // set the new active item
             ViveMain.NMS.setHandItemInternal(vivePlayer.player,
                 VRBodyPart.MAIN_HAND,
                 ViveMain.NMS.getHandItemInternal(vivePlayer.player, newBodyPart));
-
-            // TODO do we need to do equipment changes?
-            /*
-            ItemStack newItem = player.getItemBySlot(EquipmentSlot.MAINHAND);
-
-            // attribute modification, based on vanilla code: LivingEntity#collectEquipmentChanges
-            if (player.equipmentHasChanged(oldItem, newItem)) {
-                AttributeMap attributeMap = player.getAttributes();
-                if (!oldItem.isEmpty()) {
-                    oldItem.forEachModifier(EquipmentSlot.MAINHAND, (holder, attributeModifier) -> {
-                        AttributeInstance attributeInstance = attributeMap.getInstance(holder);
-                        if (attributeInstance != null) {
-                            attributeInstance.removeModifier(attributeModifier);
-                        }
-                    });
-                }
-
-                if (!newItem.isEmpty()) {
-                    newItem.forEachModifier(EquipmentSlot.MAINHAND, (holder, attributeModifier) -> {
-                        AttributeInstance attributeInstance = attributeMap.getInstance(holder);
-                        if (attributeInstance != null) {
-                            attributeInstance.removeModifier(attributeModifier.id());
-                            attributeInstance.addTransientModifier(attributeModifier);
-                        }
-                    });
-                }
-            }*/
         }
     }
 

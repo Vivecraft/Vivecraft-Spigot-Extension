@@ -60,7 +60,8 @@ public class NMS_1_14 extends NMS_1_13_2 {
 
         this.Entity_DATA_POSE = ReflectionField.getField(EntityMapping.FIELD_DATA_POSE);
         this.Entity_getEntityData = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_ENTITY_DATA);
-        this.SynchedEntityData_itemsById = ReflectionField.getField(SynchedEntityDataMapping.FIELD_ITEMS_BY_ID);
+        this.SynchedEntityData_itemsById = ReflectionField.getField(SynchedEntityDataMapping.FIELD_ITEMS_BY_ID,
+            SynchedEntityDataMapping.FIELD_ITEMS_BY_ID_1, SynchedEntityDataMapping.FIELD_ITEMS_BY_ID_2);
         this.DataItem_getAccessor = ReflectionMethod.getMethod(SynchedEntityData$DataItemMapping.METHOD_GET_ACCESSOR);
         this.EntityDataAccessor_id = ReflectionMethod.getMethod(EntityDataAccessorMapping.METHOD_ID,
             EntityDataAccessorMapping.METHOD_GET_ID);

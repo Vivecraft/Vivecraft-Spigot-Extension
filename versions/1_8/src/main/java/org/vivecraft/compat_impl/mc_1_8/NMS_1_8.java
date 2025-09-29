@@ -77,6 +77,8 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionField LivingEntity_yHeadRotO;
 
     protected ReflectionMethod ItemStack_getItem;
+    protected ReflectionMethod ItemStack_copy;
+    protected ReflectionMethod ItemStack_matches;
     protected ReflectionField ArmorItem_defense;
     protected Class<?> ArmorItem;
 
@@ -138,6 +140,8 @@ public class NMS_1_8 implements NMSHelper {
             ServerboundPlayerActionPacketMapping.FIELD_ACTION);
         this.ServerboundPlayerActionPacketAction_STOP_DESTROY_BLOCK = ReflectionField.getField(
             ServerboundPlayerActionPacket$ActionMapping.FIELD_STOP_DESTROY_BLOCK);
+        this.ItemStack_copy = ReflectionMethod.getMethod(ItemStackMapping.METHOD_COPY);
+        this.ItemStack_matches = ReflectionMethod.getMethod(ItemStackMapping.METHOD_MATCHES);
     }
 
     protected void initVec3() {
@@ -563,5 +567,25 @@ public class NMS_1_8 implements NMSHelper {
             Object inventory = this.Player_inventory.get(BukkitReflector.getEntityHandle(player));
             ((Object[]) this.Inventory_items.get(inventory))[(int) this.Inventory_selected.get(inventory)] = itemStack;
         }
+    }
+
+    @Override
+    public void applyEquipmentChange(Player player, Object oldItemStack, Object newItemStack) {
+        // no offhand on 1.8
+        // TODO still need to account for boots, so still needed
+    }
+
+    @Override
+    public Object getItemStackCopy(Object itemStack) {
+        if (itemStack == null) {
+            return null;
+        } else {
+            return this.ItemStack_copy.invoke(itemStack);
+        }
+    }
+
+    @Override
+    public boolean itemStackMatch(Object nmsStack1, Object nmsStack2) {
+        return (boolean) this.ItemStack_matches.invokes(nmsStack1, nmsStack2);
     }
 }

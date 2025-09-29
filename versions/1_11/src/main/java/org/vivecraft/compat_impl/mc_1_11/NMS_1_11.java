@@ -7,6 +7,7 @@ import org.vivecraft.accessors.ItemStackMapping;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat_impl.mc_1_9.NMS_1_9;
+import org.vivecraft.debug.Debug;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
@@ -16,11 +17,13 @@ public class NMS_1_11 extends NMS_1_9 {
 
     protected ReflectionMethod Entity_getEyePosition;
     protected ReflectionField ItemStack_EMPTY;
+    protected ReflectionMethod ItemStack_isEmpty;
 
     @Override
     protected void init() {
         super.init();
         this.Entity_getEyePosition = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_EYE_POSITION);
+        this.ItemStack_isEmpty = ReflectionMethod.getMethod(ItemStackMapping.METHOD_IS_EMPTY);
     }
 
     @Override
@@ -55,6 +58,23 @@ public class NMS_1_11 extends NMS_1_9 {
         } else if (hand == VRBodyPart.OFF_HAND) {
             Object inventory = this.Player_inventory.get(BukkitReflector.getEntityHandle(player));
             ((List) this.Inventory_offhandSlot.get(inventory)).set(0, itemStack);
+        }
+    }
+
+    @Override
+    public void applyEquipmentChange(Player player, Object oldItemStack, Object newItemStack) {
+        if (!(boolean) this.ItemStack_matches.invokes(oldItemStack, newItemStack)) {
+            Object attributes = this.LivingEntity_getAttributes.invoke(BukkitReflector.getEntityHandle(player));
+            if (!(boolean) this.ItemStack_isEmpty.invoke(oldItemStack)) {
+                this.AttributeMap_removeAttributeModifiers.invoke(attributes,
+                    this.ItemStack_getAttributeModifiers.invoke(oldItemStack, this.EquipmentSlot_MAINHAND.get()));
+            }
+            if (!(boolean) this.ItemStack_isEmpty.invoke(newItemStack)) {
+                this.AttributeMap_addAttributeModifiers.invoke(attributes,
+                    this.ItemStack_getAttributeModifiers.invoke(newItemStack, this.EquipmentSlot_MAINHAND.get()));
+            }
+        } else {
+            Debug.log("stacks match, don't touch attributes");
         }
     }
 }

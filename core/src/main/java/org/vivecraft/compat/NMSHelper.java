@@ -227,4 +227,19 @@ public interface NMSHelper {
      * @param itemStack ItemStack to set
      */
     void setHandItemInternal(Player player, VRBodyPart hand, @Nullable Object itemStack);
+
+    /**
+     * removes the old attributes and applies the new attributes, for the main hand equipment slot
+     */
+    void applyEquipmentChange(Player player, Object oldItemStack, Object newItemStack);
+
+    /**
+     * makes a copy of the given itemstack
+     */
+    Object getItemStackCopy(Object itemStack);
+
+    /**
+     * checks if the NMS ItemStacks match
+     */
+    boolean itemStackMatch(Object nmsStack1, Object nmsStack2);
 }
