@@ -97,12 +97,18 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionField Inventory_items;
     protected ReflectionField Inventory_selected;
 
+    protected ReflectionMethod ItemStack_getAttributeModifiers;
+    protected ReflectionMethod LivingEntity_getAttributes;
+    protected ReflectionMethod AttributeMap_addAttributeModifiers;
+    protected ReflectionMethod AttributeMap_removeAttributeModifiers;
+
     public NMS_1_8() {
         this.init();
         this.initVec3();
         this.initAimFix();
         this.initArmor();
         this.initInventory();
+        this.initDualWielding();
     }
 
     protected void init() {
@@ -208,6 +214,18 @@ public class NMS_1_8 implements NMSHelper {
         this.Player_inventory = ReflectionField.getField(PlayerMapping.FIELD_INVENTORY);
         this.Inventory_items = ReflectionField.getField(InventoryMapping.FIELD_ITEMS, InventoryMapping.FIELD_ITEMS_1);
         this.Inventory_selected = ReflectionField.getField(InventoryMapping.FIELD_SELECTED);
+    }
+
+    protected void initDualWielding() {
+        this.LivingEntity_getAttributes = ReflectionMethod.getMethod(LivingEntityMapping.METHOD_GET_ATTRIBUTES);
+        this.ItemStack_getAttributeModifiers = ReflectionMethod.getMethod(
+            ItemStackMapping.METHOD_GET_ATTRIBUTE_MODIFIERS,
+            ItemStackMapping.METHOD_FUNC_111283_C);
+        this.AttributeMap_addAttributeModifiers = ReflectionMethod.getMethod(
+            AttributeMapMapping.METHOD_ADD_TRANSIENT_ATTRIBUTE_MODIFIERS,
+            AttributeMapMapping.METHOD_ADD_ATTRIBUTE_MODIFIERS);
+        this.AttributeMap_removeAttributeModifiers = ReflectionMethod.getMethod(
+            AttributeMapMapping.METHOD_REMOVE_ATTRIBUTE_MODIFIERS);
     }
 
     @Override
@@ -571,8 +589,17 @@ public class NMS_1_8 implements NMSHelper {
 
     @Override
     public void applyEquipmentChange(Player player, Object oldItemStack, Object newItemStack) {
-        // no offhand on 1.8
-        // TODO still need to account for boots, so still needed
+        if (!(boolean) this.ItemStack_matches.invokes(oldItemStack, newItemStack)) {
+            Object attributes = this.LivingEntity_getAttributes.invoke(BukkitReflector.getEntityHandle(player));
+            if (oldItemStack != null) {
+                this.AttributeMap_removeAttributeModifiers.invoke(attributes,
+                    this.ItemStack_getAttributeModifiers.invoke(oldItemStack));
+            }
+            if (newItemStack != null) {
+                this.AttributeMap_addAttributeModifiers.invoke(attributes,
+                    this.ItemStack_getAttributeModifiers.invoke(newItemStack));
+            }
+        }
     }
 
     @Override

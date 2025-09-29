@@ -234,6 +234,8 @@ accessors {
         method("void", "forEachModifier", "net.minecraft.world.entity.EquipmentSlot", "java.util.function.BiConsumer")
         // 1.9+
         method("com.google.common.collect.Multimap", "getAttributeModifiers", "net.minecraft.world.entity.EquipmentSlot")
+        // 1.8
+        method("com.google.common.collect.Multimap", "func_111283_C")
     }
 
     mapClass("net.minecraft.world.item.Item") {

@@ -16,6 +16,7 @@ public class NMS_1_9 extends NMS_1_8 {
     protected ReflectionMethod ServerPlayer_getServer;
 
     protected ReflectionField EquipmentSlot_FEET;
+    protected ReflectionField EquipmentSlot_MAINHAND;
     protected ReflectionField Attributes_ARMOR;
     protected ReflectionMethod Attribute_getDescriptionId;
     protected ReflectionMethod Item_getDefaultAttributeModifiers;
@@ -24,22 +25,9 @@ public class NMS_1_9 extends NMS_1_8 {
 
     protected ReflectionField Inventory_offhandSlot;
 
-    protected ReflectionMethod ItemStack_getAttributeModifiers;
-
-    protected ReflectionMethod LivingEntity_getAttributes;
-    protected ReflectionMethod AttributeMap_addAttributeModifiers;
-    protected ReflectionMethod AttributeMap_removeAttributeModifiers;
-    protected ReflectionField EquipmentSlot_MAINHAND;
-
-    public NMS_1_9() {
-        super();
-        initDualWielding();
-    }
-
     @Override
     protected void init() {
         super.init();
-        this.LivingEntity_getAttributes = ReflectionMethod.getMethod(LivingEntityMapping.METHOD_GET_ATTRIBUTES);
         this.EquipmentSlot_MAINHAND = ReflectionField.getField(EquipmentSlotMapping.FIELD_MAINHAND);
     }
 
@@ -74,16 +62,6 @@ public class NMS_1_9 extends NMS_1_8 {
         super.initInventory();
         this.Inventory_offhandSlot = ReflectionField.getField(InventoryMapping.FIELD_OFFHAND,
             InventoryMapping.FIELD_EXTRA_SLOTS);
-    }
-
-    protected void initDualWielding() {
-        this.ItemStack_getAttributeModifiers = ReflectionMethod.getMethod(
-            ItemStackMapping.METHOD_GET_ATTRIBUTE_MODIFIERS);
-        this.AttributeMap_addAttributeModifiers = ReflectionMethod.getMethod(
-            AttributeMapMapping.METHOD_ADD_TRANSIENT_ATTRIBUTE_MODIFIERS,
-            AttributeMapMapping.METHOD_ADD_ATTRIBUTE_MODIFIERS);
-        this.AttributeMap_removeAttributeModifiers = ReflectionMethod.getMethod(
-            AttributeMapMapping.METHOD_REMOVE_ATTRIBUTE_MODIFIERS);
     }
 
     @Override

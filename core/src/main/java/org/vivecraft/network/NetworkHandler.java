@@ -260,7 +260,6 @@ public class NetworkHandler implements PluginMessageListener {
             // handle equipment changes
             if (vivePlayer.itemOverride != null) {
                 // restore original items
-
                 // if the item broke, make itembreak effects
                 Object newNmsItem = ViveMain.NMS.getHandItemInternal(vivePlayer.player, VRBodyPart.MAIN_HAND);
                 if (!ViveMain.NMS.itemStackMatch(vivePlayer.itemOverride.override, newNmsItem)) {
