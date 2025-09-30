@@ -229,4 +229,19 @@ public class DamageEvents implements Listener {
             }
         }
     }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void reducedMeleeRange(EntityDamageByEntityEvent event) {
+        if (event.getEntity() instanceof Player && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK &&
+            ViveMain.CONFIG.mobAttackRangeAdjustment.get() < 0)
+        {
+            Player player = (Player) event.getEntity();
+            VivePlayer vivePlayer = ViveMain.getVivePlayer(player);
+            if (vivePlayer != null && vivePlayer.isVR() && !vivePlayer.isSeated() &&
+                !ViveMain.NMS.inReducedAttackRange(player, event.getDamager()))
+            {
+                event.setCancelled(true);
+            }
+        }
+    }
 }

@@ -74,6 +74,7 @@ public class Config {
     public final ConfigBuilder.BooleanValue dualWielding;
     public final ConfigBuilder.DoubleValue bootsArmorDamage;
     public final ConfigBuilder.DoubleValue creeperSwellDistance;
+    public final ConfigBuilder.DoubleValue mobAttackRangeAdjustment;
     public final ConfigBuilder.DoubleValue projectileInaccuracyMultiplier;
     public final ConfigBuilder.BooleanValue allowFasterBlockBreaking;
     public final ConfigBuilder.BooleanValue allowRoomscaleShieldBlocking;
@@ -268,6 +269,9 @@ public class Config {
         this.creeperSwellDistance = this.builder
             .push("creeperSwellDistance")
             .defineInRange(1.75, 0.1, 10.0);
+        this.mobAttackRangeAdjustment = this.builder
+            .push("mobAttackRangeAdjustment")
+            .defineInRange(-0.4, -0.7, 0.0);
         this.dualWielding = this.builder
             .push("dualWielding")
             .define(true)

@@ -4,10 +4,10 @@ import org.bukkit.inventory.ItemStack;
 import org.vivecraft.accessors.ComponentMapping;
 import org.vivecraft.accessors.ItemStackMapping;
 import org.vivecraft.compat.BukkitReflector;
-import org.vivecraft.compat_impl.mc_1_17.NMS_1_17;
+import org.vivecraft.compat_impl.mc_1_19_3.NMS_1_19_3;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
-public class NMS_1_19_4 extends NMS_1_17 {
+public class NMS_1_19_4 extends NMS_1_19_3 {
 
     protected ReflectionMethod Component_translationWithFallback;
     protected ReflectionMethod ItemStack_setHoverName;

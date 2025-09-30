@@ -43,6 +43,7 @@ accessors {
         method("boolean", "isLookingAtMe", "net.minecraft.world.entity.LivingEntity", "double", "boolean", "boolean",
             "double[]")
         method("net.minecraft.world.entity.ai.attributes.AttributeMap", "getAttributes")
+        method("net.minecraft.world.phys.AABB", "getHitbox")
     }
 
     mapClass("net.minecraft.world.entity.Entity") {
@@ -318,6 +319,7 @@ accessors {
         field("double", "maxY")
         field("double", "maxZ")
         method("net.minecraft.world.phys.AABB", "inflate", "double", "double", "double")
+        method("boolean", "intersects", "net.minecraft.world.phys.AABB")
     }
 
     mapClass("net.minecraft.world.phys.Vec3") {
@@ -359,6 +361,9 @@ accessors {
         field("net.minecraft.world.entity.ai.goal.Goal\$Flag", "MOVE")
         field("net.minecraft.world.entity.ai.goal.Goal\$Flag", "JUMP")
     }
+    mapClass("net.minecraft.world.entity.ai.goal.MeleeAttackGoal") {
+        method("double", "getAttackReachSqr", "net.minecraft.world.entity.LivingEntity")
+    }
     mapClass("net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal") {
         field("net.minecraft.world.entity.LivingEntity", "target")
         field("java.util.function.Predicate", "field_82643_g")
@@ -373,6 +378,9 @@ accessors {
         method("net.minecraft.world.entity.ai.control.LookControl", "getLookControl")
         method("void", "lookAt", "net.minecraft.world.entity.Entity", "float", "float")
         method("net.minecraft.world.entity.ai.sensing.Sensing", "getSensing")
+        method("net.minecraft.world.phys.AABB", "getAttackBoundingBox") // 1.20.2+
+        method("double", "getPerceivedTargetDistanceSquareForMeleeAttack", "net.minecraft.world.entity.LivingEntity") // 1.19.3+
+        method("double", "getMeleeAttackRangeSqr", "net.minecraft.world.entity.LivingEntity") // 1.17+
     }
     mapClass("net.minecraft.world.entity.ai.sensing.Sensing") {
         method("boolean", "hasLineOfSight", "net.minecraft.world.entity.Entity")

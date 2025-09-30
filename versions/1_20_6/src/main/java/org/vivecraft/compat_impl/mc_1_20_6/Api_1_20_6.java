@@ -5,9 +5,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-import org.vivecraft.compat_impl.mc_1_19_4.Api_1_19_4;
+import org.vivecraft.compat_impl.mc_1_20_2.Api_1_20_2;
 
-public class Api_1_20_6 extends Api_1_19_4 {
+public class Api_1_20_6 extends Api_1_20_2 {
 
     @Override
     public String getCausingEntityName(PlayerDeathEvent event) {

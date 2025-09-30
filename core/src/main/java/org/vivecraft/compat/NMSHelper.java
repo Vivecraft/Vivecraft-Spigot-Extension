@@ -242,4 +242,13 @@ public interface NMSHelper {
      * checks if the NMS ItemStacks match
      */
     boolean itemStackMatch(Object nmsStack1, Object nmsStack2);
+
+    /**
+     * checks if the player is within the reduced vr attack range of the entity
+     *
+     * @param player the player that is attacked
+     * @param entity the entity that attacked
+     * @return true if the player is in the reduced attack range, or also true, if the given entity has no attack range
+     */
+    boolean inReducedAttackRange(Player player, Entity entity);
 }

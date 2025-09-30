@@ -98,6 +98,14 @@ public class AABB {
             v.getZ() >= this.minZ && v.getZ() < this.maxZ;
     }
 
+    public boolean intersects(AABB other) {
+        return this.intersects(other.minX, other.minY, other.minZ, other.maxX, other.maxY, other.maxZ);
+    }
+
+    public boolean intersects(double x1, double y1, double z1, double x2, double y2, double z2) {
+        return this.minX < x2 && this.maxX > x1 && this.minY < y2 && this.maxY > y1 && this.minZ < z2 && this.maxZ > z1;
+    }
+
     /**
      * clips the ray defined by {@code from} and {@code to} with this AABB
      * only counts intersections from outside, si if the ray starts inside, no hit will be returned.

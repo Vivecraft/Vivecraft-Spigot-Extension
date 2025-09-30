@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.vivecraft.accessors.*;
 import org.vivecraft.compat.BukkitReflector;
-import org.vivecraft.compat_impl.mc_1_19_4.NMS_1_19_4;
+import org.vivecraft.compat_impl.mc_1_20_2.NMS_1_20_2;
 import org.vivecraft.debug.Debug;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public class NMS_1_20_6 extends NMS_1_19_4 {
+public class NMS_1_20_6 extends NMS_1_20_2 {
 
     // custom item name
     protected ReflectionMethod ItemStack_set;

@@ -5,6 +5,7 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
@@ -102,6 +103,11 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionMethod AttributeMap_addAttributeModifiers;
     protected ReflectionMethod AttributeMap_removeAttributeModifiers;
 
+    protected Class<?> Mob;
+    protected Class<?> MeleeAttackGoal;
+    protected ReflectionMethod MeleeAttackGoal_getAttackReachSqr;
+    protected ReflectionMethod Entity_distanceToSqr;
+
     public NMS_1_8() {
         this.init();
         this.initVec3();
@@ -109,6 +115,7 @@ public class NMS_1_8 implements NMSHelper {
         this.initArmor();
         this.initInventory();
         this.initDualWielding();
+        this.initReducedAttack();
     }
 
     protected void init() {
@@ -226,6 +233,14 @@ public class NMS_1_8 implements NMSHelper {
             AttributeMapMapping.METHOD_ADD_ATTRIBUTE_MODIFIERS);
         this.AttributeMap_removeAttributeModifiers = ReflectionMethod.getMethod(
             AttributeMapMapping.METHOD_REMOVE_ATTRIBUTE_MODIFIERS);
+    }
+
+    protected void initReducedAttack() {
+        this.Mob = ClassGetter.getClass(true, MobMapping.MAPPING);
+        this.MeleeAttackGoal = ClassGetter.getClass(true, MeleeAttackGoalMapping.MAPPING);
+        this.MeleeAttackGoal_getAttackReachSqr = ReflectionMethod.getMethod(
+            MeleeAttackGoalMapping.METHOD_GET_ATTACK_REACH_SQR);
+        this.Entity_distanceToSqr = ReflectionMethod.getMethod(EntityMapping.METHOD_DISTANCE_TO_SQR);
     }
 
     @Override
@@ -570,6 +585,19 @@ public class NMS_1_8 implements NMSHelper {
         return true;
     }
 
+    @Nullable
+    protected Object getGoalOfClass(Object mob, Class<?> goalClass) {
+        Object selector = this.Mob_goalSelector.get(mob);
+        Collection<?> goals = (Collection<?>) this.GoalSelector_availableGoals.get(selector);
+        for (Object wrappedGoal : goals) {
+            Object goal = this.WrappedGoal_goal.get(wrappedGoal);
+            if (goalClass.isInstance(goal)) {
+                return goal;
+            }
+        }
+        return null;
+    }
+
     @Override
     public Object getHandItemInternal(Player player, VRBodyPart hand) {
         if (hand == VRBodyPart.MAIN_HAND) {
@@ -614,5 +642,48 @@ public class NMS_1_8 implements NMSHelper {
     @Override
     public boolean itemStackMatch(Object nmsStack1, Object nmsStack2) {
         return (boolean) this.ItemStack_matches.invokes(nmsStack1, nmsStack2);
+    }
+
+    @Override
+    public boolean inReducedAttackRange(Player player, Entity entity) {
+        Object nmsEntity = BukkitReflector.getEntityHandle(entity);
+        if (!this.Mob.isInstance(nmsEntity)) {
+            // no attack range
+            return true;
+        }
+
+        Object nmsPlayer = BukkitReflector.getEntityHandle(player);
+
+        double attackRangeSqr = this.getAttackReachSqr(nmsEntity, nmsPlayer);
+        if (attackRangeSqr < 0) {
+            // no melee attacks
+            return true;
+        }
+        // since this is a square, we need to do some calc to add/subtract the regular distance
+        attackRangeSqr =
+            attackRangeSqr + 2 * Math.sqrt(attackRangeSqr) * ViveMain.CONFIG.mobAttackRangeAdjustment.get() +
+                ViveMain.CONFIG.mobAttackRangeAdjustment.get() * ViveMain.CONFIG.mobAttackRangeAdjustment.get();
+        return attackRangeSqr > this.getAttackDistanceSqr(nmsEntity, nmsPlayer) ||
+            // if they stop let the attack through, or they will stand there forever
+            entity.getVelocity().lengthSquared() <= 0.01;
+    }
+
+    /**
+     * the reach the mob has to attack
+     */
+    protected double getAttackReachSqr(Object mob, Object target) {
+        Object attackGoal = getGoalOfClass(mob, this.MeleeAttackGoal);
+        if (attackGoal == null) {
+            // no melee attacks
+            return -1;
+        }
+        return (double) this.MeleeAttackGoal_getAttackReachSqr.invoke(attackGoal, target);
+    }
+
+    /**
+     * the distance between  the mob and the target, to check if it is in attack reach
+     */
+    protected double getAttackDistanceSqr(Object mob, Object target) {
+        return (double) this.Entity_distanceToSqr.invoke(mob, target);
     }
 }
