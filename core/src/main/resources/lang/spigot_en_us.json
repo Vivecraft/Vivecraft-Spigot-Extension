@@ -8,6 +8,8 @@
   "vivecraft.serverSettings.general.requestData.tooltip": "Asks the client for the VR data, if this is disabled no movement data will be shared, and some features will not work.",
   "vivecraft.serverSettings.general.sendData.tooltip": "Send the VR movement data to the clients, if this is disabled clients will not see each others movement.",
 
+  "vivecraft.serverSettings.vrChanges.dualWielding.tooltipspigot": "§6CAUTION!§r When enabling this, also make sure to enable 'allowFasterBlockBreaking', or breaking blocks too fast will still use the main hand item.",
+
   "vivecraft.serverSettings.setSpigotSettings": "Spigot Setting Overrides",
   "vivecraft.serverSettings.setSpigotSettings.enabled": "Enable Spigot Setting Overrides.",
   "vivecraft.serverSettings.setSpigotSettings.movedWronglyThreshold": "'moved-wrongly-threshold' Override",

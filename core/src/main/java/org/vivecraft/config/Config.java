@@ -551,6 +551,7 @@ public class Config {
                     }
                     addComments(lines, indent, tString + ".tooltip", leaf);
                     addComments(lines, indent, tString + ".tooltipall", false);
+                    addComments(lines, indent, tString + ".tooltipspigot", false);
                     ConfigBuilder.ConfigValue c = this.builder.getConfigValue(String.join(".", stack));
                     if (c instanceof ConfigBuilder.NumberValue) {
                         ConfigBuilder.NumberValue n = (ConfigBuilder.NumberValue) c;
@@ -575,6 +576,8 @@ public class Config {
     private void addComments(List<String> lines, String indent, String key, boolean required) {
         if (ViveMain.TRANSLATIONS.containsKey(key)) {
             String comment = ViveMain.TRANSLATIONS.get(key);
+            // remove any formatting codes
+            comment = comment.replaceAll("§.", "");
             for (String s : comment.split("\n")) {
                 if (!s.trim().isEmpty()) {
                     lines.add(indent + "#" + s);

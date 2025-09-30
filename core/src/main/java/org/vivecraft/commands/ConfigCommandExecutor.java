@@ -42,8 +42,7 @@ public class ConfigCommandExecutor implements CommandExecutor {
                 if (value != null) {
                     String path = "vivecraft.serverSettings." + value.getPath();
                     sender.sendMessage((String[]) ArrayUtils.addAll(
-                        new String[]{ViveMain.TRANSLATIONS.get(path) + ": " + value.getPath()},
-                        ViveMain.TRANSLATIONS.get(path + ".tooltip").split("\n")));
+                        new String[]{ViveMain.TRANSLATIONS.get(path) + ": " + value.getPath()}, getComment(path)));
                 }
             }
             return true;
@@ -70,6 +69,26 @@ public class ConfigCommandExecutor implements CommandExecutor {
             }
         }
         return action != Action.ERROR;
+    }
+
+    private static String[] getComment(String key) {
+        StringBuilder comment = new StringBuilder();
+        if (ViveMain.TRANSLATIONS.containsKey(key + ".tooltip")) {
+            comment.append(ViveMain.TRANSLATIONS.get(key + ".tooltip"));
+        }
+        if (ViveMain.TRANSLATIONS.containsKey(key + ".tooltipall")) {
+            if (comment.length() > 0) {
+                comment.append("\n");
+            }
+            comment.append(ViveMain.TRANSLATIONS.get(key + ".tooltipall"));
+        }
+        if (ViveMain.TRANSLATIONS.containsKey(key + ".tooltipspigot")) {
+            if (comment.length() > 0) {
+                comment.append("\n");
+            }
+            comment.append(ViveMain.TRANSLATIONS.get(key + ".tooltipspigot"));
+        }
+        return comment.toString().split("\n");
     }
 
     private static Action process(CommandSender sender, String[] args, ConfigBuilder.ConfigValue config) {
