@@ -34,6 +34,7 @@ public class Config {
     public final ConfigBuilder.BooleanValue allowOp;
     public final ConfigBuilder.IntValue messageKickDelay;
     public final ConfigBuilder.BooleanValue vrFun;
+    public final ConfigBuilder.BooleanValue viveCrafting;
     public final ConfigBuilder.BooleanValue requestData;
     public final ConfigBuilder.BooleanValue sendData;
     public final ConfigBuilder.BooleanValue sendDataToOwner;
@@ -155,6 +156,10 @@ public class Config {
         this.vrFun = this.builder
             .push("vrFun")
             .define(true);
+        this.viveCrafting = this.builder
+            .push("viveCrafting")
+            .define(true)
+            .setNeedsReload(true);
         this.requestData = this.builder
             .push("requestData")
             .define(true)

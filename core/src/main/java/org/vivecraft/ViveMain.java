@@ -105,7 +105,9 @@ public class ViveMain extends JavaPlugin {
         this.registerEvents(getServer().getPluginManager());
 
         // register recipes
-        registerRecipes();
+        if (CONFIG.viveCrafting.get()) {
+            registerRecipes();
+        }
 
         this.toggleParticleTask(CONFIG.debugParticlesEnabled.get());
         this.toggleDataTask(CONFIG.sendData.get());

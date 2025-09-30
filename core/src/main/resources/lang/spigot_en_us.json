@@ -5,6 +5,8 @@
   "vivecraft.serverSettings.climbey.blocklist.tooltip": "List of block names for use with WHITELIST/BLACKLIST block mode.\n Uses Mojang block names, not Spigot materials.\n For 1.12.2 and older these are of the form 'id:data' or 'name:data'\n   i.e. 'wool:14' or '35:14'.\n For 1.13+ these are of the form 'namespace:blockid' or just 'blockid'\n   i.e. 'minecraft:white_wool' or 'white_wool'",
 
   "comment2": "additional strings that are not in the mod",
+  "vivecraft.serverSettings.general.viveCrafting": "Add Vivecraft Vrafting Recipes",
+  "vivecraft.serverSettings.general.viveCrafting.tooltip": "Allows crafting of Vivecraft items, like the 'Climbing Claws' or the 'Jump Boots'",
   "vivecraft.serverSettings.general.requestData.tooltip": "Asks the client for the VR data, if this is disabled no movement data will be shared, and some features will not work.",
   "vivecraft.serverSettings.general.sendData.tooltip": "Send the VR movement data to the clients, if this is disabled clients will not see each others movement.",
 
