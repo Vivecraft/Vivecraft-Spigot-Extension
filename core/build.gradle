@@ -15,6 +15,7 @@ dependencies {
 
 }
 processResources {
+    inputs.file(new File(rootDir, "gradle.properties"))
     filesMatching("**/plugin.yml") {
         expand(name: plugin_name, version: plugin_version)
     }
