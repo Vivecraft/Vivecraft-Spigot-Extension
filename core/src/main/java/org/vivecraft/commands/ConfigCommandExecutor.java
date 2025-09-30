@@ -120,6 +120,14 @@ public class ConfigCommandExecutor implements CommandExecutor {
                 return Action.ERROR;
             } else if (config instanceof ConfigBuilder.NumberValue) {
                 try {
+                    double val = Double.parseDouble(value);
+                    ConfigBuilder.NumberValue numVal = (ConfigBuilder.NumberValue) config;
+                    if (val < numVal.getMin().doubleValue() || val > numVal.getMax().doubleValue()) {
+                        sender.sendMessage(
+                            "'" + padRed(value) + "' is out of the valid range [" + numVal.getMin() + "," +
+                                numVal.getMax() + "]");
+                        return Action.ERROR;
+                    }
                     if (config instanceof ConfigBuilder.IntValue) {
                         config.set(Integer.parseInt(value));
                     } else if (config instanceof ConfigBuilder.DoubleValue) {

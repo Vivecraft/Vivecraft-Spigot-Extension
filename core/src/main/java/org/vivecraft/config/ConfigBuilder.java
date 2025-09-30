@@ -85,7 +85,7 @@ public class ConfigBuilder {
                     val.doubleValue() > numberValue.getMax().doubleValue())
                 {
                     listener.accept(
-                        String.format("%s out of range for %s,  reset to %s", val, numberValue.getPath(),
+                        String.format("%s out of range for %s, reset to %s", val, numberValue.getPath(),
                             numberValue.getDefaultValue()));
                     numberValue.reset();
                 }
@@ -93,7 +93,7 @@ public class ConfigBuilder {
                 InListValue<?> listValue = (InListValue<?>) configValue;
                 if (!listValue.getValidValues().contains(listValue.get())) {
                     listener.accept(
-                        String.format("%s not valid for %s,  reset to %s", listValue.get(), listValue.getPath(),
+                        String.format("%s not valid for %s, reset to %s", listValue.get(), listValue.getPath(),
                             listValue.getDefaultValue()));
                     listValue.reset();
                 }
