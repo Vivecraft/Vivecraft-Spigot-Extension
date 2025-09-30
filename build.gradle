@@ -66,6 +66,19 @@ allprojects {
         mavenCentral()
     }
 
+    javadoc {
+        if (project.name != "core") {
+            enabled = false
+        }
+        destinationDir = file("../build/javadoc")
+        include 'org/vivecraft/api/**'
+        options.windowTitle("Vivecraft API")
+        title = "Vivecraft Spigot API"
+        options.locale("en_US")
+        // also force en_us for the java runtime, because of a java bug
+        options.jFlags("-Duser.country=US", "-Duser.language=en")
+    }
+
     dependencies {
         compileOnly('org.jetbrains:annotations:26.0.2')
         implementation('org.joml:joml:1.10.8') { transitive = false }
