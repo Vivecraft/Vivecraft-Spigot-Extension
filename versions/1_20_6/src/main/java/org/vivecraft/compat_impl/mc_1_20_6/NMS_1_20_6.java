@@ -58,6 +58,7 @@ public class NMS_1_20_6 extends NMS_1_20_2 {
 
     @Override
     protected void initDualWielding() {
+        this.LivingEntity_getAttributes = ReflectionMethod.getMethod(LivingEntityMapping.METHOD_GET_ATTRIBUTES);
         this.ItemStack_forEachModifier = ReflectionMethod.getMethod(ItemStackMapping.METHOD_FOR_EACH_MODIFIER);
         this.AttributeInstance_addTransientModifier = ReflectionMethod.getMethod(
             AttributeInstanceMapping.METHOD_ADD_TRANSIENT_MODIFIER);
