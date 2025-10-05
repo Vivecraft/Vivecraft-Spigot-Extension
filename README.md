@@ -24,6 +24,14 @@ Download from the [Releases](https://github.com/Vivecraft/Vivecraft-Spigot-Exten
 Install as you would any other Spigot/Bukkit plugin by placing the jar in the /plugins folder.
 
 # Developer Information
+## Building the plugin from source
+Building the plugin is a bit scuffed right now, and relies on a few gradle tasks to run in specific order:
+
+- run `gradlew generateAccessors` (takenaka -> generateAccessors)
+- run `gradlew rebuildStubs` (generate -> rebuildStubs)
+- if you are using an IDE reload gradle now, the previous task gerated some subprojects
+- run `gradlew build` (build -> build)
+
 ## Metadata
 VSE provides Spigot metadata on `Player` objects so other plugins can provide special support for handed interactions or somesuch. If you aren’t sure what metadata is, check the [Spigot documentation](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/metadata/Metadatable.html). The API supports multiple plugins using the same metadata key, so make sure you filter to our specific plugin name (`Vivecraft-Spigot-Extensions`).
 
