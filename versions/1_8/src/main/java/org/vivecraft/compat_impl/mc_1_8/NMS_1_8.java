@@ -352,8 +352,8 @@ public class NMS_1_8 implements NMSHelper {
     }
 
     @Override
-    public void runOnMainThread(Object server, Runnable runnable) {
-        this.Server_runOnMainThread.invoke(server, runnable);
+    public void handlePacketTask(Object packetListener, Runnable task, Object player) {
+        this.Server_runOnMainThread.invoke(getServer(player), task);
     }
 
     @Override

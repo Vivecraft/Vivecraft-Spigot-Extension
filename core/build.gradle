@@ -11,7 +11,7 @@ dependencies {
 
     // takenaka
     // the mapping bundle, published by the project at github.com/zlataovce/mappings
-    mappingBundle("me.kcra.takenaka:mappings:1.8.8+1.21.8")
+    mappingBundle("me.kcra.takenaka:mappings:1.8.8+1.21.9")
 
 }
 processResources {
@@ -22,7 +22,7 @@ processResources {
 }
 
 accessors {
-    versionRange("1.8.8", "1.21.8")
+    versionRange("1.8.8", "1.21.9")
     mappingWebsite = "https://mappings.dev"
 
     // package where it places the mappings
@@ -88,6 +88,7 @@ accessors {
         method("void", "ejectPassengers")
         method("java.util.List", "getPassengers")
         method("boolean", "startRiding", "net.minecraft.world.entity.Entity", "boolean")
+        method("boolean", "startRiding", "net.minecraft.world.entity.Entity", "boolean", "boolean")
         method("void", "removeAfterChangingDimensions")
         method("net.minecraft.world.entity.EntityType", "getType")
         method("void", "setPose", "net.minecraft.world.entity.Pose")
@@ -139,6 +140,7 @@ accessors {
 
     mapClass("net.minecraft.network.protocol.Packet") {
         method("void", "handle", "net.minecraft.network.PacketListener")
+        method("net.minecraft.network.protocol.PacketType", "type")
     }
     mapClass("net.minecraft.network.protocol.game.ServerboundUseItemPacket") {
         field("float", "yRot")
@@ -151,9 +153,16 @@ accessors {
     mapClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket\$Action") {
         field("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket\$Action", "STOP_DESTROY_BLOCK")
     }
+    mapClass("net.minecraft.network.protocol.PacketType")
+    mapClass("net.minecraft.network.protocol.PacketUtils") {
+        method("void", "ensureRunningOnSameThread", "net.minecraft.network.protocol.Packet",
+            "net.minecraft.network.PacketListener", "net.minecraft.server.level.ServerLevel")
+    }
+    mapClass("net.minecraft.network.PacketListener")
     mapClass("net.minecraft.server.level.ServerPlayerGameMode") {
         field("int", "destroyProgressStart")
     }
+    mapClass("net.minecraft.server.RunningOnDifferentThreadException")
 
     mapClass("net.minecraft.server.level.ServerLevel") {
         // 1.8.8

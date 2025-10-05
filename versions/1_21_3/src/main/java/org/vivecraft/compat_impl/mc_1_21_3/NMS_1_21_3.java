@@ -42,7 +42,8 @@ public class NMS_1_21_3 extends NMS_1_21 {
         this.Entity_restoreFrom = ReflectionMethod.getMethod(EntityMapping.METHOD_RESTORE_FROM);
         this.Entity_getPassengers = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_PASSENGERS);
         this.Entity_ejectPassengers = ReflectionMethod.getMethod(EntityMapping.METHOD_EJECT_PASSENGERS);
-        this.Entity_startRiding = ReflectionMethod.getMethod(EntityMapping.METHOD_START_RIDING);
+        this.Entity_startRiding = ReflectionMethod.getMethod(EntityMapping.METHOD_START_RIDING_1,
+            EntityMapping.METHOD_START_RIDING);
         this.Entity_getVehicle = ReflectionMethod.getMethod(EntityMapping.METHOD_GET_VEHICLE);
         this.Entity_removeAfterChangingDimensions = ReflectionMethod.getMethod(
             EntityMapping.METHOD_REMOVE_AFTER_CHANGING_DIMENSIONS);
@@ -94,7 +95,11 @@ public class NMS_1_21_3 extends NMS_1_21 {
 
         // restore passengers
         for (Object passenger : passengers) {
-            this.Entity_startRiding.invoke(passenger, replacement, true);
+            this.startRiding(replacement, passenger, true);
         }
+    }
+
+    protected void startRiding(Object vehicle, Object passanger, boolean force) {
+        this.Entity_startRiding.invoke(passanger, vehicle, force);
     }
 }

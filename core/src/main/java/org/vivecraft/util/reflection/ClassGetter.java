@@ -85,6 +85,12 @@ public class ClassGetter {
             }
             try {
                 return getRaw(apiClass);
+            } catch (NoClassDefFoundError e) {
+                // happens when paper tries to load a spigot class that it has no mappings for, so try the mojang one
+                if (!pattern.contains("mojang")) {
+                    return getCompat(pattern.replace("mc_X_X.", "mc_X_X.mojang."));
+                }
+                throw e;
             } catch (ClassNotFoundException ignored) {}
         }
         if (mc.major <= 8) {

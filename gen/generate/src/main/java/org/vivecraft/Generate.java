@@ -76,6 +76,7 @@ public class Generate {
         VersionLimit limit, String clazz, JsonObject content,
         Map<String, Set<String>> processedClasses) throws Exception
     {
+
         // iterate over all methods and collect needed imports
         Set<String> imports = new HashSet<>();
         List<MethodHolder> methods = new ArrayList<>();
@@ -97,7 +98,9 @@ public class Generate {
                     classes.add(type);
                 }
                 String method =
-                    "    " + (current.has("access") ? current.get("access").getAsString() : "public") + " " + type +
+                    "    " + (current.has("access") ? current.get("access").getAsString() : "public") + " " +
+                        (current.has("static") ? "static " : "") +
+                        type +
                         " " + methodName + "(";
                 char argName = 'a';
                 boolean firstArg = true;
@@ -110,7 +113,12 @@ public class Generate {
                     method += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
                     firstArg = false;
                 }
-                method += ") {\n        throw new AssertionError();\n    }\n\n";
+                method += ")";
+                if (!content.has("interface")) {
+                    method += "{\n        throw new AssertionError();\n    }\n\n";
+                } else {
+                    method += ";\n\n";
+                }
                 methods.add(new MethodHolder(method, methodName, clazz, classes, versionLimit));
                 //imports.addAll(classes);
             }
@@ -161,6 +169,7 @@ public class Generate {
         Set<String> writtenFiles = new HashSet<>();
         for (String version : getVersions(clazz)) {
             if (!limit.valid(version)) continue;
+            if (!parseVersionlimit(content).valid(version)) continue;
             addCreate(processedClasses, version, clazz);
             String parentClass = getClass(clazz, version);
             if (writtenFiles.contains(parentClass)) {
@@ -182,7 +191,7 @@ public class Generate {
                     code += "import " + getClass(imp, version) + ";\n";
                 }
 
-                code += "\npublic class " + parentName;
+                code += "\npublic " + (content.has("interface") ? "interface " : "class ") + parentName;
                 if (content.has("parent")) {
                     code += " extends " + getClass(content.get("parent").getAsString(), version);
                 }
@@ -220,11 +229,11 @@ public class Generate {
 
                 for (MethodHolder method : methods) {
                     String line = method.code;
-                    for (String c : method.argClasses) {
-                        if (!c.contains(".")) continue;
-                        line = line.replace(c, getClass(c, version));
-                    }
                     if (method.limit.valid(version)) {
+                        for (String c : method.argClasses) {
+                            if (!c.contains(".")) continue;
+                            line = line.replace(c, getClass(c, version));
+                        }
                         line = line.replace(method.name, getMethod(method.clazz, method.name, version));
                     }
                     code += line;
@@ -247,52 +256,62 @@ public class Generate {
         for (String version : getVersions(templateData.get("parent").getAsString())) {
             MCVersion mc = MCVersion.parse(version, true);
             if (!limit.valid(mc)) continue;
-
-            String code = preprocessLines(lines, mc);
-            File target = new File(generatedMC,
-                mc.version_ + "_gen/src/main/java/org/vivecraft/compat_impl/mc_" + mc.version_ + "/" + template);
-            target.getParentFile().mkdirs();
+            String[] files;
+            if (usesMojang(version)) {
+                files = new String[]{mc.version_, mc.version_ + "/mojang"};
+            } else {
+                files = new String[]{mc.version_};
+            }
 
             // copy build.gradle
-            copyFile(usesMojang(version) ? mojangGradle : spigotGradle,
-                new File(generatedMC, mc.version_ + "_gen/build.gradle"), Utils.MapOf("XX_XX", version));
+            File gradle = new File(generatedMC, mc.version_ + "_gen/build.gradle");
+            gradle.getParentFile().mkdirs();
+            copyFile(usesMojang(version) ? mojangGradle : spigotGradle, gradle,
+                Utils.MapOf("XX_XX", version, "mc_X_X", "mc_1_" + mc.major + "_" + mc.minor));
 
-            try (FileWriter writer = new FileWriter(target)) {
-                code = code.replace("mc_X_X", "mc_" + mc.version_);
+            for (String file : files) {
+                String code = preprocessLines(lines, mc);
+                File target = new File(generatedMC,
+                    mc.version_ + "_gen/src/main/java/org/vivecraft/compat_impl/mc_" + file + "/" + template);
+                target.getParentFile().mkdirs();
 
-                for (String clazz : mappings.keySet().stream()
-                    .sorted(Comparator.comparing(String::length).reversed()).collect(Collectors.toList())) {
-                    if (!parseVersionlimit(mappings.getAsJsonObject(clazz)).valid(mc) ||
-                        !validClasses.contains(clazz))
-                    {
-                        continue;
+                try (FileWriter writer = new FileWriter(target)) {
+                    code = code.replace("mc_X_X", "mc_" + file.replace("/", "."));
+
+                    for (String clazz : mappings.keySet().stream()
+                        .sorted(Comparator.comparing(String::length).reversed()).collect(Collectors.toList())) {
+                        if (!parseVersionlimit(mappings.getAsJsonObject(clazz)).valid(mc) ||
+                            !validClasses.contains(clazz))
+                        {
+                            continue;
+                        }
+                        code = code.replace(clazz, getClass(clazz, version));
                     }
-                    code = code.replace(clazz, getClass(clazz, version));
-                }
 
-                for (String clazz : mappings.keySet()) {
-                    if (!parseVersionlimit(mappings.getAsJsonObject(clazz)).valid(mc) ||
-                        !validClasses.contains(clazz))
-                    {
-                        continue;
-                    }
-                    JsonObject c = mappings.getAsJsonObject(clazz);
-                    if (c.has("methods")) {
-                        for (String method : c.getAsJsonObject("methods").keySet()) {
-                            JsonObject m = c.getAsJsonObject("methods").getAsJsonObject(method);
-                            if (m.has("versions") && !parseVersionlimit(m).valid(version)) continue;
-                            code = code.replace(method, getMethod(clazz, method, version));
+                    for (String clazz : mappings.keySet()) {
+                        if (!parseVersionlimit(mappings.getAsJsonObject(clazz)).valid(mc) ||
+                            !validClasses.contains(clazz))
+                        {
+                            continue;
+                        }
+                        JsonObject c = mappings.getAsJsonObject(clazz);
+                        if (c.has("methods")) {
+                            for (String method : c.getAsJsonObject("methods").keySet()) {
+                                JsonObject m = c.getAsJsonObject("methods").getAsJsonObject(method);
+                                if (!parseVersionlimit(m).valid(version)) continue;
+                                code = code.replace(method, getMethod(clazz, method, version));
+                            }
+                        }
+                        if (c.has("fields")) {
+                            for (String field : c.getAsJsonObject("fields").keySet()) {
+                                JsonObject f = c.getAsJsonObject("fields").getAsJsonObject(field);
+                                if (!parseVersionlimit(f).valid(version)) continue;
+                                code = code.replace(field, getField(clazz, field, version));
+                            }
                         }
                     }
-                    if (c.has("fields")) {
-                        for (String field : c.getAsJsonObject("fields").keySet()) {
-                            JsonObject f = c.getAsJsonObject("fields").getAsJsonObject(field);
-                            if (f.has("versions") && !parseVersionlimit(f).valid(version)) continue;
-                            code = code.replace(field, getField(clazz, field, version));
-                        }
-                    }
+                    writer.write(code);
                 }
-                writer.write(code);
             }
         }
     }

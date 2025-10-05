@@ -59,7 +59,7 @@ tasks.register("remap") {
 
         File jar = tasks.named("jar").get().archiveFile.get().asFile
         def obfFile = new File(jar.parentFile, "obf.jar")
-        def finFile = layout.buildDirectory.file("libs/fin.jar").get().asFile
+        def spigFile = layout.buildDirectory.file("libs/spig.jar").get().asFile
 
         def injected = project.objects.newInstance(InjectedExecOps)
 
@@ -80,8 +80,16 @@ tasks.register("remap") {
             mainClass = 'net.md_5.specialsource.SpecialSource'
             workingDir = jar.parentFile
             args = ["-i", obfFile,
-                    "-o", finFile,
+                    "-o", spigFile,
                     "-m", spigotmap.absolutePath]
+        }
+
+        def finFile = layout.buildDirectory.file("libs/fin.jar").get().asFile
+        delete finFile
+        // copy the mojang mapped ones back
+        ant.jar(destfile: finFile, duplicate: "preserve") {
+            zipfileset(src: jar, includes: "org/vivecraft/compat_impl/mc_X_X/mojang/**")
+            zipfileset(src: spigFile, excludes: "org/vivecraft/compat_impl/mc_X_X/mojang/**")
         }
     }
 }

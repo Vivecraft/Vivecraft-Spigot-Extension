@@ -20,8 +20,7 @@ public class ReflectionConstructor {
         this.constructor = constructor;
     }
 
-    private static ReflectionConstructor getConstructor(Class<?> cls, Class<?>... args) throws NoSuchMethodException
-    {
+    private static ReflectionConstructor getConstructor(Class<?> cls, Class<?>... args) throws NoSuchMethodException {
         return new ReflectionConstructor(cls.getConstructor(args));
     }
 
@@ -115,20 +114,26 @@ public class ReflectionConstructor {
     }
 
     /**
-     * Tries to find any reflection constructor matching the given class pattern for the current mc version
+     * Tries to find any reflection constructor matching the given class name for the current mc version
      *
-     * @param pattern pattern to find the class
+     * @param name name to find the class
      * @param args    Classes of the arguments for the constructor
      * @return found reflection constructor
      * @throws RuntimeException When no matching constructor is found
      */
-    public static ReflectionConstructor getCompat(String pattern, Class<?>... args) {
+    public static ReflectionConstructor getCompat(String name, Class<?>... args) {
         try {
-            Class<?> c = ClassGetter.getCompat("org.vivecraft.compat_impl.mc_X_X." + pattern);
+            Class<?> c = ClassGetter.getCompat("org.vivecraft.compat_impl.mc_X_X." + name);
             return getConstructor(c, args);
+        } catch (NoClassDefFoundError e) {
+            // happens when paper tries to load a spigot class that it has no mappings for, so try the mojang one
+            if (!name.contains("mojang")) {
+                return getCompat("mojang." + name, args);
+            }
+            throw e;
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException(
-                "couldn't find constructor matching org.vivecraft.compat_impl.mc_X_X." + pattern + " with args: " +
+                "couldn't find constructor matching org.vivecraft.compat_impl.mc_X_X." + name + " with args: " +
                     Arrays.toString(args), e);
         }
     }

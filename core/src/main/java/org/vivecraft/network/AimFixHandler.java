@@ -103,7 +103,7 @@ public class AimFixHandler extends ChannelInboundHandlerAdapter {
             Platform.getInstance().getScheduler().runEntity(Bukkit.getPlayer(this.palyerId), task);
         } else {
             // without folia try to run it immediately
-            ViveMain.NMS.runOnMainThread(ViveMain.NMS.getServer(player), task);
+            ViveMain.NMS.handlePacketTask(listener, task, player);
         }
     }
 }

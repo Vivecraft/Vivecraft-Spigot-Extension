@@ -65,6 +65,20 @@
         "net.minecraft.network.syncher.EntityDataAccessor",
         "net.minecraft.world.entity.Pose"
       ]
+    },
+    "WrappedPacket.java": {
+      "versions": {
+        "from": "1.21.9"
+      },
+      "parent": "net.minecraft.network.protocol.Packet",
+      "mappingClasses": [
+        "net.minecraft.network.protocol.Packet",
+        "net.minecraft.network.protocol.PacketType",
+        "net.minecraft.network.PacketListener",
+        "net.minecraft.server.level.ServerLevel",
+        "net.minecraft.network.protocol.PacketUtils",
+        "net.minecraft.server.RunningOnDifferentThreadException"
+      ]
     }
   },
   "mappings": {
@@ -193,6 +207,51 @@
           "static": true
         }
       }
+    },
+    "net.minecraft.network.protocol.PacketUtils": {
+      "methods": {
+        "ensureRunningOnSameThread": {
+          "versions": {
+            "from": "1.21.9"
+          },
+          "static": true,
+          "type": "void",
+          "args": [
+            "net.minecraft.network.protocol.Packet",
+            "net.minecraft.network.PacketListener",
+            "net.minecraft.server.level.ServerLevel"
+          ]
+        }
+      }
+    },
+    "net.minecraft.server.level.ServerLevel": {},
+    "net.minecraft.network.protocol.Packet": {
+      "interface": true,
+      "methods": {
+        "type": {
+          "versions": {
+            "from": "1.21.9"
+          },
+          "type": "net.minecraft.network.protocol.PacketType",
+          "args": []
+        },
+        "handle": {
+          "versions": {
+            "from": "1.21.9"
+          },
+          "type": "void",
+          "args": ["net.minecraft.network.PacketListener"]
+        }
+      }
+    },
+    "net.minecraft.network.protocol.PacketType": {
+      "versions": {
+        "from": "1.21.9"
+      }
+    },
+    "net.minecraft.network.PacketListener": {},
+    "net.minecraft.server.RunningOnDifferentThreadException": {
+      "parent": "java.lang.RuntimeException"
     }
   }
 }

@@ -95,9 +95,9 @@ public interface NMSHelper {
     Object getLevel(Object entity);
 
     /**
-     * runs the given Runnable on the main thread of the given server
+     * handels the given packet task
      */
-    void runOnMainThread(Object server, Runnable runnable);
+    void handlePacketTask(Object packetListener, Runnable task, Object player);
 
     /**
      * gets the current player of the PacketListener
