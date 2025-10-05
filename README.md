@@ -37,7 +37,7 @@ VSE provides Spigot metadata on `Player` objects so other plugins can provide sp
 
 Every player has a head and two hands (obviously), each of which have a 6DOF position and rotation. There are also some tertiary values so you can determine how to properly handle a particular player.
 
-FOr details on available data see the [wiki](https://github.com/Vivecraft/Vivecraft-Spigot-Extension/wiki/Metadata)
+For details on available data see the [wiki](https://github.com/Vivecraft/Vivecraft-Spigot-Extension/wiki/Metadata)
 
 ## API
 We also have an API to access more data, like the history of all available body parts, for more details on that see the [wiki](https://github.com/Vivecraft/Vivecraft-Spigot-Extension/wiki/API).
