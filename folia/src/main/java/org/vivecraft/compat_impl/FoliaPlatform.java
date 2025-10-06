@@ -14,6 +14,8 @@ public class FoliaPlatform extends Platform {
     @Override
     public void teleportEntity(Entity entity, Location location, Vector velocity) {
         entity.teleportAsync(location);
-        entity.setVelocity(velocity);
+        if (velocity != null) {
+            entity.setVelocity(velocity);
+        }
     }
 }

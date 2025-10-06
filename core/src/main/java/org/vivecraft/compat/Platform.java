@@ -3,6 +3,7 @@ package org.vivecraft.compat;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 import org.vivecraft.ViveMain;
 import org.vivecraft.compat_impl.BukkitPlatform;
 
@@ -52,5 +53,5 @@ public abstract class Platform {
         return this.scheduler;
     }
 
-    public abstract void teleportEntity(Entity entity, Location location, Vector velocity);
+    public abstract void teleportEntity(Entity entity, Location location, @Nullable Vector velocity);
 }

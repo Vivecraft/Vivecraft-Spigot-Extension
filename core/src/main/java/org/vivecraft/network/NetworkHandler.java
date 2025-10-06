@@ -14,6 +14,7 @@ import org.vivecraft.VivePlayer;
 import org.vivecraft.api.data.FBTMode;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.BukkitReflector;
+import org.vivecraft.compat.Platform;
 import org.vivecraft.config.ConfigBuilder;
 import org.vivecraft.data.Pose;
 import org.vivecraft.data.VrPlayerState;
@@ -240,7 +241,7 @@ public class NetworkHandler implements PluginMessageListener {
         loc.setX(teleport.x);
         loc.setY(teleport.y);
         loc.setZ(teleport.z);
-        vivePlayer.player.teleport(loc);
+        Platform.getInstance().teleportEntity(vivePlayer.player, loc, null);
     }
 
     private void handleClimbing(VivePlayer vivePlayer) {

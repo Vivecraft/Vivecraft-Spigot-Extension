@@ -14,6 +14,8 @@ public class BukkitPlatform extends Platform {
     @Override
     public void teleportEntity(Entity entity, Location location, Vector velocity) {
         entity.teleport(location); //paper sets velocity to 0 on teleport.
-        entity.setVelocity(velocity);
+        if (velocity != null) {
+            entity.setVelocity(velocity);
+        }
     }
 }
