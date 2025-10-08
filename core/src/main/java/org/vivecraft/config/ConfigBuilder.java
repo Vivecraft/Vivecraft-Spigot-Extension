@@ -278,9 +278,13 @@ public class ConfigBuilder {
 
         public T get() {
             if (this.cachedValue == null) {
-                this.cachedValue = (T) this.config.getConfig().get(this.path);
+                this.cachedValue = getFromConfig();
             }
             return this.cachedValue;
+        }
+
+        protected T getFromConfig() {
+            return (T) this.config.getConfig().get(this.path);
         }
 
         public void set(T newValue) {
@@ -356,11 +360,21 @@ public class ConfigBuilder {
         public BooleanValue(ConfigBuilder config, String path, boolean defaultValue) {
             super(config, path, defaultValue);
         }
+
+        @Override
+        protected Boolean getFromConfig() {
+            return this.config.getConfig().getBoolean(this.path);
+        }
     }
 
     public static class StringValue extends ConfigValue<String> {
         public StringValue(ConfigBuilder config, String path, String defaultValue) {
             super(config, path, defaultValue);
+        }
+
+        @Override
+        protected String getFromConfig() {
+            return this.config.getConfig().getString(this.path);
         }
     }
 
@@ -368,11 +382,21 @@ public class ConfigBuilder {
         public ListValue(ConfigBuilder config, String path, List<T> defaultValue) {
             super(config, path, defaultValue);
         }
+
+        @Override
+        protected List<T> getFromConfig() {
+            return (List<T>) this.config.getConfig().getList(this.path);
+        }
     }
 
     public static class StringListValue extends ListValue<String> {
         public StringListValue(ConfigBuilder config, String path, List<String> defaultValue) {
             super(config, path, defaultValue);
+        }
+
+        @Override
+        protected List<String> getFromConfig() {
+            return this.config.getConfig().getStringList(this.path);
         }
     }
 
@@ -401,7 +425,7 @@ public class ConfigBuilder {
         @Override
         public T get() {
             if (this.cachedValue == null) {
-                this.cachedValue = this.getEnumValue(this.config.getConfig().get(this.path));
+                this.cachedValue = this.getEnumValue(this.getFromConfig());
             }
             return this.cachedValue;
         }
@@ -465,12 +489,22 @@ public class ConfigBuilder {
         public IntValue(ConfigBuilder config, String path, int defaultValue, int min, int max) {
             super(config, path, defaultValue, min, max);
         }
+
+        @Override
+        protected Integer getFromConfig() {
+            return this.config.getConfig().getInt(this.path);
+        }
     }
 
     public static class DoubleValue extends NumberValue<Double> {
 
         public DoubleValue(ConfigBuilder config, String path, double defaultValue, double min, double max) {
             super(config, path, defaultValue, min, max);
+        }
+
+        @Override
+        protected Double getFromConfig() {
+            return this.config.getConfig().getDouble(this.path);
         }
     }
 }

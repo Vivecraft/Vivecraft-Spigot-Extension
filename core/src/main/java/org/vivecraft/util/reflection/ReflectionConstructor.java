@@ -117,7 +117,7 @@ public class ReflectionConstructor {
      * Tries to find any reflection constructor matching the given class name for the current mc version
      *
      * @param name name to find the class
-     * @param args    Classes of the arguments for the constructor
+     * @param args Classes of the arguments for the constructor
      * @return found reflection constructor
      * @throws RuntimeException When no matching constructor is found
      */
