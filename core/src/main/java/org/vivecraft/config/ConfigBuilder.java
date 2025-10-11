@@ -76,7 +76,7 @@ public class ConfigBuilder {
      */
     public void correct(Consumer<String> listener) {
         for (ConfigValue<?> configValue : this.configValues) {
-            if (configValue.get() == null) {
+            if (configValue.getRaw() == null) {
                 configValue.reset();
             } else if (configValue instanceof NumberValue) {
                 NumberValue<?> numberValue = (NumberValue<?>) configValue;
@@ -284,6 +284,10 @@ public class ConfigBuilder {
         }
 
         protected T getFromConfig() {
+            return (T) this.config.getConfig().get(this.path);
+        }
+
+        protected T getRaw() {
             return (T) this.config.getConfig().get(this.path);
         }
 

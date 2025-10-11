@@ -29,7 +29,8 @@ public class Debug {
     private final static Vector BLUE = new Vector(0, 0, 1);
 
     public static void log(String msg, Object... args) {
-        if (ViveMain.CONFIG.debug.get()) {
+        // this is called during config init, so it is null there
+        if (ViveMain.CONFIG != null && ViveMain.CONFIG.debug.get()) {
             if (args != null && args.length > 0) {
                 Object[] s = new String[args.length];
                 for (int i = 0; i < args.length; i++) {
