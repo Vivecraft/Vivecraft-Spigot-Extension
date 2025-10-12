@@ -12,6 +12,7 @@ import org.vivecraft.api.data.VRPose;
 import org.vivecraft.api_impl.VRAPIImpl;
 import org.vivecraft.data.VrPlayerState;
 import org.vivecraft.network.NetworkConstants;
+import org.vivecraft.network.NetworkVersion;
 import org.vivecraft.util.ItemOverride;
 import org.vivecraft.util.MCVersion;
 import org.vivecraft.util.MathUtils;
@@ -38,7 +39,8 @@ public class VivePlayer {
     // player this data belongs to
     public Player player;
     // network protocol this player is communicating with
-    public int networkVersion = NetworkConstants.MAX_SUPPORTED_NETWORK_VERSION;
+    public NetworkVersion networkVersion = NetworkVersion.fromProtocolVersion(
+        NetworkConstants.MAX_SUPPORTED_NETWORK_PROTOCOL);
     // version string the player sent on join
     public String version = "none";
     // if the client requested damage direction data

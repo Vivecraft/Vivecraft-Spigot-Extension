@@ -1,6 +1,6 @@
 package org.vivecraft.network.packet.c2s;
 
-import org.vivecraft.network.NetworkConstants;
+import org.vivecraft.network.NetworkVersion;
 import org.vivecraft.network.packet.PayloadIdentifier;
 
 import java.io.DataInputStream;
@@ -51,8 +51,8 @@ public final class VersionPayloadC2S implements VivecraftPayloadC2S {
         if (parts.length >= 3) {
             return new VersionPayloadC2S(parts[0], vr, Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), false);
         } else {
-            return new VersionPayloadC2S(parts[0], vr, NetworkConstants.NETWORK_VERSION_LEGACY,
-                NetworkConstants.NETWORK_VERSION_LEGACY, true);
+            return new VersionPayloadC2S(parts[0], vr, NetworkVersion.LEGACY.protocolVersion(),
+                NetworkVersion.LEGACY.protocolVersion(), true);
         }
     }
 }

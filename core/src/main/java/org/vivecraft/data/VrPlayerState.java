@@ -6,7 +6,7 @@ import org.vivecraft.api.data.FBTMode;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.api.data.VRBodyPartData;
 import org.vivecraft.api_impl.data.VRPoseImpl;
-import org.vivecraft.network.NetworkConstants;
+import org.vivecraft.network.NetworkVersion;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -86,7 +86,7 @@ public final class VrPlayerState {
      * @param version version to strip the packet down to
      * @param offset  offset to apply to the data
      */
-    public VrPlayerState(VrPlayerState other, int version, @Nullable Vector offset) {
+    public VrPlayerState(VrPlayerState other, NetworkVersion version, @Nullable Vector offset) {
         this(
             other.seated,
             offset == null ? other.hmd : other.hmd.offset(offset),
@@ -94,14 +94,14 @@ public final class VrPlayerState {
             offset == null ? other.mainHand : other.mainHand.offset(offset),
             other.reverseHands1legacy,
             offset == null ? other.offHand : other.offHand.offset(offset),
-            version < NetworkConstants.NETWORK_VERSION_FBT ? FBTMode.ARMS_ONLY : other.fbtMode,
-            version < NetworkConstants.NETWORK_VERSION_FBT ? null : other.waist,
-            version < NetworkConstants.NETWORK_VERSION_FBT ? null : other.rightFoot,
-            version < NetworkConstants.NETWORK_VERSION_FBT ? null : other.leftFoot,
-            version < NetworkConstants.NETWORK_VERSION_FBT ? null : other.rightKnee,
-            version < NetworkConstants.NETWORK_VERSION_FBT ? null : other.leftKnee,
-            version < NetworkConstants.NETWORK_VERSION_FBT ? null : other.rightElbow,
-            version < NetworkConstants.NETWORK_VERSION_FBT ? null : other.leftElbow
+            NetworkVersion.FBT.accepts(version) ? other.fbtMode : FBTMode.ARMS_ONLY,
+            NetworkVersion.FBT.accepts(version) ? other.waist : null,
+            NetworkVersion.FBT.accepts(version) ? other.rightFoot : null,
+            NetworkVersion.FBT.accepts(version) ? other.leftFoot : null,
+            NetworkVersion.FBT.accepts(version) ? other.rightKnee : null,
+            NetworkVersion.FBT.accepts(version) ? other.leftKnee : null,
+            NetworkVersion.FBT.accepts(version) ? other.rightElbow : null,
+            NetworkVersion.FBT.accepts(version) ? other.leftElbow : null
         );
     }
 

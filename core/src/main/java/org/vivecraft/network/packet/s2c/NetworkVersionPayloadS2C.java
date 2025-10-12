@@ -1,5 +1,6 @@
 package org.vivecraft.network.packet.s2c;
 
+import org.vivecraft.network.NetworkVersion;
 import org.vivecraft.network.packet.PayloadIdentifier;
 
 import java.io.DataOutputStream;
@@ -10,12 +11,12 @@ import java.io.IOException;
  *
  */
 public final class NetworkVersionPayloadS2C implements VivecraftPayloadS2C {
-    public final int version;
+    public final NetworkVersion version;
 
     /**
      * @param version network protocol version the server will use
      */
-    public NetworkVersionPayloadS2C(int version) {
+    public NetworkVersionPayloadS2C(NetworkVersion version) {
         this.version = version;
     }
 
@@ -27,6 +28,6 @@ public final class NetworkVersionPayloadS2C implements VivecraftPayloadS2C {
     @Override
     public void write(DataOutputStream buffer) throws IOException {
         buffer.writeByte(payloadId().ordinal());
-        buffer.writeByte(this.version);
+        buffer.writeByte(this.version.protocolVersion());
     }
 }

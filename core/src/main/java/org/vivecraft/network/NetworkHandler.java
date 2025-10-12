@@ -124,11 +124,11 @@ public class NetworkHandler implements PluginMessageListener {
 
         if (!version.legacy) {
             // check if client supports a supported version
-            if (NetworkConstants.MIN_SUPPORTED_NETWORK_VERSION <= version.maxVersion &&
-                version.minVersion <= NetworkConstants.MAX_SUPPORTED_NETWORK_VERSION)
+            if (NetworkConstants.MIN_SUPPORTED_NETWORK_PROTOCOL <= version.maxVersion &&
+                version.minVersion <= NetworkConstants.MAX_SUPPORTED_NETWORK_PROTOCOL)
             {
-                vivePlayer.networkVersion = Math.min(version.maxVersion,
-                    NetworkConstants.MAX_SUPPORTED_NETWORK_VERSION);
+                vivePlayer.networkVersion = NetworkVersion.fromProtocolVersion(
+                    Math.min(version.maxVersion, NetworkConstants.MAX_SUPPORTED_NETWORK_PROTOCOL));
                 Debug.log("%s networking supported, using version %s", player.getName(),
                     vivePlayer.networkVersion);
             } else {
@@ -139,13 +139,13 @@ public class NetworkHandler implements PluginMessageListener {
                     player.getName(),
                     version.minVersion,
                     version.maxVersion,
-                    NetworkConstants.MIN_SUPPORTED_NETWORK_VERSION,
-                    NetworkConstants.MAX_SUPPORTED_NETWORK_VERSION);
+                    NetworkConstants.MIN_SUPPORTED_NETWORK_PROTOCOL,
+                    NetworkConstants.MAX_SUPPORTED_NETWORK_PROTOCOL);
                 return;
             }
         } else {
             // client didn't send a version, so it's a legacy client
-            vivePlayer.networkVersion = NetworkConstants.NETWORK_VERSION_LEGACY;
+            vivePlayer.networkVersion = NetworkVersion.LEGACY;
             Debug.log("%s using legacy networking", player.getName());
         }
 
@@ -164,9 +164,7 @@ public class NetworkHandler implements PluginMessageListener {
         }
 
         // always send in new versions to allow disabling of teleports
-        if (ViveMain.CONFIG.teleportEnabled.get() ||
-            vivePlayer.networkVersion >= NetworkConstants.NETWORK_VERSION_OPTION_TOGGLE)
-        {
+        if (ViveMain.CONFIG.teleportEnabled.get() || NetworkVersion.OPTION_TOGGLE.accepts(vivePlayer.networkVersion)) {
             sendPacket(vivePlayer,
                 new TeleportPayloadS2C(ViveMain.CONFIG.teleportEnabled.get(), vivePlayer.networkVersion));
         }
@@ -199,12 +197,12 @@ public class NetworkHandler implements PluginMessageListener {
         // send if hotswitching is allowed
         sendPacket(vivePlayer, PacketUtils.getVRSwitchingPayload());
 
-        if (vivePlayer.networkVersion >= NetworkConstants.NETWORK_VERSION_DUAL_WIELDING) {
+        if (NetworkVersion.DUAL_WIELDING.accepts(vivePlayer.networkVersion)) {
             sendPacket(vivePlayer, new DualWieldingPayloadS2C(ViveMain.CONFIG.dualWielding.get()));
         }
 
         // send vr changes settings, to inform the client what is non default
-        if (vivePlayer.networkVersion >= NetworkConstants.NETWORK_VERSION_SERVER_VR_CHANGES) {
+        if (NetworkVersion.SERVER_VR_CHANGES.accepts(vivePlayer.networkVersion)) {
             Map<String, String> settings = new HashMap<>();
             for (ConfigBuilder.ConfigValue<?> config : ViveMain.CONFIG.getConfigValues()) {
                 if (config.getPath().startsWith("vrChanges") && !config.isDefault()) {
@@ -256,7 +254,7 @@ public class NetworkHandler implements PluginMessageListener {
         }
         vivePlayer.useBodyPartForAim = activeBodypart.useForAim;
         if (vivePlayer.activeBodyPart != newBodyPart && ViveMain.CONFIG.dualWielding.get() &&
-            vivePlayer.networkVersion >= NetworkConstants.NETWORK_VERSION_DUAL_WIELDING)
+            NetworkVersion.DUAL_WIELDING.accepts(vivePlayer.networkVersion))
         {
             // handle equipment changes
             if (vivePlayer.itemOverride != null) {
@@ -392,7 +390,7 @@ public class NetworkHandler implements PluginMessageListener {
             for (VivePlayer vivePlayer : ViveMain.VIVE_PLAYERS.values()) {
                 VivecraftPayloadS2C payload = function.apply(config.get(), vivePlayer);
                 // old clients cannot clear server overrides, crawl or tp
-                if (vivePlayer.networkVersion < NetworkConstants.NETWORK_VERSION_OPTION_TOGGLE &&
+                if (NetworkVersion.OPTION_TOGGLE.accepts(vivePlayer.networkVersion) &&
                     ((payload instanceof SettingOverridePayloadS2C && ((SettingOverridePayloadS2C) payload).clear) ||
                         (payload instanceof CrawlPayloadS2C && !((CrawlPayloadS2C) payload).allowed) ||
                         (payload instanceof TeleportPayloadS2C && !((TeleportPayloadS2C) payload).allowed)
@@ -431,7 +429,7 @@ public class NetworkHandler implements PluginMessageListener {
     {
         VivePlayer vivePlayer = ViveMain.getVivePlayer(player);
         if (vivePlayer != null && vivePlayer.isVR() &&
-            vivePlayer.networkVersion >= NetworkConstants.NETWORK_VERSION_HAPTIC_PACKET)
+            NetworkVersion.HAPTIC_PACKET.accepts(vivePlayer.networkVersion))
         {
             sendPacket(vivePlayer, new HapticPayloadS2C(bodyPart, duration, frequency, amplitude, delay));
         }
@@ -445,22 +443,22 @@ public class NetworkHandler implements PluginMessageListener {
     public static void sendVrPlayerStateToClients(VivePlayer vivePlayer) {
         // create the packets here, to try to avoid unnecessary memory copies when creating multiple packets
         VrPlayerState state = vivePlayer.vrPlayerState();
+        // old legacy clients expect the player data to be in world space
         LazySupplier<UberPacketPayloadS2C> oldLegacy = new LazySupplier<>(
             () -> new UberPacketPayloadS2C(vivePlayer.player.getUniqueId(),
-                new VrPlayerState(state, 0, vivePlayer.player.getLocation().toVector()), vivePlayer.worldScale,
-                vivePlayer.heightScale));
+                new VrPlayerState(state, NetworkVersion.LEGACY, vivePlayer.player.getLocation().toVector()),
+                vivePlayer.worldScale, vivePlayer.heightScale));
 
         LazySupplier<UberPacketPayloadS2C> legacy = new LazySupplier<>(
-            () -> new UberPacketPayloadS2C(vivePlayer.player.getUniqueId(), new VrPlayerState(state, 0, null),
-                vivePlayer.worldScale, vivePlayer.heightScale));
+            () -> new UberPacketPayloadS2C(vivePlayer.player.getUniqueId(),
+                new VrPlayerState(state, NetworkVersion.LEGACY, null), vivePlayer.worldScale, vivePlayer.heightScale));
 
         LazySupplier<UberPacketPayloadS2C> regular = new LazySupplier<>(
             () -> new UberPacketPayloadS2C(vivePlayer.player.getUniqueId(), state, vivePlayer.worldScale,
                 vivePlayer.heightScale));
 
-        sendPacketToTrackingPlayers(vivePlayer,
-            player -> player.networkVersion == NetworkConstants.NETWORK_VERSION_LEGACY ?
-                (player.mcVersion.major < 13 ? oldLegacy.get() : legacy.get()) : regular.get());
+        sendPacketToTrackingPlayers(vivePlayer, player -> player.networkVersion == NetworkVersion.LEGACY ?
+            (player.mcVersion.major < 13 ? oldLegacy.get() : legacy.get()) : regular.get());
     }
 
     /**
