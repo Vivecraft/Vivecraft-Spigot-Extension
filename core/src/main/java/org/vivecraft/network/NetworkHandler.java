@@ -443,7 +443,7 @@ public class NetworkHandler implements PluginMessageListener {
     public static void sendVrPlayerStateToClients(VivePlayer vivePlayer) {
         // create the packets here, to try to avoid unnecessary memory copies when creating multiple packets
         VrPlayerState state = vivePlayer.vrPlayerState();
-        // old legacy clients expect the player data to be in world space
+        // old legacy clients (pre 16) expect the player data to be in world space
         LazySupplier<UberPacketPayloadS2C> oldLegacy = new LazySupplier<>(
             () -> new UberPacketPayloadS2C(vivePlayer.player.getUniqueId(),
                 new VrPlayerState(state, NetworkVersion.LEGACY, vivePlayer.player.getLocation().toVector()),
@@ -458,7 +458,7 @@ public class NetworkHandler implements PluginMessageListener {
                 vivePlayer.heightScale));
 
         sendPacketToTrackingPlayers(vivePlayer, player -> player.networkVersion == NetworkVersion.LEGACY ?
-            (player.mcVersion.major < 13 ? oldLegacy.get() : legacy.get()) : regular.get());
+            (player.mcVersion.major < 16 ? oldLegacy.get() : legacy.get()) : regular.get());
     }
 
     /**

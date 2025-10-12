@@ -266,7 +266,7 @@ public class ConfigBuilder {
          */
         private BiFunction<T, VivePlayer, VivecraftPayloadS2C> packetFunction = null;
         /**
-         * Consumer that takes a MinecraftServer on setting change to send updates
+         * Consumer that takes the old and new value to send updates
          */
         private BiConsumer<T, T> updateConsumer = null;
 
