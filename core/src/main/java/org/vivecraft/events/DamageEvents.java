@@ -63,7 +63,9 @@ public class DamageEvents implements Listener {
                 // nonvr vs Seated
                 if (!ViveMain.CONFIG.pvpSeatedvrVsNonvr.get()) {
                     blockedDamage = true;
-                    blockedDamageCase = "canceled nonvr vs seated VR damage";
+                    blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
+                        ViveMain.translate("vivecraft.pvp.nonVR"),
+                        ViveMain.translate("vivecraft.pvp.seatedVR"));
                 }
             } else if ((!otherVive.isVR() && thisVive.isVR() && !thisVive.isSeated()) ||
                 (!thisVive.isVR() && otherVive.isVR() && !otherVive.isSeated()))
@@ -71,7 +73,9 @@ public class DamageEvents implements Listener {
                 // nonvr vs Standing
                 if (!ViveMain.CONFIG.pvpVrVsNonvr.get()) {
                     blockedDamage = true;
-                    blockedDamageCase = "canceled nonvr vs standing VR damage";
+                    blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
+                        ViveMain.translate("vivecraft.pvp.nonVR"),
+                        ViveMain.translate("vivecraft.pvp.standingVR"));
                 }
             } else if ((otherVive.isVR() && otherVive.isSeated() && thisVive.isVR() && !thisVive.isSeated()) ||
                 (thisVive.isVR() && thisVive.isSeated() && otherVive.isVR() && !otherVive.isSeated()))
@@ -79,19 +83,25 @@ public class DamageEvents implements Listener {
                 // Standing vs Seated
                 if (!ViveMain.CONFIG.pvpVrVsSeatedvr.get()) {
                     blockedDamage = true;
-                    blockedDamageCase = "canceled seated VR vs standing VR damage";
+                    blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
+                        ViveMain.translate("vivecraft.pvp.seatedVR"),
+                        ViveMain.translate("vivecraft.pvp.standingVR"));
                 }
             } else if (otherVive.isVR() && !otherVive.isSeated() && thisVive.isVR() && !thisVive.isSeated()) {
                 // Standing vs Standing
                 if (!ViveMain.CONFIG.pvpVrVsVr.get()) {
                     blockedDamage = true;
-                    blockedDamageCase = "canceled standing VR vs standing VR damage";
+                    blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
+                        ViveMain.translate("vivecraft.pvp.standingVR"),
+                        ViveMain.translate("vivecraft.pvp.standingVR"));
                 }
             } else if (otherVive.isVR() && otherVive.isSeated() && thisVive.isVR() && thisVive.isSeated()) {
                 // Seated vs Seated
                 if (!ViveMain.CONFIG.pvpSeatedvrVsSeatedvr.get()) {
                     blockedDamage = true;
-                    blockedDamageCase = "canceled seated VR vs seated VR damage";
+                    blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
+                        ViveMain.translate("vivecraft.pvp.seatedVR"),
+                        ViveMain.translate("vivecraft.pvp.seatedVR"));
                 }
             }
             if (blockedDamage) {

@@ -1,5 +1,6 @@
 package org.vivecraft.events;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -85,7 +86,8 @@ public class PlayerEvents implements Listener {
             Platform.getInstance().getScheduler().runAsync(() -> {
                 if (UpdateChecker.checkForUpdates()) {
                     Platform.getInstance().getScheduler().runGlobal(
-                        () -> player.sendMessage("Vivecraft update available: §a" + UpdateChecker.NEWEST_VERSION));
+                        () -> player.sendMessage(ViveMain.translate("vivecraft.plugin.update",
+                            ChatColor.GREEN + UpdateChecker.NEWEST_VERSION)));
                 }
             });
         }

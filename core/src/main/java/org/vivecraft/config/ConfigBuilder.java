@@ -77,7 +77,7 @@ public class ConfigBuilder {
     public void correct(Consumer<String> listener) {
         for (ConfigValue<?> configValue : this.configValues) {
             if (configValue.getRaw() == null) {
-                configValue.reset();
+                configValue.reset(null);
             } else if (configValue instanceof NumberValue) {
                 NumberValue<?> numberValue = (NumberValue<?>) configValue;
                 Number val = numberValue.get();
@@ -87,7 +87,7 @@ public class ConfigBuilder {
                     listener.accept(
                         String.format("%s out of range for %s, reset to %s", val, numberValue.getPath(),
                             numberValue.getDefaultValue()));
-                    numberValue.reset();
+                    numberValue.reset(null);
                 }
             } else if (configValue instanceof InListValue<?>) {
                 InListValue<?> listValue = (InListValue<?>) configValue;
@@ -95,7 +95,7 @@ public class ConfigBuilder {
                     listener.accept(
                         String.format("%s not valid for %s, reset to %s", listValue.get(), listValue.getPath(),
                             listValue.getDefaultValue()));
-                    listValue.reset();
+                    listValue.reset(null);
                 }
             }
         }
@@ -291,18 +291,18 @@ public class ConfigBuilder {
             return (T) this.config.getConfig().get(this.path);
         }
 
-        public void set(T newValue) {
+        public void set(T newValue, @Nullable Consumer<String> notifier) {
             T oldValue = this.get();
             this.cachedValue = newValue;
             this.config.getConfig().set(this.path, newValue);
             if (oldValue != null) {
                 // we don't want to call update, if we first create the config
-                onUpdate(oldValue, newValue);
+                onUpdate(oldValue, newValue, notifier);
             }
         }
 
-        public T reset() {
-            this.set(this.defaultValue);
+        public T reset(@Nullable Consumer<String> notifier) {
+            this.set(this.defaultValue, notifier);
             return this.defaultValue;
         }
 
@@ -329,11 +329,11 @@ public class ConfigBuilder {
             return (V) this;
         }
 
-        public void onUpdate(T oldValue, T newValue) {
+        public void onUpdate(T oldValue, T newValue, @Nullable Consumer<String> notifier) {
             if (this.updateConsumer != null) {
                 this.updateConsumer.accept(oldValue, newValue);
             }
-            NetworkHandler.sendUpdatePacketToAll(this);
+            NetworkHandler.sendUpdatePacketToAll(this, notifier);
         }
 
         @SuppressWarnings("unchecked")
@@ -435,11 +435,11 @@ public class ConfigBuilder {
         }
 
         @Override
-        public void set(T newValue) {
+        public void set(T newValue, Consumer<String> notifier) {
             T oldValue = this.get();
             this.cachedValue = newValue;
             this.config.getConfig().set(this.path, newValue.name());
-            this.onUpdate(oldValue, newValue);
+            this.onUpdate(oldValue, newValue, notifier);
         }
 
         public T getEnumValue(Object value) {

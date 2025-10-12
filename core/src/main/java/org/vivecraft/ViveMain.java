@@ -197,4 +197,16 @@ public class ViveMain extends JavaPlugin {
             this.dataTask = null;
         }
     }
+
+    public static String translate(String key, Object... args) {
+        if (args != null && args.length > 0) {
+            Object[] s = new String[args.length];
+            for (int i = 0; i < args.length; i++) {
+                s[i] = String.valueOf(args[i]);
+            }
+            return String.format(TRANSLATIONS.get(key), s);
+        } else {
+            return String.format(TRANSLATIONS.get(key));
+        }
+    }
 }

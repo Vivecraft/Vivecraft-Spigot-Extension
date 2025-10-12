@@ -38,6 +38,7 @@ public class Config {
     public final ConfigBuilder.BooleanValue requestData;
     public final ConfigBuilder.BooleanValue sendData;
     public final ConfigBuilder.BooleanValue sendDataToOwner;
+    public final ConfigBuilder.BooleanValue kickPlayersOnSettingUpdate;
 
     public final ConfigBuilder.BooleanValue spigotSettingsEnabled;
     public final ConfigBuilder.DoubleValue spigotSettingsMovedTooQuickly;
@@ -170,6 +171,9 @@ public class Config {
             .setOnUpdate((oV, nV) -> ViveMain.INSTANCE.toggleDataTask(nV));
         this.sendDataToOwner = this.builder
             .push("sendDataToOwner")
+            .define(false);
+        this.kickPlayersOnSettingUpdate = this.builder
+            .push("kickPlayersOnSettingUpdate")
             .define(false);
         // end general
         this.builder.pop();
@@ -479,7 +483,7 @@ public class Config {
             if (configValue instanceof ConfigBuilder.EnumValue) {
                 ConfigBuilder.EnumValue enumValue = (ConfigBuilder.EnumValue) configValue;
                 if (enumValue.get() != null) {
-                    enumValue.set(enumValue.getEnumValue(enumValue.get()));
+                    enumValue.set(enumValue.getEnumValue(enumValue.get()), null);
                 }
             }
         }

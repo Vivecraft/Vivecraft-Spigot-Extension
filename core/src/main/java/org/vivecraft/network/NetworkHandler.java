@@ -1,6 +1,7 @@
 package org.vivecraft.network;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -8,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 import org.vivecraft.PermissionManager;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
@@ -33,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 
@@ -382,11 +385,13 @@ public class NetworkHandler implements PluginMessageListener {
     /**
      * Sends an update packet for the given {@code config} to all VivePlayers on the server
      *
-     * @param config ConfigValue to send an update for
+     * @param config   ConfigValue to send an update for
+     * @param notifier string consumer to notify the caller about errors
      */
-    public static void sendUpdatePacketToAll(ConfigBuilder.ConfigValue config) {
+    public static void sendUpdatePacketToAll(ConfigBuilder.ConfigValue config, @Nullable Consumer<String> notifier) {
         BiFunction<Object, VivePlayer, VivecraftPayloadS2C> function = config.getPacketFunction();
         if (function != null) {
+            boolean unsupported = false;
             for (VivePlayer vivePlayer : ViveMain.VIVE_PLAYERS.values()) {
                 VivecraftPayloadS2C payload = function.apply(config.get(), vivePlayer);
                 // old clients cannot clear server overrides, crawl or tp
@@ -396,9 +401,18 @@ public class NetworkHandler implements PluginMessageListener {
                         (payload instanceof TeleportPayloadS2C && !((TeleportPayloadS2C) payload).allowed)
                     ))
                 {
+                    if (ViveMain.CONFIG.kickPlayersOnSettingUpdate.get()) {
+                        vivePlayer.player.kickPlayer(ViveMain.translate("vivecraft.setting.kick"));
+                    } else {
+                        unsupported = true;
+                    }
                     continue;
                 }
                 sendPacket(vivePlayer, payload);
+            }
+            if (unsupported && notifier != null) {
+                notifier.accept(ChatColor.GOLD + ViveMain.translate("vivecraft.command.unsupportedClient",
+                    ChatColor.GREEN + ViveMain.CONFIG.kickPlayersOnSettingUpdate.getPath()));
             }
         }
     }

@@ -9,6 +9,8 @@
   "vivecraft.serverSettings.general.viveCrafting.tooltip": "Allows crafting of Vivecraft items, like the 'Climbing Claws' or the 'Jump Boots'",
   "vivecraft.serverSettings.general.requestData.tooltip": "Asks the client for the VR data, if this is disabled no movement data will be shared, and some features will not work.",
   "vivecraft.serverSettings.general.sendData.tooltip": "Send the VR movement data to the clients, if this is disabled clients will not see each others movement.",
+  "vivecraft.serverSettings.general.kickPlayersOnSettingUpdate": "Kick players on setting change.",
+  "vivecraft.serverSettings.general.kickPlayersOnSettingUpdate.tooltip": "Kicks players on setting changes, if they don't support updating that setting on the fly. So it forces a rejoin.",
 
   "vivecraft.serverSettings.vrChanges.dualWielding.tooltipspigot": "§6CAUTION!§r When enabling this, also make sure to enable 'allowFasterBlockBreaking', or breaking blocks too fast will still use the main hand item.",
 
@@ -43,6 +45,31 @@
   "vivecraft.serverSettings.debug.particles.opOnly.tooltip": "Only spawns particles near server operators.",
   "vivecraft.serverSettings.debug.particles.vrDevices.tooltip": "Will spawn particles at VR players device positions, to indicate the server VR data state.",
   "vivecraft.serverSettings.debug.particles.vrHead.tooltip": "Will spawn particles at VR players head position, to indicate the server VR data state.",
-  "vivecraft.serverSettings.debug.particles.headHitbox.tooltip": "Will spawn particles at the corners of the bow head hitbox."
+  "vivecraft.serverSettings.debug.particles.headHitbox.tooltip": "Will spawn particles at the corners of the bow head hitbox.",
+
+  "comment3": "chat messages",
+  "vivecraft.command.usage": "Usage: /%s <config> <action> <value>\naccepted actions:\n- §6get§r: prints the current value.\n- §6set§r: sets the new specified value.\n- §6reset§r: resets the config to the default value.\n- §6add/remove§r: for the climbey blocklist, to add/remove blocks.",
+  "vivecraft.command.unknownConfig": "unknown config: '%s'",
+  "vivecraft.command.noAction": "no action specified!",
+  "vivecraft.command.notValidAction": "'%s' is not a valid action!",
+  "vivecraft.command.noValue": "no value specified!",
+  "vivecraft.command.needsReload": "For this config to take effect a §6server reload§r is required.",
+  "vivecraft.command.configGet": "%s is currently set to: '%s'",
+  "vivecraft.command.configSet": "%s is now set to: '%s'",
+  "vivecraft.command.configReset": "reset '%s' to: '%s'",
+  "vivecraft.command.nonList": "'%s' is only applicable to list settings.",
+  "vivecraft.command.list.alreadyIn": "'%s' is already in the list.",
+  "vivecraft.command.list.set": "List configs cannot be set directly!",
+  "vivecraft.command.number.outOfRange": "'%s' is out of the valid range [%s,%s].",
+  "vivecraft.command.number.invalid": "'%s' is not a valid number.",
+  "vivecraft.command.invalid": "'%s' is not a valid value.",
+  "vivecraft.command.validValues": "Valid values are: '%s'",
+  "vivecraft.command.unsupportedClient": "Some clients don't support to toggle this setting and need to rejoin the server for it to update.\n If you would like to automatically kick them on such setting changes, enable '%s'.",
+  "vivecraft.plugin.update": "Vivecraft plugin update available: %s",
+  "vivecraft.setting.kick": "A server setting changed that needs you to rejoin the server.",
+  "vivecraft.pvp.canceled": "canceled %s vs %s damage",
+  "vivecraft.pvp.standingVR": "standing VR",
+  "vivecraft.pvp.seatedVR": "seated VR",
+  "vivecraft.pvp.nonVR": "nonVR"
 
 }
