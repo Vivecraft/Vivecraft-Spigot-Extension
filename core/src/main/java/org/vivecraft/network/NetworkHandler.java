@@ -390,7 +390,7 @@ public class NetworkHandler implements PluginMessageListener {
             for (VivePlayer vivePlayer : ViveMain.VIVE_PLAYERS.values()) {
                 VivecraftPayloadS2C payload = function.apply(config.get(), vivePlayer);
                 // old clients cannot clear server overrides, crawl or tp
-                if (NetworkVersion.OPTION_TOGGLE.accepts(vivePlayer.networkVersion) &&
+                if (!NetworkVersion.OPTION_TOGGLE.accepts(vivePlayer.networkVersion) &&
                     ((payload instanceof SettingOverridePayloadS2C && ((SettingOverridePayloadS2C) payload).clear) ||
                         (payload instanceof CrawlPayloadS2C && !((CrawlPayloadS2C) payload).allowed) ||
                         (payload instanceof TeleportPayloadS2C && !((TeleportPayloadS2C) payload).allowed)
