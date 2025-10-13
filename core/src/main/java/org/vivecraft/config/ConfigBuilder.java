@@ -96,7 +96,8 @@ public class ConfigBuilder {
     public void correct(@NotNull Consumer<String> listener) {
         for (ConfigValue<?> configValue : this.configValues) {
             if (checktSingle(configValue, listener)) {
-                configValue.reset(listener);
+                // we don't want to log unset values
+                configValue.reset(configValue.getRaw() == null ? null : listener);
             }
         }
     }
