@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.types.BlockContext;
@@ -251,4 +252,13 @@ public interface NMSHelper {
      * @return true if the player is in the reduced attack range, or also true, if the given entity has no attack range
      */
     boolean inReducedAttackRange(Player player, Entity entity);
+
+    /**
+     * gets the hit direction of the packet, if it is a ServerboundUseItemOnPacket packet, and the hit block is a FenceGate
+     *
+     * @param player player object to get the world from to check the hit block
+     * @param packet packet to get the hit direction from
+     * @return the hit direction, if the hit block is a FenceGate, else {@code null}
+     */
+    Vector3fc getHitDirIfGate(Object player, Object packet);
 }

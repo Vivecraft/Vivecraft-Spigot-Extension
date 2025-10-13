@@ -58,7 +58,12 @@ public class AimFixHandler extends ChannelInboundHandlerAdapter {
             if (vivePlayer != null && vivePlayer.isVR()) {
                 // use the aim the client sent
                 aimPos = vivePlayer.getAimPos(false);
-                Vector3fc dir = vivePlayer.getAimDir(false);
+
+                // fence gates use the look direction for the open direction, this changes it to the hit direction
+                Vector3fc dir = ViveMain.NMS.getHitDirIfGate(player, msg);
+                if (dir == null) {
+                    dir = vivePlayer.getAimDir(false);
+                }
 
                 // Inject our custom orientation data
                 xRot = (float) Math.toDegrees(Math.asin(-dir.y()));

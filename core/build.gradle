@@ -146,7 +146,12 @@ accessors {
         field("float", "yRot")
         field("float", "xRot")
     }
-    mapClass("net.minecraft.network.protocol.game.ServerboundUseItemOnPacket")
+    mapClass("net.minecraft.network.protocol.game.ServerboundUseItemOnPacket") {
+        field("net.minecraft.world.phys.BlockHitResult", "blockHit") // 1.14+
+        // pre 1.14
+        field("net.minecraft.util.math.BlockPos", "field_179725_b")
+        field("net.minecraft.util.EnumFacing", "field_149579_d")
+    }
     mapClass("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket") {
         field("net.minecraft.network.protocol.game.ServerboundPlayerActionPacket\$Action", "action")
     }
@@ -176,6 +181,7 @@ accessors {
         method("net.minecraft.world.phys.BlockHitResult", "clip", "net.minecraft.world.level.ClipContext") // 1.14+
     }
     mapClass("net.minecraft.world.level.Level") {
+        method("net.minecraft.world.level.block.state.BlockState", "getBlockState", "net.minecraft.core.BlockPos")
         // 1.13
         method("net.minecraft.util.math.RayTraceResult", "func_200259_a", "net.minecraft.util.math.Vec3d",
             "net.minecraft.util.math.Vec3d", "net.minecraft.util.math.RayTraceFluidMode", "boolean", "boolean")
@@ -215,6 +221,8 @@ accessors {
         field("net.minecraft.world.level.ClipContext\$Block", "VISUAL")
     }
     mapClass("net.minecraft.world.phys.BlockHitResult") {
+        field("net.minecraft.core.Direction", "direction")
+        field("net.minecraft.core.BlockPos", "blockPos")
         method("net.minecraft.world.phys.HitResult\$Type", "getType")
     }
     mapClass("net.minecraft.world.phys.HitResult\$Type") {
@@ -464,4 +472,19 @@ accessors {
         field("it.unimi.dsi.fastutil.ints.Int2ObjectMap", "itemsById") // pre 1.20.6
         field("java.util.Map", "itemsById") // pre 1.17
     }
+    mapClass("net.minecraft.core.Direction") {
+        field("net.minecraft.core.Vec3i", "normal")
+    }
+    mapClass("net.minecraft.core.Vec3i") {
+        field("int", "x")
+        field("int", "y")
+        field("int", "z")
+    }
+    mapClass("net.minecraft.world.level.block.state.BlockBehaviour\$BlockStateBase") {
+        method("net.minecraft.world.level.block.Block", "getBlock")
+    }
+    mapClass("net.minecraft.world.level.block.state.BlockState") {
+        method("net.minecraft.world.level.block.Block", "getBlock")
+    }
+    mapClass("net.minecraft.world.level.block.FenceGateBlock")
 }

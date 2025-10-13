@@ -40,6 +40,10 @@ public class NMS_1_14 extends NMS_1_13_2 {
     protected ReflectionMethod DataItem_getAccessor;
     protected ReflectionMethod EntityDataAccessor_id;
 
+    protected ReflectionField ServerboundUseItemOnPacket_blockHit;
+    protected ReflectionField BlockHitResult_blockPos;
+    protected ReflectionField BlockHitResult_direction;
+
     protected ReflectionConstructor CrawlPoseDataItem_Constructor;
 
     @Override
@@ -78,6 +82,14 @@ public class NMS_1_14 extends NMS_1_13_2 {
             AttributeModifier$OperationMapping.FIELD_ADD_VALUE);
         this.AttributeModifierOperation_ADD_MULTIPLIED_TOTAL = ReflectionField.getField(
             AttributeModifier$OperationMapping.FIELD_ADD_MULTIPLIED_TOTAL);
+    }
+
+    @Override
+    protected void initUseItemOnPacketAccess() {
+        this.ServerboundUseItemOnPacket_blockHit = ReflectionField.getField(
+            ServerboundUseItemOnPacketMapping.FIELD_BLOCK_HIT);
+        this.BlockHitResult_blockPos = ReflectionField.getField(BlockHitResultMapping.FIELD_BLOCK_POS);
+        this.BlockHitResult_direction = ReflectionField.getField(BlockHitResultMapping.FIELD_DIRECTION);
     }
 
     @Override
@@ -172,5 +184,15 @@ public class NMS_1_14 extends NMS_1_13_2 {
     protected void placeDataItem(Object dataItem, int id, Object entityData) {
         Map idMap = (Map) this.SynchedEntityData_itemsById.get(entityData);
         idMap.put(id, dataItem);
+    }
+
+    @Override
+    protected Object getUseItemOnDir(Object packet) {
+        return this.BlockHitResult_direction.get(this.ServerboundUseItemOnPacket_blockHit.get(packet));
+    }
+
+    @Override
+    protected Object getUseItemOnPos(Object packet) {
+        return this.BlockHitResult_blockPos.get(this.ServerboundUseItemOnPacket_blockHit.get(packet));
     }
 }

@@ -7,6 +7,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.accessors.*;
@@ -61,6 +62,16 @@ public class NMS_1_8 implements NMSHelper {
     protected Class<?> ServerboundUseItemPacket;
     protected Class<?> ServerboundUseItemOnPacket;
     protected Class<?> ServerboundPlayerActionPacket;
+
+    protected ReflectionField ServerboundUseItemOnPacket_blockPos;
+    protected ReflectionField ServerboundUseItemOnPacket_hitDir;
+    protected ReflectionMethod BlockState_getBlock;
+    protected ReflectionMethod Level_getBlockState;
+    protected ReflectionField Direction_normal;
+    protected ReflectionField Vec3i_x;
+    protected ReflectionField Vec3i_y;
+    protected ReflectionField Vec3i_z;
+    protected Class<?> FenceGateBlock;
 
     protected ReflectionField Entity_x;
     protected ReflectionField Entity_y;
@@ -199,6 +210,7 @@ public class NMS_1_8 implements NMSHelper {
         initPosition();
         initRotation();
         initServer();
+        initBlockHit();
     }
 
     protected void initServer() {
@@ -209,6 +221,25 @@ public class NMS_1_8 implements NMSHelper {
         this.Entity_x = ReflectionField.getField(EntityMapping.FIELD_LOC_X);
         this.Entity_y = ReflectionField.getField(EntityMapping.FIELD_LOC_Y);
         this.Entity_z = ReflectionField.getField(EntityMapping.FIELD_LOC_Z);
+    }
+
+    protected void initBlockHit() {
+        this.initUseItemOnPacketAccess();
+        this.BlockState_getBlock = ReflectionMethod.getMethod(BlockBehaviour$BlockStateBaseMapping.METHOD_GET_BLOCK,
+            BlockStateMapping.METHOD_GET_BLOCK);
+        this.Level_getBlockState = ReflectionMethod.getMethod(LevelMapping.METHOD_GET_BLOCK_STATE);
+        this.Direction_normal = ReflectionField.getField(DirectionMapping.FIELD_NORMAL);
+        this.Vec3i_x = ReflectionField.getField(Vec3iMapping.FIELD_X);
+        this.Vec3i_y = ReflectionField.getField(Vec3iMapping.FIELD_Y);
+        this.Vec3i_z = ReflectionField.getField(Vec3iMapping.FIELD_Z);
+        this.FenceGateBlock = ClassGetter.getClass(true, FenceGateBlockMapping.MAPPING);
+    }
+
+    protected void initUseItemOnPacketAccess() {
+        this.ServerboundUseItemOnPacket_blockPos = ReflectionField.getField(
+            ServerboundUseItemOnPacketMapping.FIELD_FIELD_179725_B);
+        this.ServerboundUseItemOnPacket_hitDir = ReflectionField.getField(
+            ServerboundUseItemOnPacketMapping.FIELD_FIELD_149579_D);
     }
 
     protected void initArmor() {
@@ -685,5 +716,30 @@ public class NMS_1_8 implements NMSHelper {
      */
     protected double getAttackDistanceSqr(Object mob, Object target) {
         return (double) this.Entity_distanceToSqr.invoke(mob, target);
+    }
+
+    public Vector3fc getHitDirIfGate(Object player, Object packet) {
+        if (this.ServerboundUseItemOnPacket.isInstance(packet)) {
+            Object blockPos = getUseItemOnPos(packet);
+            Object block = this.BlockState_getBlock.invoke(
+                this.Level_getBlockState.invoke(this.Entity_getLevel.invoke(player), blockPos));
+            if (this.FenceGateBlock.isInstance(block)) {
+                Object dir = this.Direction_normal.get(getUseItemOnDir(packet));
+                if ((int) this.Vec3i_y.get(dir) == 0) {
+                    return new Vector3f(-(int) this.Vec3i_x.get(dir),
+                        -(int) this.Vec3i_y.get(dir),
+                        -(int) this.Vec3i_z.get(dir));
+                }
+            }
+        }
+        return null;
+    }
+
+    protected Object getUseItemOnDir(Object packet) {
+        return this.ServerboundUseItemOnPacket_hitDir.get(packet);
+    }
+
+    protected Object getUseItemOnPos(Object packet) {
+        return this.ServerboundUseItemOnPacket_blockPos.get(packet);
     }
 }
