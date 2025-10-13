@@ -37,6 +37,7 @@ public class Api_1_8 implements ApiHelper {
     protected final Random random = new Random();
 
     protected ReflectionField Entity_width;
+    protected ReflectionField Entity_height;
     protected ReflectionMethod Level_spawnParticle;
     protected ReflectionField EnumParticle_CRIT;
     protected ReflectionField EnumParticle_REDSTONE;
@@ -60,6 +61,7 @@ public class Api_1_8 implements ApiHelper {
 
     protected void init() {
         this.Entity_width = ReflectionField.getField(EntityMapping.FIELD_WIDTH);
+        this.Entity_height = ReflectionField.getField(EntityMapping.FIELD_LENGTH);
         this.Level_spawnParticle = ReflectionMethod.getMethod(ServerLevelMapping.METHOD_FUNC_180505_A);
         this.EnumParticle_CRIT = ReflectionField.getField(EnumParticleMapping.FIELD_CRIT);
         this.EnumParticle_REDSTONE = ReflectionField.getField(EnumParticleMapping.FIELD_REDSTONE);
@@ -111,6 +113,12 @@ public class Api_1_8 implements ApiHelper {
     public float getEntityWidth(Entity entity) {
         // up to including some versions of 1.11.2 there is no api for that
         return (float) this.Entity_width.get(BukkitReflector.getEntityHandle(entity));
+    }
+
+    @Override
+    public float getEntityHeight(Entity entity) {
+        // up to including some versions of 1.11.2 there is no api for that
+        return (float) this.Entity_height.get(BukkitReflector.getEntityHandle(entity));
     }
 
     @Override

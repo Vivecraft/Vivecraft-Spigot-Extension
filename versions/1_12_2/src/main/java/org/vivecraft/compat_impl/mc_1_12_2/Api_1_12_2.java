@@ -21,6 +21,11 @@ public class Api_1_12_2 extends Api_1_11_2 {
     }
 
     @Override
+    public float getEntityHeight(Entity entity) {
+        return (float) entity.getHeight();
+    }
+
+    @Override
     public ShapedRecipe createRecipe(ItemStack itemStack, String id) {
         return new ShapedRecipe(new NamespacedKey(ViveMain.INSTANCE, id), itemStack);
     }

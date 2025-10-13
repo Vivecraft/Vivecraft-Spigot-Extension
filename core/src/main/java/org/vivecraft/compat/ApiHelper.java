@@ -64,6 +64,15 @@ public interface ApiHelper {
     float getEntityWidth(Entity entity);
 
     /**
+     * gets the height of the entities bounding box
+     *
+     * @param entity entity to check
+     * @return width of the entity
+     * @apiNote spigot has a call for that since 1.12
+     */
+    float getEntityHeight(Entity entity);
+
+    /**
      * creates an ItemStack for the given item, with the given attributes
      *
      * @param item            Item to create
