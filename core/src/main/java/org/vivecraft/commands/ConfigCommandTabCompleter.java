@@ -35,7 +35,8 @@ public class ConfigCommandTabCompleter implements TabCompleter {
             }
         }
 
-        if ("help".equals(args[0])) {
+        // the length == 1 is for setting the config
+        if ("help".equals(args[0]) || args.length == 1) {
             // config names
             for (ConfigBuilder.ConfigValue<?> value : ViveMain.CONFIG.getConfigValues()) {
                 if (value.getPath().toLowerCase().startsWith(partial)) {
