@@ -1,5 +1,7 @@
 package org.vivecraft.util;
 
+import org.bukkit.ChatColor;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -39,5 +41,46 @@ public class Utils {
         } else {
             return MCVersion.INVALID;
         }
+    }
+
+    /**
+     * pads an object with gold chat color for printing in chat
+     *
+     * @param o object to pad
+     * @return the padded object string
+     */
+    public static String gold(Object o) {
+        return padColor(o, ChatColor.GOLD);
+    }
+
+    /**
+     * pads an object with red chat color for printing in chat
+     *
+     * @param o object to pad
+     * @return the padded object string
+     */
+    public static String red(Object o) {
+        return padColor(o, ChatColor.RED);
+    }
+
+    /**
+     * pads an object with gren chat color for printing in chat
+     *
+     * @param o object to pad
+     * @return the padded object string
+     */
+    public static String green(Object o) {
+        return padColor(o, ChatColor.GREEN);
+    }
+
+    /**
+     * pads an object with the given chat color for printing in chat
+     *
+     * @param o     object to pad
+     * @param color color to pad with
+     * @return the padded object string
+     */
+    public static String padColor(Object o, ChatColor color) {
+        return color + o.toString() + ChatColor.RESET;
     }
 }

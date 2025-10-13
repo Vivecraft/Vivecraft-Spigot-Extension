@@ -48,7 +48,8 @@
   "vivecraft.serverSettings.debug.particles.headHitbox.tooltip": "Will spawn particles at the corners of the bow head hitbox.",
 
   "comment3": "chat messages",
-  "vivecraft.command.usage": "Usage: /%s <config> <action> <value>\naccepted actions:\n- §6get§r: prints the current value.\n- §6set§r: sets the new specified value.\n- §6reset§r: resets the config to the default value.\n- §6add/remove§r: for the climbey blocklist, to add/remove blocks.",
+  "vivecraft.command.usage": "Usage: /%s <option>\naccepted options:\n- %s <config>: Prints this help, and details to a specified config setting if specified.\n- %s: Lists all current players with Vivecraft installed.\n- %s: Reloads the config file from disk, overriding any settings currently set.",
+  "vivecraft.command.usage.config": "Updating config: /%s <config> <action> <value>\naccepted actions:\n- %s: Prints the current value.\n- %s: Sets the new specified value.\n- %s: Resets the config to the default value.\n- %s: For the climbey blocklist, to add/remove blocks.",
   "vivecraft.command.unknownConfig": "unknown config: '%s'",
   "vivecraft.command.noAction": "no action specified!",
   "vivecraft.command.notValidAction": "'%s' is not a valid action!",
@@ -60,16 +61,23 @@
   "vivecraft.command.nonList": "'%s' is only applicable to list settings.",
   "vivecraft.command.list.alreadyIn": "'%s' is already in the list.",
   "vivecraft.command.list.set": "List configs cannot be set directly!",
-  "vivecraft.command.number.outOfRange": "'%s' is out of the valid range [%s,%s].",
+  "vivecraft.command.number.outOfRange": "'%s' is out of the valid range [%s,%s] for %s.",
   "vivecraft.command.number.invalid": "'%s' is not a valid number.",
-  "vivecraft.command.invalid": "'%s' is not a valid value.",
+  "vivecraft.command.invalid": "'%s' is not a valid value for '%s'.",
   "vivecraft.command.validValues": "Valid values are: '%s'",
   "vivecraft.command.unsupportedClient": "Some clients don't support to toggle this setting and need to rejoin the server for it to update.\n If you would like to automatically kick them on such setting changes, enable '%s'.",
+
+  "vivecraft.command.listPlayers": "There are %s players online.",
+  "vivecraft.command.listOnePlayer": "There is 1 player online.",
+  "vivecraft.command.listVivePlayers": "There are %s Vivecraft players online.",
+  "vivecraft.command.listOneVivePlayer": "There is 1 Vivecraft player online.",
+  "vivecraft command.reload": "Reloaded config with %s changes",
+  "vivecraft command.reload.changed": "Updated: '%s' from: '%s' to: '%s'",
   "vivecraft.plugin.update": "Vivecraft plugin update available: %s",
   "vivecraft.setting.kick": "A server setting changed that needs you to rejoin the server.",
   "vivecraft.pvp.canceled": "canceled %s vs %s damage",
-  "vivecraft.pvp.standingVR": "standing VR",
-  "vivecraft.pvp.seatedVR": "seated VR",
-  "vivecraft.pvp.nonVR": "nonVR"
+  "vivecraft.mode.standingVR": "Standing VR",
+  "vivecraft.mode.seatedVR": "Seated VR",
+  "vivecraft.mode.nonVR": "NonVR"
 
 }

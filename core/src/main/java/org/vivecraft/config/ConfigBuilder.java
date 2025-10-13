@@ -1,12 +1,13 @@
 package org.vivecraft.config;
 
-
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.network.NetworkHandler;
 import org.vivecraft.network.packet.s2c.VivecraftPayloadS2C;
+import org.vivecraft.util.Utils;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -24,11 +25,29 @@ public class ConfigBuilder {
         this.config = config;
     }
 
-    public void setNewConfigFile(FileConfiguration newConfig) {
+    public int setNewConfigFile(FileConfiguration newConfig, boolean withUpdate, @NotNull Consumer<String> notifier) {
         this.config = newConfig;
+        int changes = 0;
         for (ConfigValue configValue : this.configValues) {
+            Object oldValue = configValue.get();
             configValue.reload();
+            Object newValue = configValue.get();
+            if (checktSingle(configValue, notifier)) {
+                changes++;
+                configValue.reset(notifier);
+                continue;
+            }
+            if (!Objects.equals(oldValue, newValue)) {
+                changes++;
+                notifier.accept(
+                    ViveMain.translate("vivecraft command.reload.changed",
+                        configValue.path, Utils.green(oldValue), Utils.green(newValue)));
+                if (withUpdate) {
+                    configValue.set(newValue, notifier);
+                }
+            }
         }
+        return changes;
     }
 
     protected FileConfiguration getConfig() {
@@ -74,31 +93,48 @@ public class ConfigBuilder {
      *
      * @param listener listener to send correction to, boolean is if the correction should only be logged in debug mode
      */
-    public void correct(Consumer<String> listener) {
+    public void correct(@NotNull Consumer<String> listener) {
         for (ConfigValue<?> configValue : this.configValues) {
-            if (configValue.getRaw() == null) {
-                configValue.reset(null);
-            } else if (configValue instanceof NumberValue) {
-                NumberValue<?> numberValue = (NumberValue<?>) configValue;
-                Number val = numberValue.get();
-                if (val.doubleValue() < numberValue.getMin().doubleValue() ||
-                    val.doubleValue() > numberValue.getMax().doubleValue())
-                {
-                    listener.accept(
-                        String.format("%s out of range for %s, reset to %s", val, numberValue.getPath(),
-                            numberValue.getDefaultValue()));
-                    numberValue.reset(null);
-                }
-            } else if (configValue instanceof InListValue<?>) {
-                InListValue<?> listValue = (InListValue<?>) configValue;
-                if (!listValue.getValidValues().contains(listValue.get())) {
-                    listener.accept(
-                        String.format("%s not valid for %s, reset to %s", listValue.get(), listValue.getPath(),
-                            listValue.getDefaultValue()));
-                    listValue.reset(null);
-                }
+            if (checktSingle(configValue, listener)) {
+                configValue.reset(listener);
             }
         }
+    }
+
+    /**
+     * checks if a config value needs to be reset
+     *
+     * @param configValue config value to check
+     * @param listener    listener to forward errors to
+     * @return if the config needs a reset
+     */
+    protected boolean checktSingle(ConfigValue configValue, @NotNull Consumer<String> listener) {
+        if (configValue.getRaw() == null) {
+            return true;
+        } else if (configValue instanceof NumberValue) {
+            if (!(configValue.getRaw() instanceof Number)) {
+                listener.accept(ViveMain.translate("vivecraft.command.invalid", Utils.red(configValue.getRaw()),
+                    configValue.getPath()));
+                return true;
+            }
+            NumberValue<?> numberValue = (NumberValue<?>) configValue;
+            Number val = numberValue.get();
+            if (val.doubleValue() < numberValue.getMin().doubleValue() ||
+                val.doubleValue() > numberValue.getMax().doubleValue())
+            {
+                listener.accept(ViveMain.translate("vivecraft.command.number.outOfRange", Utils.red(val),
+                    Utils.green(numberValue.getMin()), Utils.green(numberValue.getMax()), numberValue.getPath()));
+                return true;
+            }
+        } else if (configValue instanceof InListValue<?>) {
+            InListValue<?> listValue = (InListValue<?>) configValue;
+            if (!listValue.getValidValues().contains(listValue.get())) {
+                listener.accept(
+                    ViveMain.translate("vivecraft.command.invalid", Utils.red(listValue.get()), listValue.getPath()));
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<ConfigValue> getConfigValues() {
@@ -303,6 +339,10 @@ public class ConfigBuilder {
 
         public T reset(@Nullable Consumer<String> notifier) {
             this.set(this.defaultValue, notifier);
+            if (notifier != null) {
+                notifier.accept(
+                    ViveMain.translate("vivecraft.command.configReset", this.path, Utils.green(this.defaultValue)));
+            }
             return this.defaultValue;
         }
 
@@ -456,8 +496,8 @@ public class ConfigBuilder {
                     }
                     ViveMain.LOGGER.severe("No enum constant " + this.enumClass.getCanonicalName() + "." + name);
                 } else {
-                    ViveMain.LOGGER.severe("Cannot convert a value of type " + cls.getCanonicalName() +
-                        " to an Enum " + this.enumClass.getCanonicalName());
+                    ViveMain.LOGGER.severe("Cannot convert a value of type " + cls.getCanonicalName() + " to an Enum " +
+                        this.enumClass.getCanonicalName());
                 }
             }
             return null;

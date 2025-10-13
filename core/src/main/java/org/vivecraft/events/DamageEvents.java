@@ -64,8 +64,8 @@ public class DamageEvents implements Listener {
                 if (!ViveMain.CONFIG.pvpSeatedvrVsNonvr.get()) {
                     blockedDamage = true;
                     blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
-                        ViveMain.translate("vivecraft.pvp.nonVR"),
-                        ViveMain.translate("vivecraft.pvp.seatedVR"));
+                        ViveMain.translate("vivecraft.mode.nonVR"),
+                        ViveMain.translate("vivecraft.mode.seatedVR"));
                 }
             } else if ((!otherVive.isVR() && thisVive.isVR() && !thisVive.isSeated()) ||
                 (!thisVive.isVR() && otherVive.isVR() && !otherVive.isSeated()))
@@ -74,8 +74,8 @@ public class DamageEvents implements Listener {
                 if (!ViveMain.CONFIG.pvpVrVsNonvr.get()) {
                     blockedDamage = true;
                     blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
-                        ViveMain.translate("vivecraft.pvp.nonVR"),
-                        ViveMain.translate("vivecraft.pvp.standingVR"));
+                        ViveMain.translate("vivecraft.mode.nonVR"),
+                        ViveMain.translate("vivecraft.mode.standingVR"));
                 }
             } else if ((otherVive.isVR() && otherVive.isSeated() && thisVive.isVR() && !thisVive.isSeated()) ||
                 (thisVive.isVR() && thisVive.isSeated() && otherVive.isVR() && !otherVive.isSeated()))
@@ -84,24 +84,24 @@ public class DamageEvents implements Listener {
                 if (!ViveMain.CONFIG.pvpVrVsSeatedvr.get()) {
                     blockedDamage = true;
                     blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
-                        ViveMain.translate("vivecraft.pvp.seatedVR"),
-                        ViveMain.translate("vivecraft.pvp.standingVR"));
+                        ViveMain.translate("vivecraft.mode.seatedVR"),
+                        ViveMain.translate("vivecraft.mode.standingVR"));
                 }
             } else if (otherVive.isVR() && !otherVive.isSeated() && thisVive.isVR() && !thisVive.isSeated()) {
                 // Standing vs Standing
                 if (!ViveMain.CONFIG.pvpVrVsVr.get()) {
                     blockedDamage = true;
                     blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
-                        ViveMain.translate("vivecraft.pvp.standingVR"),
-                        ViveMain.translate("vivecraft.pvp.standingVR"));
+                        ViveMain.translate("vivecraft.mode.standingVR"),
+                        ViveMain.translate("vivecraft.mode.standingVR"));
                 }
             } else if (otherVive.isVR() && otherVive.isSeated() && thisVive.isVR() && thisVive.isSeated()) {
                 // Seated vs Seated
                 if (!ViveMain.CONFIG.pvpSeatedvrVsSeatedvr.get()) {
                     blockedDamage = true;
                     blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
-                        ViveMain.translate("vivecraft.pvp.seatedVR"),
-                        ViveMain.translate("vivecraft.pvp.seatedVR"));
+                        ViveMain.translate("vivecraft.mode.seatedVR"),
+                        ViveMain.translate("vivecraft.mode.seatedVR"));
                 }
             }
             if (blockedDamage) {

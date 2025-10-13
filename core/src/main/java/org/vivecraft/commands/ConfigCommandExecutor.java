@@ -1,12 +1,14 @@
 package org.vivecraft.commands;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.vivecraft.ViveMain;
+import org.vivecraft.VivePlayer;
 import org.vivecraft.config.ConfigBuilder;
+import org.vivecraft.util.Utils;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -29,7 +31,11 @@ public class ConfigCommandExecutor implements CommandExecutor {
         }
 
         if ("help".equals(args[0])) {
-            sender.sendMessage(ViveMain.translate("vivecraft.command.usage", label));
+            sender.sendMessage(new String[]{
+                ViveMain.translate("vivecraft.command.usage", label, Utils.gold("help"), Utils.gold("list"),
+                    Utils.gold("reload")),
+                ViveMain.translate("vivecraft.command.usage.config", label, Utils.gold("get"), Utils.gold("set"),
+                    Utils.gold("reset"), Utils.gold("add/remove"))});
             if (args.length >= 2) {
                 ConfigBuilder.ConfigValue value = ViveMain.CONFIG.getConfigValues().stream()
                     .filter(c -> c.getPath().equals(args[1])).findFirst().orElse(null);
@@ -42,16 +48,48 @@ public class ConfigCommandExecutor implements CommandExecutor {
             return true;
         }
 
+        if ("list".equals(args[0])) {
+            int playerCount = Bukkit.getOnlinePlayers().size();
+            if (playerCount == 1) {
+                sender.sendMessage(ViveMain.translate("vivecraft.command.listOnePlayer"));
+            } else {
+                sender.sendMessage(ViveMain.translate("vivecraft.command.listPlayers", playerCount));
+            }
+
+            playerCount = ViveMain.VIVE_PLAYERS.size();
+            if (playerCount == 1) {
+                sender.sendMessage(ViveMain.translate("vivecraft.command.listOneVivePlayer"));
+            } else {
+                sender.sendMessage(ViveMain.translate("vivecraft.command.listVivePlayers", playerCount));
+            }
+            for (VivePlayer vivePlayer : ViveMain.VIVE_PLAYERS.values()) {
+                String player = vivePlayer.player.getDisplayName() + ": " + ViveMain.translate(vivePlayer.isVR() ?
+                    (vivePlayer.isSeated() ? "vivecraft.mode.seatedVR" : "vivecraft.mode.standingVR") :
+                    "vivecraft.mode.nonVR");
+                if (args.length > 1 && "withVersion".equals(args[1])) {
+                    player += ", " + vivePlayer.version;
+                }
+                sender.sendMessage(player);
+            }
+            return true;
+        }
+
+        if ("reload".equals(args[0])) {
+            int changes = ViveMain.CONFIG.reload(sender::sendMessage);
+            sender.sendMessage(ViveMain.translate("vivecraft command.reload", changes));
+            return true;
+        }
+
         ConfigBuilder.ConfigValue config = ViveMain.CONFIG.getConfigValues().stream()
             .filter(c -> c.getPath().equals(args[0])).findFirst().orElse(null);
 
         if (config == null) {
-            sender.sendMessage(ViveMain.translate("vivecraft.command.unknownConfig", padRed(args[0])));
+            sender.sendMessage(ViveMain.translate("vivecraft.command.unknownConfig", Utils.red(args[0])));
             return false;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(padRed(ViveMain.translate("vivecraft.command.noAction")));
+            sender.sendMessage(Utils.red(ViveMain.translate("vivecraft.command.noAction")));
             return false;
         }
 
@@ -92,21 +130,20 @@ public class ConfigCommandExecutor implements CommandExecutor {
 
         if ("get".equals(action)) {
             sender.sendMessage(
-                ViveMain.translate("vivecraft.command.configGet", config.getPath(), padGreen(config.get())));
+                ViveMain.translate("vivecraft.command.configGet", config.getPath(), Utils.green(config.get())));
             return Action.GET;
         } else if ("reset".equals(action)) {
             config.reset(notifier);
-            ViveMain.translate("vivecraft.command.configReset", config.getPath(), padGreen(config.get()));
             return Action.RESET;
         } else if (args.length < 3) {
-            sender.sendMessage(padRed(ViveMain.translate("vivecraft.command.noValue")));
+            sender.sendMessage(Utils.red(ViveMain.translate("vivecraft.command.noValue")));
             return Action.ERROR;
         } else if ("add".equals(action) || "remove".equals(action)) {
             if (!(config instanceof ConfigBuilder.ListValue)) {
-                sender.sendMessage(padRed(ViveMain.translate("vivecraft.command.nonList")));
+                sender.sendMessage(Utils.red(ViveMain.translate("vivecraft.command.nonList")));
                 return Action.ERROR;
             } else if (!(config instanceof ConfigBuilder.StringListValue)) {
-                sender.sendMessage(ChatColor.RED + "General Lists cannot be set with commands atm.");
+                sender.sendMessage(Utils.red("General Lists cannot be set with commands atm."));
                 return Action.ERROR;
             }
             ConfigBuilder.StringListValue stringList = (ConfigBuilder.StringListValue) config;
@@ -117,7 +154,7 @@ public class ConfigCommandExecutor implements CommandExecutor {
                     list.add(value);
                     stringList.set(list, notifier);
                     sender.sendMessage(
-                        ViveMain.translate("vivecraft.command.configSet", config.getPath(), padGreen(config.get())));
+                        ViveMain.translate("vivecraft.command.configSet", config.getPath(), Utils.green(config.get())));
                     return Action.ADD;
                 } else {
                     sender.sendMessage(ViveMain.translate("vivecraft.command.list.alreadyIn"));
@@ -128,22 +165,21 @@ public class ConfigCommandExecutor implements CommandExecutor {
                 list.remove(value);
                 stringList.set(list, notifier);
                 sender.sendMessage(
-                    ViveMain.translate("vivecraft.command.configSet", config.getPath(), padGreen(config.get())));
+                    ViveMain.translate("vivecraft.command.configSet", config.getPath(), Utils.green(config.get())));
                 return Action.REMOVE;
             }
         } else if ("set".equals(action)) {
             String value = args[2].trim();
             if (config instanceof ConfigBuilder.ListValue) {
-                sender.sendMessage(padRed(ViveMain.translate("vivecraft.command.list.set")));
+                sender.sendMessage(Utils.red(ViveMain.translate("vivecraft.command.list.set")));
                 return Action.ERROR;
             } else if (config instanceof ConfigBuilder.NumberValue) {
                 try {
                     double val = Double.parseDouble(value);
                     ConfigBuilder.NumberValue numVal = (ConfigBuilder.NumberValue) config;
                     if (val < numVal.getMin().doubleValue() || val > numVal.getMax().doubleValue()) {
-                        sender.sendMessage(
-                            ViveMain.translate("vivecraft.command.number.outOfRange",
-                                padRed(value), numVal.getMin(), numVal.getMax()));
+                        sender.sendMessage(ViveMain.translate("vivecraft.command.number.outOfRange", Utils.red(value),
+                            Utils.green(numVal.getMin()), Utils.green(numVal.getMax()), config.getPath()));
                         return Action.ERROR;
                     }
                     if (config instanceof ConfigBuilder.IntValue) {
@@ -152,70 +188,54 @@ public class ConfigCommandExecutor implements CommandExecutor {
                         config.set(Double.parseDouble(value), notifier);
                     }
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(ViveMain.translate("vivecraft.command.number.invalid", padRed(value)));
+                    sender.sendMessage(ViveMain.translate("vivecraft.command.number.invalid", Utils.red(value)));
                     return Action.ERROR;
                 }
                 sender.sendMessage(
-                    ViveMain.translate("vivecraft.command.configSet", config.getPath(), padGreen(config.get())));
-                ;
+                    ViveMain.translate("vivecraft.command.configSet", config.getPath(), Utils.green(config.get())));
                 return Action.SET;
             } else if (config instanceof ConfigBuilder.EnumValue) {
                 ConfigBuilder.EnumValue enumValue = (ConfigBuilder.EnumValue) config;
                 Enum<?> o = enumValue.getEnumValue(value);
                 if (o == null) {
-                    sender.sendMessage(ViveMain.translate("vivecraft.command.invalid", padRed(value)));
+                    sender.sendMessage(
+                        ViveMain.translate("vivecraft.command.invalid", Utils.red(value), config.getPath()));
                     return Action.ERROR;
                 } else {
                     enumValue.set(o, notifier);
                     sender.sendMessage(
-                        ViveMain.translate("vivecraft.command.configSet", config.getPath(), padGreen(config.get())));
-                    ;
+                        ViveMain.translate("vivecraft.command.configSet", config.getPath(), Utils.green(config.get())));
                     return Action.SET;
                 }
             } else if (config instanceof ConfigBuilder.BooleanValue) {
                 config.set(Boolean.parseBoolean(value), notifier);
                 sender.sendMessage(
-                    ViveMain.translate("vivecraft.command.configSet", config.getPath(), padGreen(config.get())));
-                ;
+                    ViveMain.translate("vivecraft.command.configSet", config.getPath(), Utils.green(config.get())));
                 return Action.SET;
             } else if (config instanceof ConfigBuilder.InListValue) {
                 ConfigBuilder.InListValue inList = (ConfigBuilder.InListValue) config;
                 for (Object s : inList.getValidValues()) {
                     if (s instanceof String && value.equalsIgnoreCase((String) s)) {
                         config.set(Boolean.parseBoolean(value), notifier);
-                        sender.sendMessage(
-                            ViveMain.translate("vivecraft.command.configSet", config.getPath(),
-                                padGreen(config.get())));
-                        ;
+                        sender.sendMessage(ViveMain.translate("vivecraft.command.configSet", config.getPath(),
+                            Utils.green(config.get())));
                         return Action.SET;
                     }
                 }
                 sender.sendMessage(new String[]{
-                    ViveMain.translate("vivecraft.command.invalid", padRed(value)),
+                    ViveMain.translate("vivecraft.command.invalid", Utils.red(value), config.getPath()),
                     ViveMain.translate("vivecraft.command.validValues",
                         String.join("', '", inList.getValidValues()))});
                 return Action.ERROR;
             } else {
                 config.set(value, notifier);
                 sender.sendMessage(
-                    ViveMain.translate("vivecraft.command.configSet", config.getPath(), padGreen(config.get())));
+                    ViveMain.translate("vivecraft.command.configSet", config.getPath(), Utils.green(config.get())));
                 return Action.SET;
             }
         } else {
-            sender.sendMessage(ViveMain.translate("vivecraft.command.notValidAction", padRed(action)));
+            sender.sendMessage(ViveMain.translate("vivecraft.command.notValidAction", Utils.red(action)));
             return Action.ERROR;
         }
-    }
-
-    private static String padRed(Object o) {
-        return padColor(o, ChatColor.RED);
-    }
-
-    private static String padGreen(Object o) {
-        return padColor(o, ChatColor.GREEN);
-    }
-
-    private static String padColor(Object o, ChatColor color) {
-        return color + o.toString() + ChatColor.RESET;
     }
 }

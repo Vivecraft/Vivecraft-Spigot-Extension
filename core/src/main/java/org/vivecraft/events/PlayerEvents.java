@@ -1,6 +1,5 @@
 package org.vivecraft.events;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +18,7 @@ import org.vivecraft.network.AimFixHandler;
 import org.vivecraft.network.NetworkUtils;
 import org.vivecraft.util.MetadataHelper;
 import org.vivecraft.util.UpdateChecker;
+import org.vivecraft.util.Utils;
 
 import java.util.Random;
 
@@ -87,7 +87,7 @@ public class PlayerEvents implements Listener {
                 if (UpdateChecker.checkForUpdates()) {
                     Platform.getInstance().getScheduler().runGlobal(
                         () -> player.sendMessage(ViveMain.translate("vivecraft.plugin.update",
-                            ChatColor.GREEN + UpdateChecker.NEWEST_VERSION)));
+                            Utils.green(UpdateChecker.NEWEST_VERSION))));
                 }
             });
         }

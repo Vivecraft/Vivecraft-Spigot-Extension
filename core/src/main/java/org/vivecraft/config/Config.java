@@ -14,6 +14,7 @@ import org.vivecraft.util.MCVersion;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 public class Config {
@@ -488,15 +489,19 @@ public class Config {
             }
         }
 
-        fixValues();
+        // if the config is outdated, or is missing keys, re add them
+        // the logger doesn't strip format codes so strip those manually
+        this.builder.correct(s -> ViveMain.LOGGER.warning(s.replaceAll("§.", "")));
 
         // save defaults
         save();
     }
 
-    public void fixValues() {
-        // if the config is outdated, or is missing keys, re add them
-        this.builder.correct(s -> ViveMain.LOGGER.warning(s));
+    public int reload(Consumer<String> notifier) {
+        this.plugin.reloadConfig();
+        int changes = this.builder.setNewConfigFile(this.plugin.getConfig(), true, notifier);
+        save();
+        return changes;
     }
 
     public void save() {
@@ -513,7 +518,7 @@ public class Config {
 
         // load the new commented file
         this.plugin.reloadConfig();
-        this.builder.setNewConfigFile(this.plugin.getConfig());
+        this.builder.setNewConfigFile(this.plugin.getConfig(), false, ViveMain.LOGGER::warning);
     }
 
     public List<ConfigBuilder.ConfigValue> getConfigValues() {

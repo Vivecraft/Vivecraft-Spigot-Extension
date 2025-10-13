@@ -11,6 +11,9 @@ import java.util.List;
 
 public class ConfigCommandTabCompleter implements TabCompleter {
 
+    private final static String[] baseCommands = new String[]{"help", "list", "reload"};
+
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> completions = new ArrayList<>();
@@ -18,15 +21,21 @@ public class ConfigCommandTabCompleter implements TabCompleter {
         String partial = "";
         if (args.length > 0) {
             partial = args[args.length - 1].toLowerCase();
+        } else {
+            return completions;
         }
 
-        if (args.length <= 1 || "help".equals(args[0])) {
-            if (args.length <= 1) {
-                if ("help".startsWith(partial)) {
-                    completions.add("help");
-                }
-            }
+        boolean noConfig = false;
 
+        for (String base : baseCommands) {
+            if (args.length == 1 && base.startsWith(partial)) {
+                completions.add(base);
+            } else if (args.length > 1 && base.equals(args[0])) {
+                noConfig = true;
+            }
+        }
+
+        if ("help".equals(args[0])) {
             // config names
             for (ConfigBuilder.ConfigValue<?> value : ViveMain.CONFIG.getConfigValues()) {
                 if (value.getPath().toLowerCase().startsWith(partial)) {
@@ -35,7 +44,13 @@ public class ConfigCommandTabCompleter implements TabCompleter {
             }
         }
 
-        if (args.length > 1 && !"help".equals(args[0])) {
+        if ("list".equals(args[0])) {
+            if ("withVersion".startsWith(partial)) {
+                completions.add("withVersion");
+            }
+        }
+
+        if (args.length > 1 && !noConfig) {
             ConfigBuilder.ConfigValue value = ViveMain.CONFIG.getConfigValues().stream()
                 .filter(c -> c.getPath().equals(args[0])).findFirst().orElse(null);
             if (args.length == 2 && value != null) {

@@ -1,7 +1,6 @@
 package org.vivecraft.network;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -411,8 +410,8 @@ public class NetworkHandler implements PluginMessageListener {
                 sendPacket(vivePlayer, payload);
             }
             if (unsupported && notifier != null) {
-                notifier.accept(ChatColor.GOLD + ViveMain.translate("vivecraft.command.unsupportedClient",
-                    ChatColor.GREEN + ViveMain.CONFIG.kickPlayersOnSettingUpdate.getPath()));
+                notifier.accept(Utils.gold(ViveMain.translate("vivecraft.command.unsupportedClient",
+                    Utils.green(ViveMain.CONFIG.kickPlayersOnSettingUpdate.getPath()))));
             }
         }
     }
