@@ -485,6 +485,12 @@ public class ConfigBuilder {
             }
         }
 
+        // enums are stored as a string, so it can't be cast to enum directly
+        @Override
+        protected T getRaw() {
+            return getEnumValue(this.config.getConfig().get(this.path));
+        }
+
         public T getEnumValue(Object value) {
             if (value != null) {
                 final Class<?> cls = value.getClass();
