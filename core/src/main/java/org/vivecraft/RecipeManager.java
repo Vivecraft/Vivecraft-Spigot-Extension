@@ -14,7 +14,7 @@ import java.util.*;
 
 public class RecipeManager {
 
-    private final List<ShapedRecipe> recipes = new ArrayList<>();
+    private final List<ShapedRecipe> climbeyRecipes = new ArrayList<>();
 
     public RecipeManager() {
         this.createClawsRecipe();
@@ -34,7 +34,7 @@ public class RecipeManager {
         clawsRecipe.shape("E E", "S S");
         clawsRecipe.setIngredient('E', Material.SPIDER_EYE);
         clawsRecipe.setIngredient('S', Material.SHEARS);
-        this.recipes.add(clawsRecipe);
+        this.climbeyRecipes.add(clawsRecipe);
     }
 
     private void createBootsRecipe() {
@@ -54,22 +54,30 @@ public class RecipeManager {
         bootsRecipe.shape("B", "S");
         bootsRecipe.setIngredient('B', Material.LEATHER_BOOTS);
         bootsRecipe.setIngredient('S', Material.SLIME_BLOCK);
-        this.recipes.add(bootsRecipe);
+        this.climbeyRecipes.add(bootsRecipe);
     }
 
-    public void addRecipes() {
-        for (ShapedRecipe recipe : this.recipes) {
+    public void updateRecipes() {
+        if (ViveMain.CONFIG.viveCrafting.get() && ViveMain.CONFIG.climbeyEnabled.get()) {
+            addRecipes(this.climbeyRecipes);
+        } else {
+            removeRecipes(this.climbeyRecipes);
+        }
+    }
+
+    public void addRecipes(List<ShapedRecipe> toAdd) {
+        for (ShapedRecipe recipe : toAdd) {
             if (!hasRecipe(recipe)) {
                 Bukkit.addRecipe(recipe);
             }
         }
     }
 
-    public void removeRecipes() {
+    public void removeRecipes(List<ShapedRecipe> toRemove) {
         Iterator<Recipe> recipes = Bukkit.recipeIterator();
         while (recipes.hasNext()) {
             Recipe recipe = recipes.next();
-            for (ShapedRecipe customRecipe : this.recipes) {
+            for (ShapedRecipe customRecipe : toRemove) {
                 if (recipeEquals(customRecipe, recipe)) {
                     recipes.remove();
                 }

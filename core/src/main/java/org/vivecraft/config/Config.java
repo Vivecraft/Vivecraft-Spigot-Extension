@@ -161,7 +161,7 @@ public class Config {
         this.viveCrafting = this.builder
             .push("viveCrafting")
             .define(true)
-            .setOnUpdate((oV, nV) -> ViveMain.INSTANCE.toggleRecipes(nV));
+            .setOnUpdate((oV, nV) -> ViveMain.INSTANCE.updateRecipes());
         this.requestData = this.builder
             .push("requestData")
             .define(true)
@@ -356,7 +356,8 @@ public class Config {
         this.climbeyEnabled = this.builder
             .push("enabled")
             .define(true)
-            .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p));
+            .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p))
+            .setOnUpdate((oV, nV) -> ViveMain.INSTANCE.updateRecipes());
         this.climbeyBlockmode = this.builder
             .push("blockmode")
             .defineEnum(ClimbeyBlockmode.DISABLED, ClimbeyBlockmode.class)

@@ -114,7 +114,7 @@ public class ViveMain extends JavaPlugin {
         }
         this.modifyEntities();
         this.recipeManager = new RecipeManager();
-        this.toggleRecipes(CONFIG.viveCrafting.get());
+        this.updateRecipes();
     }
 
     private void modifyEntities() {
@@ -133,12 +133,8 @@ public class ViveMain extends JavaPlugin {
         manager.registerEvents(new EntityEvents(), this);
     }
 
-    public void toggleRecipes(boolean enabled) {
-        if (enabled) {
-            this.recipeManager.addRecipes();
-        } else {
-            this.recipeManager.removeRecipes();
-        }
+    public void updateRecipes() {
+        this.recipeManager.updateRecipes();
     }
 
     @Override
