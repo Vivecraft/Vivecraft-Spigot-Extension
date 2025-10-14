@@ -329,12 +329,12 @@ public class ConfigBuilder {
         }
 
         public void set(T newValue, @Nullable Consumer<String> notifier) {
-            T oldValue = this.get();
+            T oldValue = this.getRaw();
             this.cachedValue = newValue;
             this.config.getConfig().set(this.path, newValue);
             if (oldValue != null) {
                 // we don't want to call update, if we first create the config
-                onUpdate(oldValue, newValue, notifier);
+                this.onUpdate(oldValue, newValue, notifier);
             }
         }
 
@@ -477,10 +477,12 @@ public class ConfigBuilder {
 
         @Override
         public void set(T newValue, Consumer<String> notifier) {
-            T oldValue = this.get();
+            T oldValue = this.getRaw();
             this.cachedValue = newValue;
             this.config.getConfig().set(this.path, newValue.name());
-            this.onUpdate(oldValue, newValue, notifier);
+            if (oldValue != null) {
+                this.onUpdate(oldValue, newValue, notifier);
+            }
         }
 
         public T getEnumValue(Object value) {
