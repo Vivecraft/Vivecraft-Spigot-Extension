@@ -11,7 +11,7 @@ dependencies {
 
     // takenaka
     // the mapping bundle, published by the project at github.com/zlataovce/mappings
-    mappingBundle("me.kcra.takenaka:mappings:1.8.8+1.21.9")
+    mappingBundle("me.kcra.takenaka:mappings:1.8.8+1.21.10")
 
 }
 processResources {
@@ -22,7 +22,7 @@ processResources {
 }
 
 accessors {
-    versionRange("1.8.8", "1.21.9")
+    versionRange("1.8.8", "1.21.10")
     mappingWebsite = "https://mappings.dev"
 
     // package where it places the mappings
