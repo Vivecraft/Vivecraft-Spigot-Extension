@@ -2,6 +2,7 @@ package org.vivecraft.util;
 
 import org.bukkit.ChatColor;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -26,6 +27,18 @@ public class Utils {
             map.put(args[i], args[i + 1]);
         }
         return map;
+    }
+
+    /**
+     * Collection.containsAll, but ignores null values
+     */
+    public static boolean containsAll(Collection<?> a, Collection<?> b) {
+        for (Object o : a) {
+            if (o != null && !b.contains(o)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

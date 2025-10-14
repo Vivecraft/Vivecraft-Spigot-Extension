@@ -55,6 +55,8 @@ public class ViveMain extends JavaPlugin {
     private Task dataTask;
     private Task particleTask;
 
+    private RecipeManager recipeManager;
+
     @Override
     public void onEnable() {
         INSTANCE = this;
@@ -104,11 +106,6 @@ public class ViveMain extends JavaPlugin {
         // register events
         this.registerEvents(getServer().getPluginManager());
 
-        // register recipes
-        if (CONFIG.viveCrafting.get()) {
-            registerRecipes();
-        }
-
         this.toggleParticleTask(CONFIG.debugParticlesEnabled.get());
         this.toggleDataTask(CONFIG.sendData.get());
         if (CONFIG.spigotSettingsEnabled.get()) {
@@ -116,6 +113,8 @@ public class ViveMain extends JavaPlugin {
             SpigotReflector.setMovedWrongly(CONFIG.spigotSettingsMovedWronglyThreshold.get());
         }
         this.modifyEntities();
+        this.recipeManager = new RecipeManager();
+        this.toggleRecipes(CONFIG.viveCrafting.get());
     }
 
     private void modifyEntities() {
@@ -134,9 +133,12 @@ public class ViveMain extends JavaPlugin {
         manager.registerEvents(new EntityEvents(), this);
     }
 
-    private void registerRecipes() {
-        Recipes.addClawsRecipe();
-        Recipes.addBootsRecipe();
+    public void toggleRecipes(boolean enabled) {
+        if (enabled) {
+            this.recipeManager.addRecipes();
+        } else {
+            this.recipeManager.removeRecipes();
+        }
     }
 
     @Override

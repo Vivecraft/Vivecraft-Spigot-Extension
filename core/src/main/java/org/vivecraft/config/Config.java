@@ -161,7 +161,7 @@ public class Config {
         this.viveCrafting = this.builder
             .push("viveCrafting")
             .define(true)
-            .setNeedsReload(true);
+            .setOnUpdate((oV, nV) -> ViveMain.INSTANCE.toggleRecipes(nV));
         this.requestData = this.builder
             .push("requestData")
             .define(true)
