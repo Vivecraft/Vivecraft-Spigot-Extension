@@ -536,7 +536,7 @@ public class Config {
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                     // skip comments or list values
                     continue;
-                } else if (trimmed.contains(":")) {
+                } else if (trimmed.contains(":") && !trimmed.startsWith("-")) {
                     // regular line
                     String newIndent = line.substring(0, line.indexOf(trimmed));
                     String entry = trimmed.substring(0, trimmed.indexOf(":"));
