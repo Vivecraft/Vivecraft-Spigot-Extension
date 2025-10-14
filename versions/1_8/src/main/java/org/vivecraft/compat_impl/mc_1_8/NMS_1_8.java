@@ -63,8 +63,10 @@ public class NMS_1_8 implements NMSHelper {
     protected Class<?> ServerboundUseItemOnPacket;
     protected Class<?> ServerboundPlayerActionPacket;
 
-    protected ReflectionField ServerboundUseItemOnPacket_blockPos;
-    protected ReflectionField ServerboundUseItemOnPacket_hitDir;
+    protected ReflectionMethod ServerboundUseItemPacket_getFace;
+    protected ReflectionField ServerboundUseItemPacket_BlockPos;
+    protected ReflectionMethod Direction_from3DDataValue;
+
     protected ReflectionMethod BlockState_getBlock;
     protected ReflectionMethod Level_getBlockState;
     protected ReflectionField Direction_normal;
@@ -236,10 +238,11 @@ public class NMS_1_8 implements NMSHelper {
     }
 
     protected void initUseItemOnPacketAccess() {
-        this.ServerboundUseItemOnPacket_blockPos = ReflectionField.getField(
-            ServerboundUseItemOnPacketMapping.FIELD_FIELD_179725_B);
-        this.ServerboundUseItemOnPacket_hitDir = ReflectionField.getField(
-            ServerboundUseItemOnPacketMapping.FIELD_FIELD_149579_D);
+        this.ServerboundUseItemPacket_getFace = ReflectionMethod.getMethod(
+            ServerboundUseItemPacketMapping.METHOD_GET_FACE);
+        this.ServerboundUseItemPacket_BlockPos = ReflectionField.getField(
+            ServerboundUseItemPacketMapping.FIELD_FIELD_179725_B);
+        this.Direction_from3DDataValue = ReflectionMethod.getMethod(DirectionMapping.METHOD_FROM3DDATA_VALUE);
     }
 
     protected void initArmor() {
@@ -719,7 +722,7 @@ public class NMS_1_8 implements NMSHelper {
     }
 
     public Vector3fc getHitDirIfGate(Object player, Object packet) {
-        if (this.ServerboundUseItemOnPacket.isInstance(packet)) {
+        if (isInteractPacket(packet)) {
             Object blockPos = getUseItemOnPos(packet);
             Object block = this.BlockState_getBlock.invoke(
                 this.Level_getBlockState.invoke(this.Entity_getLevel.invoke(player), blockPos));
@@ -735,11 +738,15 @@ public class NMS_1_8 implements NMSHelper {
         return null;
     }
 
+    protected boolean isInteractPacket(Object packet) {
+        return this.ServerboundUseItemPacket.isInstance(packet);
+    }
+
     protected Object getUseItemOnDir(Object packet) {
-        return this.ServerboundUseItemOnPacket_hitDir.get(packet);
+        return this.Direction_from3DDataValue.invokes(this.ServerboundUseItemPacket_getFace.invoke(packet));
     }
 
     protected Object getUseItemOnPos(Object packet) {
-        return this.ServerboundUseItemOnPacket_blockPos.get(packet);
+        return this.ServerboundUseItemPacket_BlockPos.get(packet);
     }
 }

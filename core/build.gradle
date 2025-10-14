@@ -145,6 +145,8 @@ accessors {
     mapClass("net.minecraft.network.protocol.game.ServerboundUseItemPacket") {
         field("float", "yRot")
         field("float", "xRot")
+        field("net.minecraft.util.BlockPos", "field_179725_b")
+        method("int", "getFace")
     }
     mapClass("net.minecraft.network.protocol.game.ServerboundUseItemOnPacket") {
         field("net.minecraft.world.phys.BlockHitResult", "blockHit") // 1.14+
@@ -474,6 +476,7 @@ accessors {
     }
     mapClass("net.minecraft.core.Direction") {
         field("net.minecraft.core.Vec3i", "normal")
+        method("net.minecraft.core.Direction", "from3DDataValue", "int")
     }
     mapClass("net.minecraft.core.Vec3i") {
         field("int", "x")

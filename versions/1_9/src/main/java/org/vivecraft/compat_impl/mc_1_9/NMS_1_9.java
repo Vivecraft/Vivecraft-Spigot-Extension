@@ -25,6 +25,9 @@ public class NMS_1_9 extends NMS_1_8 {
 
     protected ReflectionField Inventory_offhandSlot;
 
+    protected ReflectionField ServerboundUseItemOnPacket_blockPos;
+    protected ReflectionField ServerboundUseItemOnPacket_hitDir;
+
     @Override
     protected void init() {
         super.init();
@@ -62,6 +65,14 @@ public class NMS_1_9 extends NMS_1_8 {
         super.initInventory();
         this.Inventory_offhandSlot = ReflectionField.getField(InventoryMapping.FIELD_OFFHAND,
             InventoryMapping.FIELD_EXTRA_SLOTS);
+    }
+
+    @Override
+    protected void initUseItemOnPacketAccess() {
+        this.ServerboundUseItemOnPacket_blockPos = ReflectionField.getField(
+            ServerboundUseItemOnPacketMapping.FIELD_FIELD_179725_B);
+        this.ServerboundUseItemOnPacket_hitDir = ReflectionField.getField(
+            ServerboundUseItemOnPacketMapping.FIELD_FIELD_149579_D);
     }
 
     @Override
@@ -130,5 +141,20 @@ public class NMS_1_9 extends NMS_1_8 {
                     this.ItemStack_getAttributeModifiers.invoke(newItemStack, this.EquipmentSlot_MAINHAND.get()));
             }
         }
+    }
+
+    @Override
+    protected boolean isInteractPacket(Object packet) {
+        return this.ServerboundUseItemOnPacket.isInstance(packet);
+    }
+
+    @Override
+    protected Object getUseItemOnDir(Object packet) {
+        return this.ServerboundUseItemOnPacket_hitDir.get(packet);
+    }
+
+    @Override
+    protected Object getUseItemOnPos(Object packet) {
+        return this.ServerboundUseItemOnPacket_blockPos.get(packet);
     }
 }
