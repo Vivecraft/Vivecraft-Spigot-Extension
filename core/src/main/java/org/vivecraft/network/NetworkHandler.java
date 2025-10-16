@@ -207,7 +207,7 @@ public class NetworkHandler implements PluginMessageListener {
         if (NetworkVersion.SERVER_VR_CHANGES.accepts(vivePlayer.networkVersion)) {
             Map<String, String> settings = new HashMap<>();
             for (ConfigBuilder.ConfigValue<?> config : ViveMain.CONFIG.getConfigValues()) {
-                if (config.getPath().startsWith("vrChanges") && !config.isDefault()) {
+                if (config.getPath().startsWith("vrChanges") && !config.isClientDefault()) {
                     settings.put(config.getPath(), String.valueOf(config.get()));
                 }
             }

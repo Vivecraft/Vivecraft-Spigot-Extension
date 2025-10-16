@@ -297,6 +297,8 @@ public class ConfigBuilder {
         // cache the value to minimize config lookups
         protected T cachedValue = null;
         protected boolean needsReload;
+        // the client has some different default values
+        protected T clientDefaultValue;
 
         /**
          * Function that takes the setting value and a VivePlayer and creates a network packet for them
@@ -398,6 +400,16 @@ public class ConfigBuilder {
 
         public boolean needsReload() {
             return this.needsReload;
+        }
+
+        @SuppressWarnings("unchecked")
+        public <V extends ConfigValue<T>> V setClientDefault(T clientDefaultValue) {
+            this.clientDefaultValue = clientDefaultValue;
+            return (V) this;
+        }
+
+        public boolean isClientDefault() {
+            return this.clientDefaultValue != null ? Objects.equals(get(), this.clientDefaultValue) : isDefault();
         }
     }
 

@@ -307,16 +307,19 @@ public class Config {
             .push("bow");
         this.bowStandingMultiplier = this.builder
             .push("standingMultiplier")
-            .defineInRange(1.5, 1.0, 10.0);
+            .defineInRange(1.5, 1.0, 10.0)
+            .setClientDefault(2.0);
         this.bowSeatedMultiplier = this.builder
             .push("seatedMultiplier")
             .defineInRange(1.0, 1.0, 10.0);
         this.bowStandingHeadshotMultiplier = this.builder
             .push("standingHeadshotMultiplier")
-            .defineInRange(2.0, 1.0, 10.0);
+            .defineInRange(2.0, 1.0, 10.0)
+            .setClientDefault(3.0);
         this.bowSeatedHeadshotMultiplier = this.builder
             .push("seatedHeadshotMultiplier")
-            .defineInRange(1.5, 1.0, 10.0);
+            .defineInRange(1.5, 1.0, 10.0)
+            .setClientDefault(2.0);
         this.bowVanillaHeadshotMultiplier = this.builder
             .push("vanillaHeadshotMultiplier")
             .defineInRange(1.0, 1.0, 10.0);
