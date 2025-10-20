@@ -35,6 +35,9 @@ public interface VRAPI {
 
     /**
      * Returns the VR pose for the given player. Will return {@code null} if the player isn't in VR
+     * <br>
+     * The VRPose can still be {@code null} if {@link VRAPI#isVRPlayer(Player)} returned true,
+     * since those two properties are independent of each other.
      *
      * @param player Player to get the VR pose of.
      * @return The VR pose for a player, or {@code null} if the player isn't in VR or no data has been received for said player.

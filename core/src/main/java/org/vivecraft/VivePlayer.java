@@ -258,8 +258,8 @@ public class VivePlayer {
     public void setVrPlayerState(VrPlayerState vrPlayerState) {
         this.vrPlayerState = vrPlayerState;
         this.vrPlayerStateAsPose = null;
-        VRAPIImpl.INSTANCE.addPoseToHistory(this.player.getUniqueId(),
-            vrPlayerState.asVRPose(this.player.getLocation().toVector()));
+        Vector pos = this.player.getLocation().toVector();
+        VRAPIImpl.INSTANCE.addPoseToHistory(this.player.getUniqueId(), vrPlayerState.asVRPose(pos), pos);
         MetadataHelper.updateMetadata(this);
     }
 

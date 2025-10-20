@@ -17,12 +17,12 @@ public final class VRBodyPartDataImpl implements VRBodyPartData {
 
     @Override
     public Vector getPos() {
-        return this.pos;
+        return new Vector().copy(this.pos);
     }
 
     @Override
     public Vector getDir() {
-        return this.dir;
+        return new Vector().copy(this.dir);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.vivecraft.api_impl;
 
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
@@ -26,13 +27,13 @@ public class VRAPIImpl implements VRAPI {
         this.serverPoseHistories.remove(player);
     }
 
-    public void addPoseToHistory(UUID player, VRPose pose) {
+    public void addPoseToHistory(UUID player, VRPose pose, Vector playerPos) {
         VRPoseHistoryImpl poseHistory = this.serverPoseHistories.get(player);
         if (poseHistory == null) {
             poseHistory = new VRPoseHistoryImpl();
             this.serverPoseHistories.put(player, poseHistory);
         }
-        poseHistory.addPose(pose);
+        poseHistory.addPose(pose, playerPos);
     }
 
     public void clearAllPoseHistories() {

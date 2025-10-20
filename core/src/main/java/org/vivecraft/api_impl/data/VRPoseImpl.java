@@ -1,5 +1,6 @@
 package org.vivecraft.api_impl.data;
 
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.vivecraft.api.data.FBTMode;
 import org.vivecraft.api.data.VRBodyPart;
@@ -89,6 +90,27 @@ public final class VRPoseImpl implements VRPose {
     @Override
     public FBTMode getFBTMode() {
         return this.fbtMode;
+    }
+
+    public VRPoseImpl relativeToPosition(Vector position) {
+        return new VRPoseImpl(
+            relativeToPosition(this.hmd, position),
+            relativeToPosition(this.c0, position),
+            relativeToPosition(this.c1, position),
+            relativeToPosition(this.rightFoot, position), relativeToPosition(this.leftFoot, position),
+            relativeToPosition(this.waist, position),
+            relativeToPosition(this.rightKnee, position), relativeToPosition(this.leftKnee, position),
+            relativeToPosition(this.rightElbow, position), relativeToPosition(this.leftElbow, position),
+            this.isSeated, this.isLeftHanded, this.fbtMode
+        );
+    }
+
+    private VRBodyPartData relativeToPosition(VRBodyPartData vrBodyPartData, Vector position) {
+        if (vrBodyPartData == null) {
+            return null;
+        }
+        return new VRBodyPartDataImpl(vrBodyPartData.getPos().subtract(position), vrBodyPartData.getDir(),
+            vrBodyPartData.getRotation());
     }
 
     @Override
