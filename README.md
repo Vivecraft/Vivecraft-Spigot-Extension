@@ -35,8 +35,6 @@ Building the plugin is a bit scuffed right now, and relies on a few gradle tasks
 ## Metadata
 VSE provides Spigot metadata on `Player` objects so other plugins can provide special support for handed interactions or somesuch. If you aren’t sure what metadata is, check the [Spigot documentation](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/metadata/Metadatable.html). The API supports multiple plugins using the same metadata key, so make sure you filter to our specific plugin name (`Vivecraft-Spigot-Extension`).
 
-Every player has a head and two hands (obviously), each of which have a 6DOF position and rotation. There are also some tertiary values so you can determine how to properly handle a particular player.
-
 For details on available data see the [wiki](https://github.com/Vivecraft/Vivecraft-Spigot-Extension/wiki/Metadata)
 
 ## API
