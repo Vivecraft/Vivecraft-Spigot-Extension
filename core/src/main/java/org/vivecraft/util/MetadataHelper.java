@@ -10,17 +10,39 @@ import org.joml.Vector3fc;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.api.data.VRBodyPart;
+import org.vivecraft.data.VrPlayerState;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 public class MetadataHelper {
+
+    private final static List<Pair<VRBodyPart, String>> METADATA_NAMES = Utils.ListOf(
+        Pair.of(VRBodyPart.HEAD, "head"),
+        Pair.of(VRBodyPart.MAIN_HAND, "righthand"),
+        Pair.of(VRBodyPart.OFF_HAND, "lefthand"),
+        Pair.of(VRBodyPart.RIGHT_FOOT, "rightfoot"),
+        Pair.of(VRBodyPart.LEFT_FOOT, "leftfoot"),
+        Pair.of(VRBodyPart.WAIST, "waist"),
+        Pair.of(VRBodyPart.RIGHT_KNEE, "rightknee"),
+        Pair.of(VRBodyPart.LEFT_KNEE, "leftknee"),
+        Pair.of(VRBodyPart.RIGHT_ELBOW, "rightelbow"),
+        Pair.of(VRBodyPart.LEFT_ELBOW, "leftelbow")
+    );
+
     public static void updateMetadata(VivePlayer vivePlayer) {
-        updateBodyPart(vivePlayer, VRBodyPart.HEAD, "head");
-        updateBodyPart(vivePlayer, VRBodyPart.MAIN_HAND, "righthand");
-        updateBodyPart(vivePlayer, VRBodyPart.OFF_HAND, "lefthand");
+        VrPlayerState state = vivePlayer.vrPlayerState();
+        for (Pair<VRBodyPart, String> entry : METADATA_NAMES) {
+            if (state != null && entry.left.availableInMode(state.fbtMode)) {
+                updateBodyPart(vivePlayer, entry.left, entry.right);
+            } else {
+                cleanupBodyPartMetadata(vivePlayer.player, entry.right);
+            }
+        }
 
         addOrInvalidateKey(vivePlayer, "seated", vivePlayer::isSeated);
         addOrInvalidateKey(vivePlayer, "height", () -> vivePlayer.heightScale);
+        addOrInvalidateKey(vivePlayer, "lefthanded", vivePlayer::isLeftHanded);
         addOrInvalidateKey(vivePlayer, "activehand", () -> {
             switch (vivePlayer.activeBodyPart) {
                 case MAIN_HAND:
@@ -34,21 +56,20 @@ public class MetadataHelper {
     }
 
     public static void cleanupMetadata(Player player) {
-        player.removeMetadata("head.pos", ViveMain.INSTANCE);
-        player.removeMetadata("head.aim", ViveMain.INSTANCE);
-        player.removeMetadata("head.dir", ViveMain.INSTANCE);
-        player.removeMetadata("head.rot", ViveMain.INSTANCE);
-        player.removeMetadata("righthand.pos", ViveMain.INSTANCE);
-        player.removeMetadata("righthand.aim", ViveMain.INSTANCE);
-        player.removeMetadata("righthand.dir", ViveMain.INSTANCE);
-        player.removeMetadata("righthand.rot", ViveMain.INSTANCE);
-        player.removeMetadata("lefthand.pos", ViveMain.INSTANCE);
-        player.removeMetadata("lefthand.aim", ViveMain.INSTANCE);
-        player.removeMetadata("lefthand.dir", ViveMain.INSTANCE);
-        player.removeMetadata("lefthand.rot", ViveMain.INSTANCE);
+        for (Pair<VRBodyPart, String> entry : METADATA_NAMES) {
+            cleanupBodyPartMetadata(player, entry.right);
+        }
         player.removeMetadata("seated", ViveMain.INSTANCE);
         player.removeMetadata("height", ViveMain.INSTANCE);
+        player.removeMetadata("lefthanded", ViveMain.INSTANCE);
         player.removeMetadata("activehand", ViveMain.INSTANCE);
+    }
+
+    private static void cleanupBodyPartMetadata(Player player, String key) {
+        player.removeMetadata(key + ".pos", ViveMain.INSTANCE);
+        player.removeMetadata(key + ".aim", ViveMain.INSTANCE);
+        player.removeMetadata(key + ".dir", ViveMain.INSTANCE);
+        player.removeMetadata(key + ".rot", ViveMain.INSTANCE);
     }
 
     private static void updateBodyPart(VivePlayer vivePlayer, VRBodyPart bodyPart, String key) {

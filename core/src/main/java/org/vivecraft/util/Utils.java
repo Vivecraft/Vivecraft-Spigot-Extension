@@ -2,9 +2,7 @@ package org.vivecraft.util;
 
 import org.bukkit.ChatColor;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +25,24 @@ public class Utils {
             map.put(args[i], args[i + 1]);
         }
         return map;
+    }
+
+    /**
+     * create a list of elements, reimplements List.of(), since that is not part of java 8
+     *
+     * @param args elements to put into the list
+     * @return list with the given elements
+     */
+    @SafeVarargs
+    public static <K> List<K> ListOf(K... args) {
+        if (args == null || args.length == 0) {
+            return Collections.emptyList();
+        }
+        List<K> list = new ArrayList<>(args.length);
+        for (int i = 0; i < args.length; i += 2) {
+            list.add(args[i]);
+        }
+        return list;
     }
 
     /**
