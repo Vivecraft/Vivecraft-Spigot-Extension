@@ -34,7 +34,9 @@ public class MetadataHelper {
         VrPlayerState state = vivePlayer.vrPlayerState();
         for (Pair<VRBodyPart, String> entry : METADATA_NAMES) {
             if (state != null && entry.left.availableInMode(state.fbtMode)) {
-                updateBodyPart(vivePlayer, entry.left, entry.right);
+                // swap around the hands, so that `righthand` is always the right hand
+                updateBodyPart(vivePlayer, entry.left.isHand() && state.leftHanded ? entry.left.opposite() : entry.left,
+                    entry.right);
             } else {
                 cleanupBodyPartMetadata(vivePlayer.player, entry.right);
             }
@@ -46,9 +48,9 @@ public class MetadataHelper {
         addOrInvalidateKey(vivePlayer, "activehand", () -> {
             switch (vivePlayer.activeBodyPart) {
                 case MAIN_HAND:
-                    return "right";
+                    return vivePlayer.isLeftHanded() ? "left" : "right";
                 case OFF_HAND:
-                    return "left";
+                    return vivePlayer.isLeftHanded() ? "right" : "left";
                 default:
                     return vivePlayer.activeBodyPart.toString();
             }
