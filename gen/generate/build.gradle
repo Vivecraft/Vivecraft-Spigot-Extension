@@ -1,7 +1,7 @@
 dependencies {
     api(project(":core"))
     implementation("com.google.code.gson:gson:2.13.2")
-    compileOnly('org.spigotmc:spigot-api:1.8-R0.1-SNAPSHOT')
+    implementation('org.spigotmc:spigot-api:1.8-R0.1-SNAPSHOT')
 }
 
 sourceSets {
@@ -26,4 +26,12 @@ tasks.register("rebuildStubs", JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = "org.vivecraft.Generate"
     args = ["--clear"]
+}
+
+tasks.register("configDocs", JavaExec) {
+    group = "documentation"
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = "org.vivecraft.markdown.MarkdownGenerator"
+    workingDir = rootProject.layout.buildDirectory
+    args = [""]
 }

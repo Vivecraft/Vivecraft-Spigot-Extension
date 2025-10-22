@@ -1,6 +1,6 @@
 package org.vivecraft.config;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 import org.vivecraft.ViveMain;
 import org.vivecraft.config.enums.ClimbeyBlockmode;
 import org.vivecraft.config.enums.HeadshotIndicator;
@@ -127,12 +127,24 @@ public class Config {
 
     private final ConfigBuilder builder;
 
-    private final JavaPlugin plugin;
+    private final Plugin plugin;
 
-    public Config(JavaPlugin plugin) {
+    private final boolean inMemory;
+
+    public Config(Plugin plugin) {
+        this(plugin, false);
+    }
+
+    public Config(Plugin plugin, boolean inMemory) {
         this.plugin = plugin;
+        this.inMemory = inMemory;
 
-        MCVersion mc = MCVersion.getCurrent();
+        MCVersion mc;
+        try {
+            mc = MCVersion.getCurrent();
+        } catch (Exception e) {
+            mc = MCVersion.MAX;
+        }
 
         this.builder = new ConfigBuilder(plugin.getConfig());
         this.builder
@@ -386,7 +398,8 @@ public class Config {
                 }
             })
             .setPacketFunction(
-                ViveMain.MC.supportsCrawling() ? ((v, p) -> new CrawlPayloadS2C(v, p.networkVersion)) : null);
+                ViveMain.MC != null && ViveMain.MC.supportsCrawling() ?
+                    ((v, p) -> new CrawlPayloadS2C(v, p.networkVersion)) : null);
         // end crawling
         this.builder.pop();
 
@@ -495,7 +508,7 @@ public class Config {
 
         // if the config is outdated, or is missing keys, re add them
         // the logger doesn't strip format codes so strip those manually
-        this.builder.correct(s -> ViveMain.LOGGER.warning(s.replaceAll("§.", "")));
+        this.builder.correct(s -> this.plugin.getLogger().warning(s.replaceAll("§.", "")));
 
         // save defaults
         save();
@@ -509,6 +522,7 @@ public class Config {
     }
 
     public void save() {
+        if (this.inMemory) return;
         // save the current state
         this.plugin.saveConfig();
 
@@ -516,13 +530,13 @@ public class Config {
         File configFile = new File(this.plugin.getDataFolder(), "config.yml");
         List<String> lines = commentLines(configFile);
         if (lines == null || !writeLinesToFile(configFile, lines)) {
-            ViveMain.LOGGER.severe("Failed to comment config file");
+            this.plugin.getLogger().severe("Failed to comment config file");
             return;
         }
 
         // load the new commented file
         this.plugin.reloadConfig();
-        this.builder.setNewConfigFile(this.plugin.getConfig(), false, ViveMain.LOGGER::warning);
+        this.builder.setNewConfigFile(this.plugin.getConfig(), false, this.plugin.getLogger()::warning);
     }
 
     public List<ConfigBuilder.ConfigValue> getConfigValues() {
@@ -586,7 +600,7 @@ public class Config {
             }
             return lines;
         } catch (IOException e) {
-            ViveMain.LOGGER.log(Level.SEVERE, "error commenting config: ", e);
+            this.plugin.getLogger().log(Level.SEVERE, "error commenting config: ", e);
             return null;
         }
     }
@@ -602,7 +616,7 @@ public class Config {
                 }
             }
         } else if (required) {
-            ViveMain.LOGGER.severe("no comment for key: " + key);
+            this.plugin.getLogger().severe("no comment for key: " + key);
         }
     }
 
@@ -613,7 +627,7 @@ public class Config {
             }
             writer.flush();
         } catch (IOException e) {
-            ViveMain.LOGGER.severe("Failed to comment config file2");
+            this.plugin.getLogger().severe("Failed to comment config file2");
             return false;
         }
         return true;

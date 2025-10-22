@@ -16,7 +16,7 @@ VSE is for [Spigot](https://www.spigotmc.org/), [Paper](https://papermc.io/softw
 - Support for faster block breaking (Toggleable)
 - Option to limit server to Vivecraft players only.
 
-See the config.yml for all available configuration options.
+See the config.yml when you run the plugin, or the [Config](https://github.com/Vivecraft/Vivecraft-Spigot-Extension/wiki/Config) wiki entry for all available configuration options.
 
 # Installation
 Download from the [Releases](https://github.com/Vivecraft/Vivecraft-Spigot-Extension/releases) page. Just use the latest release, they are backwards compatible, unless stated otherwise.

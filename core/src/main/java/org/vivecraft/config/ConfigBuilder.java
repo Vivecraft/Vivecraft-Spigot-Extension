@@ -354,7 +354,7 @@ public class ConfigBuilder {
             this.get();
         }
 
-        protected T getDefaultValue() {
+        public T getDefaultValue() {
             return this.defaultValue;
         }
 
