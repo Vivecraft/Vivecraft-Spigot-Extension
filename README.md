@@ -19,9 +19,14 @@ VSE is for [Spigot](https://www.spigotmc.org/), [Paper](https://papermc.io/softw
 See the config.yml when you run the plugin, or the [Config](https://github.com/Vivecraft/Vivecraft-Spigot-Extension/wiki/Config) wiki entry for all available configuration options.
 
 # Installation
-Download from the [Releases](https://github.com/Vivecraft/Vivecraft-Spigot-Extension/releases) page. Just use the latest release, they are backwards compatible, unless stated otherwise.
+Download from [Modrinth](https://modrinth.com/project/vivecraft-spigot-extension) or the [Releases](https://github.com/Vivecraft/Vivecraft-Spigot-Extension/releases) page. Just use the latest release, they are backwards compatible, unless stated otherwise.
 
 Install as you would any other Spigot/Bukkit plugin by placing the jar in the /plugins folder.
+
+# Versioning
+The plugins version number is split into two parts, the first part is the Vivecraft version that the plugin supports the features of, and the second part is the release version, this increments with fixes or when adding support for new Minecraft versions.  
+Example:  
+`1.3.3-0`: This version supports the features of Vivecraft `1.3.3` and is the first release for that version
 
 # Developer Information
 ## Building the plugin from source
