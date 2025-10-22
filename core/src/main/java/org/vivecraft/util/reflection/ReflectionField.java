@@ -88,7 +88,7 @@ public class ReflectionField {
 
     @Nullable
     private static Field getField(String namespace, FieldMapping... mappings) {
-        MCVersion mc = MCVersion.getCurrent();
+        MCVersion mc = MCVersion.getCurrentCorrected();
         Field f = null;
         for (FieldMapping mapping : mappings) {
             int major = mc.major;

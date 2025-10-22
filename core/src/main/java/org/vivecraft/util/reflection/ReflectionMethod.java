@@ -72,7 +72,7 @@ public class ReflectionMethod {
     @Nullable
     private static Method getMethod(String namespace, MethodMapping... mappings) {
         // get the matching method with the closest matching version, preferring older ones, unless there is none
-        MCVersion mc = MCVersion.getCurrent();
+        MCVersion mc = MCVersion.getCurrentCorrected();
         Method m = null;
         for (MethodMapping mapping : mappings) {
             int major = mc.major;

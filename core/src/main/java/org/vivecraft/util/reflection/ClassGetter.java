@@ -15,7 +15,7 @@ public class ClassGetter {
      */
     public static Class<?> getClass(boolean critical, ClassMapping... mappings) {
         // get the matching filed with the closest matching version, preferring older ones, unless there is none
-        MCVersion mc = MCVersion.getCurrent();
+        MCVersion mc = MCVersion.getCurrentCorrected();
         Class<?> c = null;
         for (String namespace : new String[]{"spigot", "mojang"}) {
             for (ClassMapping mapping : mappings) {
@@ -58,7 +58,7 @@ public class ClassGetter {
     }
 
     public static Class<?> getWithApi(String pre, String post) throws ClassNotFoundException {
-        MCVersion mc = MCVersion.getCurrent();
+        MCVersion mc = MCVersion.getCurrentCorrected();
         for (int i = 0; i <= 10; i++) {
             String apiClass;
             if (i != 10) {
@@ -75,7 +75,7 @@ public class ClassGetter {
     }
 
     public static Class<?> getCompat(String pattern) throws ClassNotFoundException {
-        MCVersion mc = MCVersion.getCurrent();
+        MCVersion mc = MCVersion.getCurrentCorrected();
         for (int i = mc.minor; i >= 0; i--) {
             String apiClass;
             if (i != 0) {

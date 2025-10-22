@@ -27,7 +27,7 @@ public class Helpers {
     }
 
     public static Object getHelper(String classTemplate) {
-        MCVersion mc = MCVersion.getCurrent();
+        MCVersion mc = MCVersion.getCurrentCorrected();
         int major = mc.major;
         int minor = mc.minor;
         while (major > 7) {

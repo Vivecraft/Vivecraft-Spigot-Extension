@@ -69,7 +69,7 @@ public class ReflectionConstructor {
 
     @Nullable
     private static Constructor<?> getConstructor(String namespace, ConstructorMapping... mappings) {
-        MCVersion mc = MCVersion.getCurrent();
+        MCVersion mc = MCVersion.getCurrentCorrected();
         Constructor<?> c = null;
         for (ConstructorMapping mapping : mappings) {
             int major = mc.major;
