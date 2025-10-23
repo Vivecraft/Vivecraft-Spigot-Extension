@@ -3,6 +3,7 @@
   "vivecraft.serverSettings.general.messageAndKickDelay.tooltip": "Ticks to wait before kicking a player or sending the welcome messages. (20 ticks is 1 second)\n The player's client must send the Vivecraft VERSION info in this time.",
   "vivecraft.serverSettings.messages.tooltipall": "Set message to nothing to not send. e.g., leaveMessage = ''\n Use '&player' in any message for the player name.\n For messages that take two placeholders (i.e., death by mob) use '&cause' for the second placeholder.\n When using a placeholder in a message, the message needs to be surrounded by '' to load correctly",
   "vivecraft.serverSettings.climbey.blocklist.tooltip": "List of block names for use with WHITELIST/BLACKLIST block mode.\n Uses Mojang block names, not Spigot materials.\n For 1.12.2 and older these are of the form 'id:data' or 'name:data'\n   i.e. 'wool:14' or '35:14'.\n For 1.13+ these are of the form 'namespace:blockid' or just 'blockid'\n   i.e. 'minecraft:white_wool' or 'white_wool'",
+  "vivecraft.serverSettings.general.checkForUpdateType.tooltip": "What updates to notify for.\n Options are: 'RELEASE', 'BETA', 'ALPHA'",
 
   "comment2": "additional strings that are not in the mod",
   "vivecraft.serverSettings.general.viveCrafting": "Add Vivecraft Vrafting Recipes",

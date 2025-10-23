@@ -10,7 +10,6 @@ import org.vivecraft.network.packet.s2c.VivecraftPayloadS2C;
 import org.vivecraft.util.Utils;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -307,7 +306,7 @@ public class ConfigBuilder {
         /**
          * Consumer that takes the old and new value to send updates
          */
-        private BiConsumer<T, T> updateConsumer = null;
+        private UpdateNotifier<T> updateConsumer = null;
 
         public ConfigValue(ConfigBuilder config, String path, T defaultValue) {
             this.config = config;
@@ -367,14 +366,14 @@ public class ConfigBuilder {
         }
 
         @SuppressWarnings("unchecked")
-        public <V extends ConfigValue<T>> V setOnUpdate(BiConsumer<T, T> onUpdate) {
+        public <V extends ConfigValue<T>> V setOnUpdate(UpdateNotifier<T> onUpdate) {
             this.updateConsumer = onUpdate;
             return (V) this;
         }
 
         public void onUpdate(T oldValue, T newValue, @Nullable Consumer<String> notifier) {
             if (this.updateConsumer != null) {
-                this.updateConsumer.accept(oldValue, newValue);
+                this.updateConsumer.onUpdate(oldValue, newValue, notifier);
             }
             NetworkHandler.sendUpdatePacketToAll(this, notifier);
         }
@@ -570,6 +569,29 @@ public class ConfigBuilder {
         @Override
         protected Double getFromConfig() {
             return this.config.getConfig().getDouble(this.path);
+        }
+    }
+
+    @FunctionalInterface
+    public interface UpdateNotifier<T> {
+        void onUpdate(T oldValue, T newValue, @Nullable Consumer<String> notifier);
+    }
+
+    @FunctionalInterface
+    public interface SingleUpdateNotifier<T> extends UpdateNotifier<T> {
+        void onUpdate(T newValue, @Nullable Consumer<String> notifier);
+
+        default void onUpdate(T oldValue, T newValue, @Nullable Consumer<String> notifier) {
+            this.onUpdate(newValue, notifier);
+        }
+    }
+
+    @FunctionalInterface
+    public interface SimpleUpdateNotifier<T> extends SingleUpdateNotifier<T> {
+        void onUpdate(T newValue);
+
+        default void onUpdate(T newValue, @Nullable Consumer<String> notifier) {
+            this.onUpdate(newValue);
         }
     }
 }

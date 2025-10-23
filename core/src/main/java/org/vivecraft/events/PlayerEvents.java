@@ -18,7 +18,6 @@ import org.vivecraft.network.AimFixHandler;
 import org.vivecraft.network.NetworkUtils;
 import org.vivecraft.util.MetadataHelper;
 import org.vivecraft.util.UpdateChecker;
-import org.vivecraft.util.Utils;
 
 import java.util.Random;
 
@@ -82,14 +81,7 @@ public class PlayerEvents implements Listener {
         }, ViveMain.CONFIG.messageKickDelay.get());
 
         if (ViveMain.CONFIG.checkForUpdates.get() && player.isOp()) {
-            // check for update on not the main thread
-            Platform.getInstance().getScheduler().runAsync(() -> {
-                if (UpdateChecker.checkForUpdates()) {
-                    Platform.getInstance().getScheduler().runGlobal(
-                        () -> player.sendMessage(ViveMain.translate("vivecraft.plugin.update",
-                            Utils.green(UpdateChecker.NEWEST_VERSION))));
-                }
-            });
+            UpdateChecker.scheduleUpdateCheck(player::sendMessage);
         }
 
         new AimFixHandler(player, ViveMain.NMS.getConnection(player));

@@ -20,6 +20,7 @@ import org.vivecraft.network.NetworkConstants;
 import org.vivecraft.network.NetworkHandler;
 import org.vivecraft.util.JsonUtils;
 import org.vivecraft.util.MCVersion;
+import org.vivecraft.util.UpdateChecker;
 
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +76,10 @@ public class ViveMain extends JavaPlugin {
 
         // set up config
         CONFIG = new Config(this);
+
+        if (CONFIG.checkForUpdates.get()) {
+            UpdateChecker.scheduleUpdateCheck(LOGGER::info);
+        }
 
         if (!PermissionManager.checkForVault() && ViveMain.CONFIG.permissionsGroupsEnabled.get()) {
             ViveMain.LOGGER.warning("To use the permission groups feature, 'Vault' needs to be installed");

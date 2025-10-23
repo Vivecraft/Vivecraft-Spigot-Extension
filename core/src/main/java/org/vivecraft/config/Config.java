@@ -4,6 +4,7 @@ import org.bukkit.plugin.Plugin;
 import org.vivecraft.ViveMain;
 import org.vivecraft.config.enums.ClimbeyBlockmode;
 import org.vivecraft.config.enums.HeadshotIndicator;
+import org.vivecraft.config.enums.UpdateType;
 import org.vivecraft.network.NetworkHandler;
 import org.vivecraft.network.PacketUtils;
 import org.vivecraft.network.packet.s2c.AttackWhileBlockingPayloadS2C;
@@ -11,6 +12,7 @@ import org.vivecraft.network.packet.s2c.CrawlPayloadS2C;
 import org.vivecraft.network.packet.s2c.DualWieldingPayloadS2C;
 import org.vivecraft.network.packet.s2c.TeleportPayloadS2C;
 import org.vivecraft.util.MCVersion;
+import org.vivecraft.util.UpdateChecker;
 
 import java.io.*;
 import java.util.*;
@@ -30,6 +32,7 @@ public class Config {
 
     // general
     public final ConfigBuilder.BooleanValue checkForUpdates;
+    public final ConfigBuilder.EnumValue<UpdateType> updateType;
     public final ConfigBuilder.BooleanValue vrOnly;
     public final ConfigBuilder.BooleanValue viveOnly;
     public final ConfigBuilder.BooleanValue allowOp;
@@ -151,19 +154,32 @@ public class Config {
             .push("general");
         this.checkForUpdates = this.builder
             .push("checkForUpdate")
-            .define(true);
+            .define(true)
+            .setOnUpdate((oV, nV, notifier) -> {
+                if (nV) {
+                    UpdateChecker.scheduleUpdateCheck(notifier);
+                }
+            });
+        this.updateType = this.builder
+            .push("checkForUpdateType")
+            .defineEnum(UpdateType.RELEASE, UpdateType.class)
+            .setOnUpdate((oV, nV, notifier) -> {
+                if (this.checkForUpdates.get() && oV != nV) {
+                    UpdateChecker.scheduleUpdateCheck(notifier);
+                }
+            });
         this.vrOnly = this.builder
             .push("vr_only")
             .define(false)
-            .setOnUpdate((oV, nV) -> NetworkHandler.updateViveVROnly());
+            .setOnUpdate((ConfigBuilder.SimpleUpdateNotifier<Boolean>) nV -> NetworkHandler.updateViveVROnly());
         this.viveOnly = this.builder
             .push("vive_only")
             .define(false)
-            .setOnUpdate((oV, nV) -> NetworkHandler.updateViveVROnly());
+            .setOnUpdate((ConfigBuilder.SimpleUpdateNotifier<Boolean>) nV -> NetworkHandler.updateViveVROnly());
         this.allowOp = this.builder
             .push("allow_op")
             .define(true)
-            .setOnUpdate((oV, nV) -> NetworkHandler.updateViveVROnly());
+            .setOnUpdate((ConfigBuilder.SimpleUpdateNotifier<Boolean>) nV -> NetworkHandler.updateViveVROnly());
         this.messageKickDelay = this.builder
             .push("messageAndKickDelay")
             .defineInRange(200, 100, 1000);
@@ -173,7 +189,7 @@ public class Config {
         this.viveCrafting = this.builder
             .push("viveCrafting")
             .define(true)
-            .setOnUpdate((oV, nV) -> ViveMain.INSTANCE.updateRecipes());
+            .setOnUpdate((ConfigBuilder.SimpleUpdateNotifier<Boolean>) nV -> ViveMain.INSTANCE.updateRecipes());
         this.requestData = this.builder
             .push("requestData")
             .define(true)
@@ -181,7 +197,7 @@ public class Config {
         this.sendData = this.builder
             .push("sendData")
             .define(true)
-            .setOnUpdate((oV, nV) -> ViveMain.INSTANCE.toggleDataTask(nV));
+            .setOnUpdate((ConfigBuilder.SimpleUpdateNotifier<Boolean>) nV -> ViveMain.INSTANCE.toggleDataTask(nV));
         this.sendDataToOwner = this.builder
             .push("sendDataToOwner")
             .define(false);
@@ -372,7 +388,7 @@ public class Config {
             .push("enabled")
             .define(false)
             .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p))
-            .setOnUpdate((oV, nV) -> ViveMain.INSTANCE.updateRecipes());
+            .setOnUpdate((ConfigBuilder.SimpleUpdateNotifier<Boolean>) nV -> ViveMain.INSTANCE.updateRecipes());
         this.climbeyBlockmode = this.builder
             .push("blockmode")
             .defineEnum(ClimbeyBlockmode.DISABLED, ClimbeyBlockmode.class)
@@ -391,7 +407,7 @@ public class Config {
         this.crawlingEnabled = this.builder
             .push("enabled")
             .define(true)
-            .setOnUpdate((oV, nV) -> {
+            .setOnUpdate((ConfigBuilder.SimpleUpdateNotifier<Boolean>) nV -> {
                 if (!nV) {
                     // disable crawling for everyone
                     ViveMain.VIVE_PLAYERS.values().forEach(vp -> vp.crawling = false);
@@ -478,7 +494,7 @@ public class Config {
         this.debugParticlesEnabled = this.builder
             .push("enabled")
             .define(false)
-            .setOnUpdate((oV, nV) -> ViveMain.INSTANCE.toggleParticleTask(nV));
+            .setOnUpdate((ConfigBuilder.SimpleUpdateNotifier<Boolean>) nV -> ViveMain.INSTANCE.toggleParticleTask(nV));
         this.debugParticlesOpOnly = this.builder
             .push("opOnly")
             .define(true);
