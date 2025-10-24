@@ -196,6 +196,10 @@ public class NetworkHandler implements PluginMessageListener {
             }
         }
 
+        if (NetworkVersion.OPTION_TOGGLE.accepts(vivePlayer.networkVersion)) {
+            sendPacket(vivePlayer, new AttackWhileBlockingPayloadS2C(ViveMain.CONFIG.allowAttacksWhileBlocking.get()));
+        }
+
         // send if hotswitching is allowed
         sendPacket(vivePlayer, PacketUtils.getVRSwitchingPayload());
 
