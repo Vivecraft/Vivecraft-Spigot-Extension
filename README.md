@@ -28,6 +28,12 @@ The plugins version number is split into two parts, the first part is the Vivecr
 Example:  
 `1.3.3-0`: This version supports the features of Vivecraft `1.3.3` and is the first release for that version
 
+# Using Proxies
+When using proxy servers you might need to add a compatibility plugin to your proxy server so that our data is correctly forwarded to the spigot/paper/folia server.  
+A this moment we have extensions for
+- BungeeCoord: [Vivecraft BungeeCord Extensions](https://github.com/Techjar/Vivecraft_BungeeCord_Extensions/releases)
+- Velocity: [Vivecraft Velocity Extensions](https://github.com/Techjar/Vivecraft_Velocity_Extensions/releases)
+
 # Developer Information
 ## Building the plugin from source
 Building the plugin is a bit scuffed right now, and relies on a few gradle tasks to run in specific order:
