@@ -102,6 +102,13 @@ public class NetworkHandler implements PluginMessageListener {
             case DAMAGE_DIRECTION:
                 vivePlayer.wantsDamageDirection = true;
                 break;
+            case AIM_OVERRIDE_RESET:
+                vivePlayer.aimDirOverride = null;
+                break;
+            case AIM_DIRECTION_OVERRIDE:
+                vivePlayer.aimDirOverride = ((AimDirOverridePayloadC2S) payload).direction;
+                break;
+
             // legacy support
             case CONTROLLER0DATA:
             case CONTROLLER1DATA:

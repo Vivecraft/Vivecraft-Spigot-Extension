@@ -11,7 +11,7 @@ dependencies {
 
     // takenaka
     // the mapping bundle, published by the project at github.com/zlataovce/mappings
-    mappingBundle("me.kcra.takenaka:mappings:1.8.8+1.21.10")
+    mappingBundle("me.kcra.takenaka:mappings:1.8.8+1.21.11")
 
 }
 processResources {
@@ -22,7 +22,7 @@ processResources {
 }
 
 accessors {
-    versionRange("1.8.8", "1.21.10")
+    versionRange("1.8.8", "1.21.11")
     mappingWebsite = "https://mappings.dev"
 
     // package where it places the mappings
@@ -45,6 +45,7 @@ accessors {
             "double[]")
         method("net.minecraft.world.entity.ai.attributes.AttributeMap", "getAttributes")
         method("net.minecraft.world.phys.AABB", "getHitbox")
+        method("net.minecraft.world.item.ItemStack", "getActiveItem")
     }
 
     mapClass("net.minecraft.world.entity.Entity") {
@@ -281,10 +282,12 @@ accessors {
 
     mapClass("net.minecraft.core.component.DataComponents") {
         field("net.minecraft.core.component.DataComponentType", "CUSTOM_NAME")
+        field("net.minecraft.core.component.DataComponentType", "ATTACK_RANGE")
         field("net.minecraft.core.component.DataComponentType", "ATTRIBUTE_MODIFIERS")
     }
 
     mapClass("net.minecraft.core.component.DataComponentHolder") {
+        method("java.lang.Object", "get", "net.minecraft.core.component.DataComponentType")
         method("java.lang.Object", "getOrDefault", "net.minecraft.core.component.DataComponentType", "java.lang.Object")
     }
 
@@ -393,11 +396,13 @@ accessors {
     mapClass("net.minecraft.world.entity.Mob") {
         field("net.minecraft.world.entity.ai.goal.GoalSelector", "goalSelector")
         field("net.minecraft.world.entity.ai.goal.GoalSelector", "targetSelector")
+        field("double", "DEFAULT_ATTACK_REACH")
         method("net.minecraft.world.entity.LivingEntity", "getTarget")
         method("net.minecraft.world.entity.ai.navigation.PathNavigation", "getNavigation")
         method("net.minecraft.world.entity.ai.control.LookControl", "getLookControl")
         method("void", "lookAt", "net.minecraft.world.entity.Entity", "float", "float")
         method("net.minecraft.world.entity.ai.sensing.Sensing", "getSensing")
+        method("net.minecraft.world.phys.AABB", "getAttackBoundingBox", "double") // 1.21.11+
         method("net.minecraft.world.phys.AABB", "getAttackBoundingBox") // 1.20.2+
         method("double", "getPerceivedTargetDistanceSquareForMeleeAttack", "net.minecraft.world.entity.LivingEntity") // 1.19.3+
         method("double", "getMeleeAttackRangeSqr", "net.minecraft.world.entity.LivingEntity") // 1.17+
@@ -490,4 +495,7 @@ accessors {
         method("net.minecraft.world.level.block.Block", "getBlock")
     }
     mapClass("net.minecraft.world.level.block.FenceGateBlock")
+    mapClass("net.minecraft.world.item.component.AttackRange") {
+        method("float", "effectiveMaxRange", "net.minecraft.world.entity.Entity")
+    }
 }

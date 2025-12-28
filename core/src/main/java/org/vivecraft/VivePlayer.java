@@ -28,6 +28,7 @@ public class VivePlayer {
     public float worldScale = 1.0F;
     public float heightScale = 1.0F;
     public VRBodyPart activeBodyPart = VRBodyPart.MAIN_HAND;
+    public Vector3fc aimDirOverride = null;
     // dual wielding switches out hte main hand item, this keeps track of the original item
     public ItemOverride itemOverride = null;
     public boolean useBodyPartForAim = false;
@@ -106,7 +107,9 @@ public class VivePlayer {
      * @return the direction the player is aiming, accounts for the roomscale bow
      */
     public Vector3fc getAimDir(boolean ignoreUseForAim) {
-        if (!this.isSeated() && this.draw > 0.0F) {
+        if (this.aimDirOverride != null) {
+            return this.aimDirOverride;
+        } else if (!this.isSeated() && this.draw > 0.0F) {
             return MathUtils.subToJomlVec(this.getBodyPartPos(this.activeBodyPart.opposite()),
                 this.getBodyPartPos(this.activeBodyPart)).normalize();
         } else if (ignoreUseForAim || this.useBodyPartForAim) {

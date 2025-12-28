@@ -53,6 +53,10 @@ public interface VivecraftPayloadC2S extends VivecraftPayload {
                         return VRPlayerStatePayloadC2S.read(buffer);
                     case DAMAGE_DIRECTION:
                         return new DamageDirectionPayloadC2S();
+                    case AIM_DIRECTION_OVERRIDE:
+                        return AimDirOverridePayloadC2S.read(buffer);
+                    case AIM_OVERRIDE_RESET:
+                        return new AimOverrideResetPayloadC2S();
                     default:
                         ViveMain.LOGGER.severe("Got unexpected payload identifier on server: " + id);
                         return new UnknownPayloadC2S();

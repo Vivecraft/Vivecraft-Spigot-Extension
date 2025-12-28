@@ -22,7 +22,8 @@ public class NMS_1_20_2 extends NMS_1_19_4 {
     @Override
     protected void initReducedAttack() {
         this.Mob = ClassGetter.getClass(true, MobMapping.MAPPING);
-        this.Mob_getAttackBoundingBox = ReflectionMethod.getMethod(MobMapping.METHOD_GET_ATTACK_BOUNDING_BOX);
+        this.Mob_getAttackBoundingBox = ReflectionMethod.getMethod(MobMapping.METHOD_GET_ATTACK_BOUNDING_BOX,
+            MobMapping.METHOD_GET_ATTACK_BOUNDING_BOX_1);
         this.LivingEntity_getHitbox = ReflectionMethod.getMethod(LivingEntityMapping.METHOD_GET_HITBOX);
         this.AABB_inflate = ReflectionMethod.getMethod(AABBMapping.METHOD_INFLATE);
         this.AABB_intersects = ReflectionMethod.getMethod(AABBMapping.METHOD_INTERSECTS);
@@ -36,15 +37,19 @@ public class NMS_1_20_2 extends NMS_1_19_4 {
             // no attack range
             return true;
         }
-        Object attackAABB = this.Mob_getAttackBoundingBox.invoke(nmsEntity);
+        Object attackAABB = this.getAttackAABB(nmsEntity);
         attackAABB = this.AABB_inflate.invoke(attackAABB,
             ViveMain.CONFIG.mobAttackRangeAdjustment.get(),
             0,
             ViveMain.CONFIG.mobAttackRangeAdjustment.get());
         return (boolean) this.AABB_intersects.invoke(attackAABB,
             this.LivingEntity_getHitbox.invoke(BukkitReflector.getEntityHandle(player))) ||
-            // if they stop let the attack through, or t hey will stand there forever
+            // if they stop let the attack through, or they will stand there forever
             entity.getVelocity().lengthSquared() <= 0.01;
+    }
+
+    protected Object getAttackAABB(Object nmsEntity) {
+        return this.Mob_getAttackBoundingBox.invoke(nmsEntity);
     }
 
     @Override
