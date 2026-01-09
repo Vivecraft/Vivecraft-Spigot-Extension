@@ -23,10 +23,7 @@ import org.vivecraft.debug.Debug;
 import org.vivecraft.network.packet.PayloadIdentifier;
 import org.vivecraft.network.packet.c2s.*;
 import org.vivecraft.network.packet.s2c.*;
-import org.vivecraft.util.ItemOverride;
-import org.vivecraft.util.LazySupplier;
-import org.vivecraft.util.MetadataHelper;
-import org.vivecraft.util.Utils;
+import org.vivecraft.util.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -103,10 +100,13 @@ public class NetworkHandler implements PluginMessageListener {
                 vivePlayer.wantsDamageDirection = true;
                 break;
             case AIM_OVERRIDE_RESET:
-                vivePlayer.aimDirOverride = null;
+                this.handleAimReset(vivePlayer, (AimOverrideResetPayloadC2S) payload);
                 break;
             case AIM_DIRECTION_OVERRIDE:
-                vivePlayer.aimDirOverride = ((AimDirOverridePayloadC2S) payload).direction;
+                this.handleAimDir(vivePlayer, (AimDirOverridePayloadC2S) payload);
+                break;
+            case AIM_POSITION_OVERRIDE:
+                this.handleAimPos(vivePlayer, (AimPosOverridePayloadC2S) payload);
                 break;
 
             // legacy support
@@ -369,6 +369,22 @@ public class NetworkHandler implements PluginMessageListener {
 
             this.legacyDataMap.remove(vivePlayer.player.getUniqueId());
         }
+    }
+
+    private void handleAimDir(VivePlayer vivePlayer, AimDirOverridePayloadC2S dir) {
+        vivePlayer.aimDirOverride = dir.direction;
+    }
+
+    private void handleAimPos(VivePlayer vivePlayer, AimPosOverridePayloadC2S pos) {
+        vivePlayer.aimPosOverride = vivePlayer.player.getLocation().toVector().add(MathUtils.toBukkitVec(pos.position));
+    }
+
+    private void handleAimReset(VivePlayer vivePlayer, AimOverrideResetPayloadC2S reset) {
+        if (reset.ticks == 0) {
+            vivePlayer.aimDirOverride = null;
+            vivePlayer.aimPosOverride = null;
+        }
+        vivePlayer.aimReset = reset.ticks;
     }
 
     /**

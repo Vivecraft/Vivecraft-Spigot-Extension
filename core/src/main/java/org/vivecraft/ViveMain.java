@@ -53,7 +53,7 @@ public class ViveMain extends JavaPlugin {
 
     public static Map<String, String> TRANSLATIONS;
 
-    private Task dataTask;
+    private Task tickTask;
     private Task particleTask;
 
     private RecipeManager recipeManager;
@@ -112,7 +112,7 @@ public class ViveMain extends JavaPlugin {
         this.registerEvents(getServer().getPluginManager());
 
         this.toggleParticleTask(CONFIG.debugParticlesEnabled.get());
-        this.toggleDataTask(CONFIG.sendData.get());
+        this.startTickTask();
         if (CONFIG.spigotSettingsEnabled.get()) {
             SpigotReflector.setMovedTooQuickly(CONFIG.spigotSettingsMovedTooQuickly.get());
             SpigotReflector.setMovedWrongly(CONFIG.spigotSettingsMovedWronglyThreshold.get());
@@ -144,9 +144,9 @@ public class ViveMain extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (this.dataTask != null) {
-            this.dataTask.cancel();
-            this.dataTask = null;
+        if (this.tickTask != null) {
+            this.tickTask.cancel();
+            this.tickTask = null;
         }
         if (this.particleTask != null) {
             this.particleTask.cancel();
@@ -154,10 +154,13 @@ public class ViveMain extends JavaPlugin {
         }
     }
 
-    private static void sendViveData() {
+    private static void tick() {
         for (VivePlayer vivePlayer : VIVE_PLAYERS.values()) {
-            if (vivePlayer.isVR() && vivePlayer.vrPlayerState() != null) {
-                NetworkHandler.sendVrPlayerStateToClients(vivePlayer);
+            vivePlayer.tick();
+            if (CONFIG.sendData.get()) {
+                if (vivePlayer.isVR() && vivePlayer.vrPlayerState() != null) {
+                    NetworkHandler.sendVrPlayerStateToClients(vivePlayer);
+                }
             }
         }
     }
@@ -191,14 +194,9 @@ public class ViveMain extends JavaPlugin {
         }
     }
 
-    public void toggleDataTask(boolean enabled) {
-        Debug.log("setting data task to %s", enabled);
-        if (enabled && this.dataTask == null) {
-            this.dataTask = Platform.getInstance().getScheduler().runGlobalRepeating(ViveMain::sendViveData, 20, 1);
-        } else if (!enabled && this.dataTask != null) {
-            this.dataTask.cancel();
-            this.dataTask = null;
-        }
+    public void startTickTask() {
+        Debug.log("starting Vivecraft tick task");
+        this.tickTask = Platform.getInstance().getScheduler().runGlobalRepeating(ViveMain::tick, 20, 1);
     }
 
     public static String translate(String key, Object... args) {

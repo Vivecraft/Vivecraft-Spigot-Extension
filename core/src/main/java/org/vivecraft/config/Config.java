@@ -196,8 +196,7 @@ public class Config {
             .setNeedsReload(true);
         this.sendData = this.builder
             .push("sendData")
-            .define(true)
-            .setOnUpdate((ConfigBuilder.SimpleUpdateNotifier<Boolean>) nV -> ViveMain.INSTANCE.toggleDataTask(nV));
+            .define(true);
         this.sendDataToOwner = this.builder
             .push("sendDataToOwner")
             .define(false);

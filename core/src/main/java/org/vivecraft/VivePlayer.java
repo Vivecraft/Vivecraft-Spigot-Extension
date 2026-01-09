@@ -28,7 +28,13 @@ public class VivePlayer {
     public float worldScale = 1.0F;
     public float heightScale = 1.0F;
     public VRBodyPart activeBodyPart = VRBodyPart.MAIN_HAND;
+
+    // custom aim override, instead of using the active bodypart
     public Vector3fc aimDirOverride = null;
+    public Vector aimPosOverride = null;
+    // ticks when to reset the aim override
+    public int aimReset;
+
     // dual wielding switches out hte main hand item, this keeps track of the original item
     public ItemOverride itemOverride = null;
     public boolean useBodyPartForAim = false;
@@ -139,7 +145,9 @@ public class VivePlayer {
      * @return the position from which the player is aiming
      */
     public Vector getAimPos(boolean ignoreUseForAim) {
-        if (ignoreUseForAim || this.useBodyPartForAim) {
+        if (this.aimPosOverride != null) {
+            return new Vector().copy(this.aimPosOverride);
+        } else if (ignoreUseForAim || this.useBodyPartForAim) {
             return this.getBodyPartPos(this.activeBodyPart);
         } else {
             return this.getBodyPartPos(VRBodyPart.MAIN_HAND);
@@ -274,5 +282,12 @@ public class VivePlayer {
             this.vrPlayerStateAsPose = this.vrPlayerState.asVRPose(this.player.getLocation().toVector());
         }
         return this.vrPlayerStateAsPose;
+    }
+
+    public void tick() {
+        if (this.aimReset > 0 && --this.aimReset == 0) {
+            this.aimDirOverride = null;
+            this.aimPosOverride = null;
+        }
     }
 }
