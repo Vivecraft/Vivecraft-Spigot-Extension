@@ -39,9 +39,7 @@ public class Utils {
             return Collections.emptyList();
         }
         List<K> list = new ArrayList<>(args.length);
-        for (int i = 0; i < args.length; i += 2) {
-            list.add(args[i]);
-        }
+        list.addAll(Arrays.asList(args));
         return list;
     }
 
