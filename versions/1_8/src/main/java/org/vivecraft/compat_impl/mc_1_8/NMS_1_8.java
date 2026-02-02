@@ -129,6 +129,7 @@ public class NMS_1_8 implements NMSHelper {
         this.initInventory();
         this.initDualWielding();
         this.initReducedAttack();
+        this.initShieldSound();
     }
 
     protected void init() {
@@ -276,6 +277,8 @@ public class NMS_1_8 implements NMSHelper {
             MeleeAttackGoalMapping.METHOD_GET_ATTACK_REACH_SQR);
         this.Entity_distanceToSqr = ReflectionMethod.getMethod(EntityMapping.METHOD_DISTANCE_TO_SQR);
     }
+
+    protected void initShieldSound() {}
 
     @Override
     public Vector getEntityPosition(Object nmsEntity) {
@@ -748,5 +751,10 @@ public class NMS_1_8 implements NMSHelper {
 
     protected Object getUseItemOnPos(Object packet) {
         return this.ServerboundUseItemPacket_BlockPos.get(packet);
+    }
+
+    @Override
+    public void playShieldBlockSound(Player player, ItemStack itemStack) {
+        // no blocking sound in 1.8
     }
 }

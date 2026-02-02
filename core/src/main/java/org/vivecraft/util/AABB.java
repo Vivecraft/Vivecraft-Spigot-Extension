@@ -33,6 +33,10 @@ public class AABB {
         return new Vector(this.minX + this.maxX, this.minY + this.maxY, this.minZ + this.maxZ).multiply(0.5);
     }
 
+    public float getWidth() {
+        return (float) (this.maxX - this.minX);
+    }
+
     /**
      * makes the AABB larger in all directions
      */

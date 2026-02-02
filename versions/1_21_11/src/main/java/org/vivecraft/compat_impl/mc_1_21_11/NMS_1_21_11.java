@@ -1,6 +1,9 @@
 package org.vivecraft.compat_impl.mc_1_21_11;
 
-import org.vivecraft.accessors.*;
+import org.vivecraft.accessors.AttackRangeMapping;
+import org.vivecraft.accessors.DataComponentsMapping;
+import org.vivecraft.accessors.LivingEntityMapping;
+import org.vivecraft.accessors.MobMapping;
 import org.vivecraft.compat_impl.mc_1_21_9.NMS_1_21_9;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
@@ -8,7 +11,6 @@ import org.vivecraft.util.reflection.ReflectionMethod;
 public class NMS_1_21_11 extends NMS_1_21_9 {
 
     protected ReflectionMethod LivingEntity_getActiveItem;
-    protected ReflectionMethod DataComponentHolder_get;
     protected ReflectionMethod AttackRange_effectiveMaxRange;
     protected ReflectionField DataComponents_ATTACK_RANGE;
     protected ReflectionField Mob_DEFAULT_ATTACK_REACH;
@@ -17,7 +19,6 @@ public class NMS_1_21_11 extends NMS_1_21_9 {
     protected void initReducedAttack() {
         super.initReducedAttack();
         this.LivingEntity_getActiveItem = ReflectionMethod.getMethod(LivingEntityMapping.METHOD_GET_ACTIVE_ITEM);
-        this.DataComponentHolder_get = ReflectionMethod.getMethod(DataComponentHolderMapping.METHOD_GET);
         this.AttackRange_effectiveMaxRange = ReflectionMethod.getMethod(AttackRangeMapping.METHOD_EFFECTIVE_MAX_RANGE);
         this.DataComponents_ATTACK_RANGE = ReflectionField.getField(DataComponentsMapping.FIELD_ATTACK_RANGE);
         this.Mob_DEFAULT_ATTACK_REACH = ReflectionField.getField(MobMapping.FIELD_DEFAULT_ATTACK_REACH);

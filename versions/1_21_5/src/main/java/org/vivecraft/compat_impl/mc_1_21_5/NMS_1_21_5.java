@@ -1,6 +1,7 @@
 package org.vivecraft.compat_impl.mc_1_21_5;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.vivecraft.accessors.*;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.BukkitReflector;
@@ -15,6 +16,16 @@ public class NMS_1_21_5 extends NMS_1_21_3 {
     protected ReflectionMethod EntityEquipment_set;
     protected ReflectionField EquipmentSlot_OFFHAND;
 
+    protected ReflectionMethod DataComponentHolder_get;
+    protected ReflectionField DataComponents_BLOCKS_ATTACKS;
+    protected ReflectionMethod BlocksAttack_onBlocked;
+
+    @Override
+    protected void init() {
+        super.init();
+        this.DataComponentHolder_get = ReflectionMethod.getMethod(DataComponentHolderMapping.METHOD_GET);
+    }
+
     @Override
     protected void initInventory() {
         this.Player_inventory = ReflectionField.getField(PlayerMapping.FIELD_INVENTORY);
@@ -25,6 +36,12 @@ public class NMS_1_21_5 extends NMS_1_21_3 {
         this.EntityEquipment_get = ReflectionMethod.getMethod(EntityEquipmentMapping.METHOD_GET);
         this.EntityEquipment_set = ReflectionMethod.getMethod(EntityEquipmentMapping.METHOD_SET);
         this.EquipmentSlot_OFFHAND = ReflectionField.getField(EquipmentSlotMapping.FIELD_OFFHAND);
+    }
+
+    @Override
+    protected void initShieldSound() {
+        this.DataComponents_BLOCKS_ATTACKS = ReflectionField.getField(DataComponentsMapping.FIELD_BLOCKS_ATTACKS);
+        this.BlocksAttack_onBlocked = ReflectionMethod.getMethod(BlocksAttacksMapping.METHOD_ON_BLOCKED);
     }
 
     @Override
@@ -45,6 +62,16 @@ public class NMS_1_21_5 extends NMS_1_21_3 {
             Object equipment = this.Inventory_equipment.get(
                 this.Player_inventory.get(BukkitReflector.getEntityHandle(player)));
             this.EntityEquipment_set.invoke(equipment, slot, itemStack);
+        }
+    }
+
+    @Override
+    public void playShieldBlockSound(Player player, ItemStack itemStack) {
+        Object blocksAttacks = this.DataComponentHolder_get.invoke(BukkitReflector.asNMSCopy(itemStack),
+            this.DataComponents_BLOCKS_ATTACKS.get());
+        if (blocksAttacks != null) {
+            Object entity = BukkitReflector.getEntityHandle(player);
+            this.BlocksAttack_onBlocked.invoke(blocksAttacks, this.getLevel(entity), entity);
         }
     }
 }

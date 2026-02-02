@@ -1,6 +1,7 @@
 package org.vivecraft.compat_impl.mc_1_9;
 
 import com.google.common.collect.Multimap;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.vivecraft.accessors.*;
@@ -11,8 +12,12 @@ import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
 import java.util.Collection;
+import java.util.Random;
 
 public class NMS_1_9 extends NMS_1_8 {
+
+    protected final Random random = new Random();
+
     protected ReflectionMethod ServerPlayer_getServer;
 
     protected ReflectionField EquipmentSlot_FEET;
@@ -156,5 +161,10 @@ public class NMS_1_9 extends NMS_1_8 {
     @Override
     protected Object getUseItemOnPos(Object packet) {
         return this.ServerboundUseItemOnPacket_blockPos.get(packet);
+    }
+
+    @Override
+    public void playShieldBlockSound(Player player, ItemStack itemStack) {
+        player.playSound(player.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1.0F, 0.8F + this.random.nextFloat() * 0.4F);
     }
 }

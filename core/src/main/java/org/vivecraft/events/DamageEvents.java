@@ -152,17 +152,27 @@ public class DamageEvents implements Listener {
                 Entity damage = event.getDamager();
                 VivePlayer vivePlayer = ViveMain.getVivePlayer(player);
                 boolean isProjectile = false;
+
+                AABB bb = ViveMain.API.getEntityAABB(damage);
+                Vector travelDir = damage.getVelocity().normalize();
+                Vector dmgPos = bb.getCenter();
+
                 if (damage instanceof Projectile) {
                     isProjectile = true;
                     if (damage instanceof Arrow && ViveMain.API.isArrowPiercing((Arrow) damage)) {
                         // can't block piercing arrows
                         return;
                     }
+                    // move the projectile check position half the bounding box size + 1.5m away from the player center
+                    float scale = ViveMain.API.getEntityAABB(player).getWidth() * 0.5F + 1.5F;
+                    float dist = (float) new Vector().copy(dmgPos)
+                        .subtract(ViveMain.API.getEntityAABB(player).getCenter())
+                        .dot(travelDir);
+                    dmgPos.add(travelDir.multiply(-dist - scale));
+                } else {
+                    // move it back in the movement direction, to get a better source direction
+                    dmgPos.subtract(travelDir);
                 }
-
-                // move it back in the movement direction, to get a better source direction
-                AABB bb = ViveMain.API.getEntityAABB(damage);
-                Vector dmgPos = bb.getCenter().subtract(damage.getVelocity().normalize());
 
                 // check if any hand is holding a shield
                 for (int i = 0; i < 2; i++) {
@@ -198,6 +208,8 @@ public class DamageEvents implements Listener {
                                 // durability counts up the damage
                                 if (ViveMain.API.addDamage(stack, 1 + (int) Math.floor(event.getDamage()))) {
                                     ViveMain.API.breakItem(player, hand);
+                                } else {
+                                    ViveMain.NMS.playShieldBlockSound(player, stack);
                                 }
                             }
                             // TODO knockback and shield disable

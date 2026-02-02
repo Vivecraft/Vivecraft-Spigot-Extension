@@ -261,4 +261,12 @@ public interface NMSHelper {
      * @return the hit direction, if the hit block is a FenceGate, else {@code null}
      */
     Vector3fc getHitDirIfGate(Object player, Object packet);
+
+    /**
+     * plays the shield blocking sound for the given item
+     *
+     * @param player    Player that blocked something
+     * @param itemStack ItemStack that blocked
+     */
+    void playShieldBlockSound(Player player, ItemStack itemStack);
 }
