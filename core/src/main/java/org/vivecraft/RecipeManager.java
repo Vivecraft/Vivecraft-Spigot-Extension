@@ -25,7 +25,7 @@ public class RecipeManager {
         ItemStack claws = new ItemStack(Material.SHEARS);
 
         if (!ViveMain.API.setItemStackUnbreakable(claws, true)) {
-            ViveMain.LOGGER.info("Error creating boots recipe, not added");
+            ViveMain.LOGGER.info("Error creating claws recipe, not added");
             return;
         }
         claws = ViveMain.NMS.setItemStackName(claws, "vivecraft.item.climbclaws", "Climb Claws");
@@ -35,6 +35,18 @@ public class RecipeManager {
         clawsRecipe.setIngredient('E', Material.SPIDER_EYE);
         clawsRecipe.setIngredient('S', Material.SHEARS);
         this.climbeyRecipes.add(clawsRecipe);
+    }
+
+    public static boolean isClimbingClaw(ItemStack stack) {
+        if (stack == null) {
+            return false;
+        } else if (stack.getType() != Material.SHEARS) {
+            return false;
+        } else if (!ViveMain.API.isItemStackUnbreakable(stack)) {
+            return false;
+        } else {
+            return ViveMain.NMS.hasItemStackName(stack, "vivecraft.item.climbclaws", "Climb Claws");
+        }
     }
 
     private void createBootsRecipe() {

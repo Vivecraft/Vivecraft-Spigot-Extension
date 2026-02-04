@@ -40,4 +40,9 @@ public class Api_1_12_2 extends Api_1_11_2 {
         itemStack.setItemMeta(meta);
         return true;
     }
+
+    @Override
+    public boolean isItemStackUnbreakable(ItemStack itemStack) {
+        return itemStack.getItemMeta().isUnbreakable();
+    }
 }

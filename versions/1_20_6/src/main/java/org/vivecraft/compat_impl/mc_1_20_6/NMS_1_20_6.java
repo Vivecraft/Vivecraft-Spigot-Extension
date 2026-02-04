@@ -18,10 +18,11 @@ public class NMS_1_20_6 extends NMS_1_20_2 {
     // custom item name
     protected ReflectionMethod ItemStack_set;
     protected ReflectionField DataComponents_CUSTOM_NAME;
+    protected ReflectionMethod DataComponentHolder_has;
 
     // armor
     protected ReflectionField DataComponents_ATTRIBUTE_MODIFIERS;
-    protected ReflectionMethod DataComponent_getOrDefault;
+    protected ReflectionMethod DataComponentHolder_getOrDefault;
     protected ReflectionField ItemAttributeModifiers_EMPTY;
     protected ReflectionMethod ItemAttributeModifiers_modifiers;
     protected ReflectionMethod ItemAttributeModifiersEntry_attribute;
@@ -37,13 +38,15 @@ public class NMS_1_20_6 extends NMS_1_20_2 {
     protected void init() {
         super.init();
         this.ItemStack_set = ReflectionMethod.getMethod(ItemStackMapping.METHOD_SET);
+        this.DataComponentHolder_has = ReflectionMethod.getMethod(DataComponentHolderMapping.METHOD_HAS);
         this.DataComponents_CUSTOM_NAME = ReflectionField.getField(DataComponentsMapping.FIELD_CUSTOM_NAME);
     }
 
     @Override
     protected void initArmor() {
         super.initArmor();
-        this.DataComponent_getOrDefault = ReflectionMethod.getMethod(DataComponentHolderMapping.METHOD_GET_OR_DEFAULT);
+        this.DataComponentHolder_getOrDefault = ReflectionMethod.getMethod(
+            DataComponentHolderMapping.METHOD_GET_OR_DEFAULT);
         this.DataComponents_ATTRIBUTE_MODIFIERS = ReflectionField.getField(
             DataComponentsMapping.FIELD_ATTRIBUTE_MODIFIERS);
         this.ItemAttributeModifiers_EMPTY = ReflectionField.getField(ItemAttributeModifiersMapping.FIELD_EMPTY);
@@ -76,11 +79,16 @@ public class NMS_1_20_6 extends NMS_1_20_2 {
     }
 
     @Override
+    protected boolean hasCustomHoverName(Object nmsStack) {
+        return (boolean) this.DataComponentHolder_has.invoke(nmsStack, this.DataComponents_CUSTOM_NAME.get());
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public double getArmorValue(ItemStack itemStack) {
         Object stack = BukkitReflector.asNMSCopy(itemStack);
         List<Object> modifiers = (List) this.ItemAttributeModifiers_modifiers.invoke(
-            this.DataComponent_getOrDefault.invoke(stack, this.DataComponents_ATTRIBUTE_MODIFIERS.get(),
+            this.DataComponentHolder_getOrDefault.invoke(stack, this.DataComponents_ATTRIBUTE_MODIFIERS.get(),
                 this.ItemAttributeModifiers_EMPTY.get()));
         if (modifiers.isEmpty() && this.Item_getDefaultAttributeModifiers != null) {
             // use the defaults

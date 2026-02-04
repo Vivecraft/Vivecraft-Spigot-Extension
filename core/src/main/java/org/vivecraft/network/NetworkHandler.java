@@ -10,6 +10,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.vivecraft.PermissionManager;
+import org.vivecraft.RecipeManager;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.api.data.FBTMode;
@@ -89,6 +90,9 @@ public class NetworkHandler implements PluginMessageListener {
                 break;
             case CLIMBING:
                 this.handleClimbing(vivePlayer);
+                break;
+            case JUMPING:
+                this.handleJumping(vivePlayer);
                 break;
             case ACTIVEHAND:
                 this.handleActiveHand(vivePlayer, (ActiveBodyPartPayloadC2S) payload);
@@ -249,6 +253,12 @@ public class NetworkHandler implements PluginMessageListener {
     private void handleTeleport(VivePlayer vivePlayer, TeleportPayloadC2S teleport) {
         if (!ViveMain.CONFIG.teleportEnabled.get()) return;
         Location loc = vivePlayer.player.getLocation();
+
+        if (ViveMain.CONFIG.teleportFoodExhaustion.get() && teleport.y > loc.getY()) {
+            // cause food exhaustion when tping up blocks, to mimic jumping up
+            vivePlayer.player.setExhaustion(vivePlayer.player.getExhaustion() + 0.05F);
+        }
+
         loc.setX(teleport.x);
         loc.setY(teleport.y);
         loc.setZ(teleport.z);
@@ -258,6 +268,22 @@ public class NetworkHandler implements PluginMessageListener {
     private void handleClimbing(VivePlayer vivePlayer) {
         if (!ViveMain.CONFIG.climbeyEnabled.get()) return;
         ViveMain.NMS.resetFallDistance(vivePlayer.player);
+
+        if (ViveMain.CONFIG.climbeyFoodExhaustion.get() &&
+            (RecipeManager.isClimbingClaw(ViveMain.API.getHandItem(vivePlayer.player, VRBodyPart.MAIN_HAND)) ||
+                RecipeManager.isClimbingClaw(ViveMain.API.getHandItem(vivePlayer.player, VRBodyPart.OFF_HAND))
+            ))
+        {
+            // cause food exhaustion when hanging with the claws
+            vivePlayer.player.setExhaustion(vivePlayer.player.getExhaustion() + 0.005F);
+        }
+    }
+
+    private void handleJumping(VivePlayer vivePlayer) {
+        if (ViveMain.CONFIG.climbeyFoodExhaustion.get()) {
+            // cause food exhaustion when jumping with the jump boots
+            vivePlayer.player.setExhaustion(vivePlayer.player.getExhaustion() + 0.3F);
+        }
     }
 
     private void handleActiveHand(VivePlayer vivePlayer, ActiveBodyPartPayloadC2S activeBodypart) {

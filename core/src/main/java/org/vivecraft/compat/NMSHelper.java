@@ -61,6 +61,16 @@ public interface NMSHelper {
     ItemStack setItemStackName(ItemStack itemStack, String translationKey, String fallback);
 
     /**
+     * checks if the itemstack has the translation key or fallback as name
+     *
+     * @param itemStack      ItemStack to check
+     * @param translationKey key of the translation
+     * @param fallback       fallback if translation is not available
+     * @return if the ItemStack has the given name
+     */
+    boolean hasItemStackName(ItemStack itemStack, String translationKey, String fallback);
+
+    /**
      * resets the fall distance and aboveGroundTickCount of the given Player
      */
     void resetFallDistance(Player player);

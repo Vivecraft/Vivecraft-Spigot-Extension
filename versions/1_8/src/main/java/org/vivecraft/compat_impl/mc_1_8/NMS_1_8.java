@@ -346,6 +346,12 @@ public class NMS_1_8 implements NMSHelper {
     }
 
     @Override
+    public boolean hasItemStackName(ItemStack itemStack, String translationKey, String fallback) {
+        if (!itemStack.hasItemMeta()) return false;
+        return fallback.equals(itemStack.getItemMeta().getDisplayName());
+    }
+
+    @Override
     public void resetFallDistance(Player player) {
         this.Entity_fallDistance.set(BukkitReflector.getEntityHandle(player), 0);
         this.ServerGamePacketListenerImpl_aboveGroundTicks.set(

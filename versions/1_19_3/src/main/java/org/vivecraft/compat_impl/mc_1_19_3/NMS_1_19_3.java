@@ -1,10 +1,10 @@
 package org.vivecraft.compat_impl.mc_1_19_3;
 
 import org.vivecraft.accessors.MobMapping;
-import org.vivecraft.compat_impl.mc_1_18.NMS_1_18;
+import org.vivecraft.compat_impl.mc_1_19.NMS_1_19;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
-public class NMS_1_19_3 extends NMS_1_18 {
+public class NMS_1_19_3 extends NMS_1_19 {
 
     protected ReflectionMethod Mob_getPerceivedTargetDistanceSquareForMeleeAttack;
 

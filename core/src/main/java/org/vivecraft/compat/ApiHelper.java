@@ -94,6 +94,14 @@ public interface ApiHelper {
     boolean setItemStackUnbreakable(ItemStack itemStack, boolean hide);
 
     /**
+     * checks if the given ItemStack is unbreakable
+     *
+     * @param itemStack ItemStack to check
+     * @return if the ItemStack is unbreakable
+     */
+    boolean isItemStackUnbreakable(ItemStack itemStack);
+
+    /**
      * creates a ShapedRecipe object for the give nItemStack
      *
      * @param itemStack ItemStack to create teh recipe for

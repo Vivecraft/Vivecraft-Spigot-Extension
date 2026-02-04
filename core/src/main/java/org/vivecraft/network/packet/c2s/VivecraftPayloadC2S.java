@@ -41,6 +41,8 @@ public interface VivecraftPayloadC2S extends VivecraftPayload {
                         return TeleportPayloadC2S.read(buffer);
                     case CLIMBING:
                         return new ClimbingPayloadC2S();
+                    case JUMPING:
+                        return new JumpingPayloadC2S();
                     case HEIGHT:
                         return HeightPayloadC2S.read(buffer);
                     case ACTIVEHAND:

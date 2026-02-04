@@ -241,6 +241,11 @@ accessors {
     mapClass("net.minecraft.network.chat.Component") {
         method("net.minecraft.network.chat.MutableComponent", "translatableWithFallback", "java.lang.String",
             "java.lang.String")
+        method("java.lang.String", "getString")
+        method("net.minecraft.network.chat.ComponentContents", "getContents")
+    }
+    mapClass("net.minecraft.network.chat.contents.TranslatableContents") {
+        method("java.lang.String", "getKey")
     }
 
     mapClass("net.minecraft.world.item.ItemStack") {
@@ -248,6 +253,8 @@ accessors {
         method("boolean", "isEmpty")
         method("net.minecraft.world.item.ItemStack", "copy")
         method("net.minecraft.world.item.ItemStack", "setHoverName", "net.minecraft.network.chat.Component")
+        method("net.minecraft.network.chat.Component", "getHoverName")
+        method("boolean", "hasCustomHoverName") // 1.19.4 - 1.20.4
         method("java.lang.Object", "set", "net.minecraft.core.component.DataComponentType", "java.lang.Object")
         method("net.minecraft.world.item.Item", "getItem")
         method("boolean", "is", "net.minecraft.world.item.Item")
@@ -292,6 +299,7 @@ accessors {
     }
 
     mapClass("net.minecraft.core.component.DataComponentHolder") {
+        method("boolean", "has", "net.minecraft.core.component.DataComponentType")
         method("java.lang.Object", "get", "net.minecraft.core.component.DataComponentType")
         method("java.lang.Object", "getOrDefault", "net.minecraft.core.component.DataComponentType", "java.lang.Object")
     }

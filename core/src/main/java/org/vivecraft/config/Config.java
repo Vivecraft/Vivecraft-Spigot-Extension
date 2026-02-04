@@ -103,6 +103,7 @@ public class Config {
 
     // climbey
     public final ConfigBuilder.BooleanValue climbeyEnabled;
+    public final ConfigBuilder.BooleanValue climbeyFoodExhaustion;
     public final ConfigBuilder.EnumValue<ClimbeyBlockmode> climbeyBlockmode;
     public final ConfigBuilder.StringListValue climbeyBlocklist;
 
@@ -111,6 +112,7 @@ public class Config {
 
     // teleport
     public final ConfigBuilder.BooleanValue teleportEnabled;
+    public final ConfigBuilder.BooleanValue teleportFoodExhaustion;
     public final ConfigBuilder.BooleanValue teleportLimitedSurvival;
     public final ConfigBuilder.IntValue teleportUpLimit;
     public final ConfigBuilder.IntValue teleportDownLimit;
@@ -388,6 +390,9 @@ public class Config {
             .define(false)
             .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p))
             .setOnUpdate((ConfigBuilder.SimpleUpdateNotifier<Boolean>) nV -> ViveMain.INSTANCE.updateRecipes());
+        this.climbeyFoodExhaustion = this.builder
+            .push("foodExhaustion")
+            .define(true);
         this.climbeyBlockmode = this.builder
             .push("blockmode")
             .defineEnum(ClimbeyBlockmode.DISABLED, ClimbeyBlockmode.class)
@@ -424,6 +429,9 @@ public class Config {
             .push("enabled")
             .define(true)
             .setPacketFunction((v, p) -> new TeleportPayloadS2C(v, p.networkVersion));
+        this.teleportFoodExhaustion = this.builder
+            .push("foodExhaustion")
+            .define(false);
         this.teleportLimitedSurvival = this.builder
             .push("limitedSurvival")
             .define(false)

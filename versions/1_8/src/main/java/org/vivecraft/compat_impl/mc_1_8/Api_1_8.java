@@ -169,6 +169,15 @@ public class Api_1_8 implements ApiHelper {
     }
 
     @Override
+    public boolean isItemStackUnbreakable(ItemStack itemStack) {
+        try {
+            return itemStack.getItemMeta().spigot().isUnbreakable();
+        } catch (NoSuchMethodError e) {
+            return false;
+        }
+    }
+
+    @Override
     public ShapedRecipe createRecipe(ItemStack itemStack, String id) {
         return new ShapedRecipe(itemStack);
     }
