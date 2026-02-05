@@ -1,6 +1,6 @@
 name: build project
 
-run-name: Posting jars on Curseforge and Modrinth
+run-name: building
 
 on:
   workflow_dispatch:
@@ -40,5 +40,12 @@ jobs:
         with:
           name: "api"
           path: "./core/build/libs/"
+          retention-days: 1
+      - name: build2
+        run: ./gradlew build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "build2"
+          path: "./build/libs/"
           retention-days: 1
 
