@@ -14,8 +14,8 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+      #- name: Setup Gradle
+      #  uses: gradle/actions/setup-gradle@v5
       - name: generateAccessors
         run: ./gradlew generateAccessors
       - name: stubs
@@ -40,12 +40,5 @@ jobs:
         with:
           name: "api"
           path: "./core/build/libs/"
-          retention-days: 1
-      - name: build2
-        run: ./gradlew build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: "build2"
-          path: "./build/libs/"
           retention-days: 1
 
