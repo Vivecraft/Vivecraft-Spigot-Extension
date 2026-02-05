@@ -22,12 +22,14 @@ processResources {
 }
 
 tasks.register('apiJar', Jar) {
+    archiveVersion.set(api_version)
     archiveClassifier.set('api')
     from(sourceSets.main.output)
     include 'org/vivecraft/api/**'
 }
 
 tasks.register('apiSourcesJar', Jar) {
+    archiveVersion.set(api_version)
     mustRunAfter generateAccessors
     archiveClassifier.set('api-sources')
     from(sourceSets.main.allSource)
