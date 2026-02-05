@@ -20,6 +20,11 @@ jobs:
         run: ./gradlew generateAccessors
       - name: stubs
         run: ./gradlew rebuildStubs
+      - uses: actions/upload-artifact@v4
+        with:
+         name: "src"
+         path: "./"
+         retention-days: 1
       - name: build
         run: ./gradlew build
       - name: api
@@ -28,10 +33,12 @@ jobs:
         run: ./gradlew apiSourcesJar
       - uses: actions/upload-artifact@v4
         with:
+          name: "build"
           path: "./build/libs/"
           retention-days: 1
       - uses: actions/upload-artifact@v4
         with:
+          name: "api"
           path: "./core/build/libs/"
           retention-days: 1
 
