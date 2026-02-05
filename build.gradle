@@ -4,6 +4,7 @@ plugins {
     id 'com.gradleup.shadow' version '9.1.0'
     id 'java'
     id 'java-library'
+    id 'maven-publish'
 }
 
 allprojects {
@@ -144,6 +145,33 @@ tasks.register('release') {
             shadowJar.archiveFile.get().getAsFile()
                 .renameTo(layout.buildDirectory.get().toString() + File.separator + 'libs' + File.separator
                     + rootProject.name + '.jar')
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "github-packages"
+            url = uri("https://maven.pkg.github.com/vivecraft/vivecraft-spigot-extension")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        api(MavenPublication) {
+            groupId = 'org.vivecraft'
+            artifactId = 'vivecraft-spigot-extension-api'
+            version = api_version
+
+            artifact(project(':core').tasks.named('apiJar')){
+                classifier = null
+            }
+            artifact(project(':core').tasks.named('apiSourcesJar')){
+                classifier = 'sources'
+            }
         }
     }
 }

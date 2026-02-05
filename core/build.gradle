@@ -21,6 +21,19 @@ processResources {
     }
 }
 
+tasks.register('apiJar', Jar) {
+    archiveClassifier.set('api')
+    from(sourceSets.main.output)
+    include 'org/vivecraft/api/**'
+}
+
+tasks.register('apiSourcesJar', Jar) {
+    mustRunAfter generateAccessors
+    archiveClassifier.set('api-sources')
+    from(sourceSets.main.allSource)
+    include 'org/vivecraft/api/**'
+}
+
 accessors {
     versionRange("1.8.8", "1.21.11")
     mappingWebsite = "https://mappings.dev"

@@ -1,0 +1,35 @@
+name: build project
+
+run-name: Posting jars on Curseforge and Modrinth
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+      - name: generateAccessors
+        run: ./gradlew generateAccessors
+      - name: stubs
+        run: ./gradlew rebuildStubs
+      - name: build
+        run: ./gradlew build
+      - name: api
+        run: ./gradlew apiJar
+      - name: api source
+        run: ./gradlew apiSourcesJar
+      - uses: actions/upload-artifact@v4
+        with:
+          path: "./build/libs/"
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          path: "./core/build/libs/"
+          retention-days: 1
+
