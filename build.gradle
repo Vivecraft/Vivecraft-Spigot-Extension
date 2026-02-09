@@ -143,16 +143,16 @@ tasks.register('release') {
 }
 
 publishing {
-    repositories {
-        maven {
-            name = "github-packages"
-            url = uri("https://maven.pkg.github.com/vivecraft/vivecraft-spigot-extension")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
+//    repositories {
+//        maven {
+//            name = "github-packages"
+//            url = uri("https://maven.pkg.github.com/vivecraft/vivecraft-spigot-extension")
+//            credentials {
+//                username = System.getenv("GITHUB_ACTOR")
+//                password = System.getenv("GITHUB_TOKEN")
+//            }
+//        }
+//    }
     publications {
         api(MavenPublication) {
             groupId = 'org.vivecraft'
