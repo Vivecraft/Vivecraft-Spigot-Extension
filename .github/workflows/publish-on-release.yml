@@ -17,12 +17,15 @@ jobs:
           jq -c '.release.assets[]' "$GITHUB_EVENT_PATH" | while read asset; do
             NAME=$(echo "$asset" | jq -r '.name')
             URL=$(echo "$asset" | jq -r '.browser_download_url')
+            if [ -n "${URL}" ]; then
+              curl -L -o "./${NAME}" "${URL}"
+            fi
             if [[ "${NAME}" == *"sources.jar"* ]]; then
-              echo "api_sources_url=${URL}" >> $GITHUB_OUTPUT
+              echo "api_sources=${NAME}" >> $GITHUB_OUTPUT
             elif [[ "${NAME}" == *"api"* ]]; then
-              echo "api_url=${URL}" >> $GITHUB_OUTPUT
+              echo "api=${NAME}" >> $GITHUB_OUTPUT
             elif [[ "${NAME}" == *".jar"* ]]; then
-              echo "plugin_url=${URL}" >> $GITHUB_OUTPUT
+              echo "plugin=${NAME}" >> $GITHUB_OUTPUT
             fi
           done
 # builds the plugin from scratch
@@ -60,7 +63,7 @@ jobs:
           curseforge-id: 1453942
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          files: "${{ steps.assets.outputs.plugin_url }}"
+          files: "${{ steps.assets.outputs.plugin }}"
 
           name: "${{ steps.properties.outputs.plugin_name }}"
           version: "${{ steps.properties.outputs.plugin_version }}"
