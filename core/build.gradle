@@ -26,7 +26,7 @@ tasks.register('apiJar', Jar) {
     archiveBaseName = rootProject.plugin_name + "-api"
     from(sourceSets.main.output)
     include 'org/vivecraft/api/**'
-    destinationDirectory = rootProject.layout.buildDirectory.dir("libs/api")
+    destinationDirectory = rootProject.layout.buildDirectory.dir("libs")
 }
 
 tasks.register('apiSourcesJar', Jar) {
@@ -36,7 +36,7 @@ tasks.register('apiSourcesJar', Jar) {
     archiveClassifier.set('sources')
     from(sourceSets.main.allSource)
     include 'org/vivecraft/api/**'
-    destinationDirectory = rootProject.layout.buildDirectory.dir("libs/api")
+    destinationDirectory = rootProject.layout.buildDirectory.dir("libs")
 }
 
 accessors {

@@ -11,37 +11,37 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-java@v5
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
-      - name: set up accessors
-        run: ./gradlew generateAccessors
-      - name: set up version compat
-        run: ./gradlew rebuildStubs
-      - name: build plugin
-        run: ./gradlew build
-      - name: package api
+      - name: Iterate assets
+        id: assets
         run: |
-          ./gradlew apiJar
-          ./gradlew apiSourcesJar
-      - uses: actions/upload-artifact@v6
-        with:
-          name: "plugin"
-          path: "./build/libs/"
-          retention-days: 1
-      - uses: actions/upload-artifact@v6
-        with:
-          name: "api"
-          path: "./core/build/libs/"
-          retention-days: 1
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            "./build/libs/*.jar"
-            "./build/libs/api/*.jar"
+          jq -c '.release.assets[]' "$GITHUB_EVENT_PATH" | while read asset; do
+            NAME=$(echo "$asset" | jq -r '.name')
+            URL=$(echo "$asset" | jq -r '.browser_download_url')
+            if [[ "${NAME}" == *"sources.jar"* ]]; then
+              echo "api_sources_url=${URL}" >> $GITHUB_OUTPUT
+            elif [[ "${NAME}" == *"api"* ]]; then
+              echo "api_url=${URL}" >> $GITHUB_OUTPUT
+            elif [[ "${NAME}" == *".jar"* ]]; then
+              echo "plugin_url=${URL}" >> $GITHUB_OUTPUT
+            fi
+          done
+# builds the plugin from scratch
+#      - uses: actions/setup-java@v5
+#        with:
+#          java-version: '17'
+#          distribution: 'temurin'
+#      - name: Setup Gradle
+#        uses: gradle/actions/setup-gradle@v5
+#      - name: set up accessors
+#        run: ./gradlew generateAccessors
+#      - name: set up version compat
+#        run: ./gradlew rebuildStubs
+#      - name: build plugin
+#        run: ./gradlew build
+#      - name: package api
+#        run: |
+#          ./gradlew apiJar
+#          ./gradlew apiSourcesJar
       - name: get info from properties
         id: properties
         run: |
@@ -60,13 +60,13 @@ jobs:
           curseforge-id: 1453942
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          files: "build/libs/*.jar"
+          files: "${{ steps.assets.outputs.plugin_url }}"
 
           name: "${{ steps.properties.outputs.plugin_name }}"
           version: "${{ steps.properties.outputs.plugin_version }}"
           version-type: "${{ steps.properties.outputs.release_type }}"
 
-          loaders: ${{ steps.meta.outputs.supported_loaders}}
+          loaders: ${{ steps.properties.outputs.supported_loaders}}
           game-versions: ${{ steps.properties.outputs.mc_versions }}
           game-version-filter: "releases"
           fail-mode: warn
