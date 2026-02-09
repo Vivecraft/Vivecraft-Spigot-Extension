@@ -22,16 +22,21 @@ processResources {
 }
 
 tasks.register('apiJar', Jar) {
-    archiveClassifier.set('api')
+    archiveVersion.set(api_version)
+    archiveBaseName = rootProject.plugin_name + "-api"
     from(sourceSets.main.output)
     include 'org/vivecraft/api/**'
+    destinationDirectory = rootProject.layout.buildDirectory.dir("libs")
 }
 
 tasks.register('apiSourcesJar', Jar) {
+    archiveVersion.set(api_version)
+    archiveBaseName = rootProject.plugin_name + "-api"
     mustRunAfter generateAccessors
-    archiveClassifier.set('api-sources')
+    archiveClassifier.set('sources')
     from(sourceSets.main.allSource)
     include 'org/vivecraft/api/**'
+    destinationDirectory = rootProject.layout.buildDirectory.dir("libs")
 }
 
 accessors {

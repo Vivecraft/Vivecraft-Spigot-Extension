@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class Generate {
 
     private static final File stubs = new File("../stubs/src/main/java");
-    private static final File generatedMC = new File("../GeneratedMC");
+    private static final File generatedMC = new File("../generatedMC");
 
     private static final File spigotGradle = new File("src/main/resources/spigot-build.gradle");
     private static final File mojangGradle = new File("src/main/resources/mojang-build.gradle");

@@ -1,35 +1,82 @@
 name: build project
 
-run-name: Posting jars on Curseforge and Modrinth
+run-name: building
 
 on:
-  workflow_dispatch:
+  release:
+    types: [ published ]
 
 jobs:
   publish:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v6
+      - name: Iterate assets
+        id: assets
+        run: |
+          jq -c '.release.assets[]' "$GITHUB_EVENT_PATH" | while read asset; do
+            NAME=$(echo "$asset" | jq -r '.name')
+            URL=$(echo "$asset" | jq -r '.browser_download_url')
+            if [ -n "${URL}" ]; then
+              curl -L -o "./${NAME}" "${URL}"
+            fi
+            if [[ "${NAME}" == *"sources.jar"* ]]; then
+              echo "api_sources=${NAME}" >> $GITHUB_OUTPUT
+            elif [[ "${NAME}" == *"api"* ]]; then
+              echo "api=${NAME}" >> $GITHUB_OUTPUT
+            elif [[ "${NAME}" == *".jar"* ]]; then
+              echo "plugin=${NAME}" >> $GITHUB_OUTPUT
+            fi
+          done
+# builds the plugin from scratch
+#      - uses: actions/setup-java@v5
+#        with:
+#          java-version: '17'
+#          distribution: 'temurin'
+#      - name: Setup Gradle
+#        uses: gradle/actions/setup-gradle@v5
+#      - name: set up accessors
+#        run: ./gradlew generateAccessors
+#      - name: set up version compat
+#        run: ./gradlew rebuildStubs
+#      - name: build plugin
+#        run: ./gradlew release
+      - name: get info from properties
+        id: properties
+        run: |
+          source <(grep -E '^(plugin_name|plugin_version|supported_mc_versions|supported_loaders)=' gradle.properties)
+          echo "plugin_name=${plugin_name}" >> $GITHUB_OUTPUT
+          echo "plugin_version=${plugin_version}" >> $GITHUB_OUTPUT
+          echo "mc_versions=${supported_mc_versions}" >> $GITHUB_OUTPUT
+          echo "supported_loaders=${supported_loaders}" >> $GITHUB_OUTPUT
+
+          # split the string into an array
+          IFS='_' read -r -a array <<< "${plugin_version}"
+
+          release_type="release"
+          if [ ${array[1]:0:1} = "a" ]; then
+            release_type="alpha"
+          elif [ ${array[1]:0:1} = "b" ]; then
+            release_type="beta"
+          fi
+          echo "release_type=${release_type}" >> $GITHUB_OUTPUT
+      - name: publish
+        uses: Kir-Antipov/mc-publish@v3.3
         with:
-          java-version: '8'
-          distribution: 'temurin'
-      - name: generateAccessors
-        run: ./gradlew generateAccessors
-      - name: stubs
-        run: ./gradlew rebuildStubs
-      - name: build
-        run: ./gradlew build
-      - name: api
-        run: ./gradlew apiJar
-      - name: api source
-        run: ./gradlew apiSourcesJar
-      - uses: actions/upload-artifact@v4
-        with:
-          path: "./build/libs/"
-          retention-days: 1
-      - uses: actions/upload-artifact@v4
-        with:
-          path: "./core/build/libs/"
-          retention-days: 1
+          modrinth-id: o8TGTrsR
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: false
+
+          curseforge-id: 1453942
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          files: "${{ steps.assets.outputs.plugin }}"
+
+          name: "${{ steps.properties.outputs.plugin_name }}"
+          version: "${{ steps.properties.outputs.plugin_version }}"
+          version-type: "${{ steps.properties.outputs.release_type }}"
+
+          loaders: "${{ steps.properties.outputs.supported_loaders}}"
+          game-versions: "${{ steps.properties.outputs.mc_versions }}"
+          game-version-filter: "releases"
 

@@ -138,28 +138,21 @@ tasks.register('printProjectName') {
 
 tasks.register('release') {
     dependsOn build
-
-    doLast {
-        if (!version.endsWith("-SNAPSHOT")) {
-            // Rename final JAR to trim off version information
-            shadowJar.archiveFile.get().getAsFile()
-                .renameTo(layout.buildDirectory.get().toString() + File.separator + 'libs' + File.separator
-                    + rootProject.name + '.jar')
-        }
-    }
+    dependsOn ":core:apiJar"
+    dependsOn ":core:apiSourcesJar"
 }
 
 publishing {
-    repositories {
-        maven {
-            name = "github-packages"
-            url = uri("https://maven.pkg.github.com/vivecraft/vivecraft-spigot-extension")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
+//    repositories {
+//        maven {
+//            name = "github-packages"
+//            url = uri("https://maven.pkg.github.com/vivecraft/vivecraft-spigot-extension")
+//            credentials {
+//                username = System.getenv("GITHUB_ACTOR")
+//                password = System.getenv("GITHUB_TOKEN")
+//            }
+//        }
+//    }
     publications {
         api(MavenPublication) {
             groupId = 'org.vivecraft'
