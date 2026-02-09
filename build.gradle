@@ -138,15 +138,8 @@ tasks.register('printProjectName') {
 
 tasks.register('release') {
     dependsOn build
-
-    doLast {
-        if (!version.endsWith("-SNAPSHOT")) {
-            // Rename final JAR to trim off version information
-            shadowJar.archiveFile.get().getAsFile()
-                .renameTo(layout.buildDirectory.get().toString() + File.separator + 'libs' + File.separator
-                    + rootProject.name + '.jar')
-        }
-    }
+    dependsOn ":core:apiJar"
+    dependsOn ":core:apiSourcesJar"
 }
 
 publishing {

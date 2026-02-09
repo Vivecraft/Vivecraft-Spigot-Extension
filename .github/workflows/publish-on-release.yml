@@ -40,11 +40,7 @@ jobs:
 #      - name: set up version compat
 #        run: ./gradlew rebuildStubs
 #      - name: build plugin
-#        run: ./gradlew build
-#      - name: package api
-#        run: |
-#          ./gradlew apiJar
-#          ./gradlew apiSourcesJar
+#        run: ./gradlew release
       - name: get info from properties
         id: properties
         run: |
