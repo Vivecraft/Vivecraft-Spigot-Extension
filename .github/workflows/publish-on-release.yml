@@ -45,7 +45,7 @@ jobs:
       - name: get info from properties
         id: properties
         run: |
-          source <(grep -E '^(plugin_name|plugin_version|supported_mc_versions|supported_loaders) = ' gradle.properties)
+          source <(grep -E '^(plugin_name|plugin_version|supported_mc_versions|supported_loaders)=' gradle.properties)
           echo "plugin_name=${plugin_name}" >> $GITHUB_OUTPUT
           echo "plugin_version=${plugin_version}" >> $GITHUB_OUTPUT
           echo "mc_verions=${supported_mc_versions}" >> $GITHUB_OUTPUT
