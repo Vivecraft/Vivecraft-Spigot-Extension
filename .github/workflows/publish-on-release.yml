@@ -48,7 +48,7 @@ jobs:
           source <(grep -E '^(plugin_name|plugin_version|supported_mc_versions|supported_loaders)=' gradle.properties)
           echo "plugin_name=${plugin_name}" >> $GITHUB_OUTPUT
           echo "plugin_version=${plugin_version}" >> $GITHUB_OUTPUT
-          echo "mc_verions=${supported_mc_versions}" >> $GITHUB_OUTPUT
+          echo "mc_versions=${supported_mc_versions}" >> $GITHUB_OUTPUT
           echo "supported_loaders=${supported_loaders}" >> $GITHUB_OUTPUT
       - name: publish
         uses: Kir-Antipov/mc-publish@v3.3
@@ -66,8 +66,8 @@ jobs:
           version: "${{ steps.properties.outputs.plugin_version }}"
           version-type: "${{ steps.properties.outputs.release_type }}"
 
-          loaders: "${{ steps.meta.outputs.supported_loaders}}"
-          game-versions: "${{ steps.properties.outputs.mc_verions }}"
+          loaders: ${{ steps.meta.outputs.supported_loaders}}
+          game-versions: ${{ steps.properties.outputs.mc_versions }}
           game-version-filter: "releases"
           fail-mode: warn
 
