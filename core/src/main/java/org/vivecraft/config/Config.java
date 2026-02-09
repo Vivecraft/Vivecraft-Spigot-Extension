@@ -572,16 +572,23 @@ public class Config {
             String line;
             String indent = null;
             Deque<String> stack = new ArrayDeque<>();
+            boolean wasList = false;
             while ((line = reader.readLine()) != null) {
                 String trimmed = line.trim();
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                     // skip comments or list values
                     continue;
-                } else if (trimmed.contains(":") && !trimmed.startsWith("-")) {
+                } if (trimmed.startsWith("-")) {
+                    wasList = true;
+                } else if (trimmed.contains(":")) {
                     // regular line
                     String newIndent = line.substring(0, line.indexOf(trimmed));
                     String entry = trimmed.substring(0, trimmed.indexOf(":"));
                     boolean leaf = false;
+                    if (wasList) {
+                        wasList = false;
+                        stack.removeLast();
+                    }
                     if (trimmed.endsWith(":")) {
                         if (indent == null || newIndent.length() >= indent.length()) {
                             stack.add(entry);
