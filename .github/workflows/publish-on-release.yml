@@ -3,9 +3,8 @@ name: build project
 run-name: building
 
 on:
-  workflow_dispatch
-#  release:
-#    type: published
+  release:
+    type: published
 
 jobs:
   publish:
@@ -18,11 +17,14 @@ jobs:
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
-      - name: build with gradle
+      - name: set up accessors
+        run: ./gradlew generateAccessors
+      - name: set up version compat
+        run: ./gradlew rebuildStubs
+      - name: build plugin
+        run: ./gradlew build
+      - name: package api
         run: |
-          ./gradlew generateAccessors
-          ./gradlew rebuildStubs
-          ./gradlew build
           ./gradlew apiJar
           ./gradlew apiSourcesJar
       - uses: actions/upload-artifact@v6
@@ -35,4 +37,37 @@ jobs:
           name: "api"
           path: "./core/build/libs/"
           retention-days: 1
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            "build/libs/*.jar"
+            "build/libs/api/*.jar"
+      - name: get info from properties
+        id: properties
+        run: |
+          source <(grep -E '^(plugin_name|plugin_version|supported_mc_versions|supported_loaders) = ' gradle.properties)
+          echo "plugin_name=${plugin_name}" >> $GITHUB_OUTPUT
+          echo "plugin_version=${plugin_version}" >> $GITHUB_OUTPUT
+          echo "mc_verions=${supported_mc_versions}" >> $GITHUB_OUTPUT
+          echo "supported_loaders=${supported_loaders}" >> $GITHUB_OUTPUT
+      - name: publish
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: o8TGTrsR
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: false
+
+          curseforge-id: 1453942
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          files: "build/libs/*.jar"
+
+          name: "${{ steps.properties.outputs.plugin_name }}"
+          version: "${{ steps.properties.outputs.plugin_version }}"
+          version-type: "${{ steps.properties.outputs.release_type }}"
+
+          loaders: "${{ steps.meta.outputs.supported_loaders}}"
+          game-versions: "${{ steps.properties.outputs.mc_verions }}"
+          game-version-filter: "releases"
+          fail-mode: warn
 
