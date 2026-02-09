@@ -78,6 +78,5 @@ jobs:
 
           loaders: "${{ steps.properties.outputs.supported_loaders}}"
           game-versions: "${{ steps.properties.outputs.mc_versions }}"
-          game-version-filter: "${{ steps.properties.outputs.release_type }}"
-          fail-mode: warn
+          game-version-filter: "releases"
 
