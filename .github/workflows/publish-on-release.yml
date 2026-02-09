@@ -4,7 +4,7 @@ run-name: building
 
 on:
   release:
-    type: published
+    types: [ published ]
 
 jobs:
   publish:
