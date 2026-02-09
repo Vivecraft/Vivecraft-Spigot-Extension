@@ -40,8 +40,8 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: |
-            "build/libs/*.jar"
-            "build/libs/api/*.jar"
+            "./build/libs/*.jar"
+            "./build/libs/api/*.jar"
       - name: get info from properties
         id: properties
         run: |
