@@ -1,5 +1,6 @@
 package org.vivecraft;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
@@ -18,6 +19,7 @@ import org.vivecraft.events.ProjectileEvents;
 import org.vivecraft.linker.Helpers;
 import org.vivecraft.network.NetworkConstants;
 import org.vivecraft.network.NetworkHandler;
+import org.vivecraft.pluginsupport.VivecraftPAPIExpansion;
 import org.vivecraft.util.JsonUtils;
 import org.vivecraft.util.MCVersion;
 import org.vivecraft.util.UpdateChecker;
@@ -83,6 +85,11 @@ public class ViveMain extends JavaPlugin {
 
         if (!PermissionManager.checkForVault() && ViveMain.CONFIG.permissionsGroupsEnabled.get()) {
             ViveMain.LOGGER.warning("To use the permission groups feature, 'Vault' needs to be installed");
+        }
+
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            ViveMain.LOGGER.info("Registering PlaceholderAPI extension");
+            new VivecraftPAPIExpansion().register(); //
         }
 
         // set up commands

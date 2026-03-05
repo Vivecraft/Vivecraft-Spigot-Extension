@@ -36,6 +36,11 @@
   "vivecraft.serverSettings.debug.particles.vrHead": "Head Particles",
   "vivecraft.serverSettings.debug.particles.headHitbox": "Head Hitbox Particles",
 
+  "vivecraft.serverSettings.messages.papi.mode.VR": "VR Player Mode Replacement",
+  "vivecraft.serverSettings.messages.papi.mode.SeatedVR": "Seated VR Player Mode Replacement",
+  "vivecraft.serverSettings.messages.papi.mode.NonVR": "NonVR Player Mode Replacement",
+  "vivecraft.serverSettings.messages.papi.mode.Vanilla": "No Vivecraft Player Mode Replacement",
+
   "vivecraft.serverSettings.setSpigotSettings.enabled.tooltip": "When enabled, this will override the listed spigot settings.",
   "vivecraft.serverSettings.setSpigotSettings.movedWronglyThreshold.tooltip": "Overrides the 'moved-wrongly-threshold' spigot setting, if this is larger.",
   "vivecraft.serverSettings.setSpigotSettings.movedTooQuickly.tooltip": "Overrides the 'moved-too-quickly-multiplier' spigot setting, if this is larger.",
@@ -51,6 +56,12 @@
   "vivecraft.serverSettings.debug.particles.vrDevices.tooltip": "Will spawn particles at VR players device positions, to indicate the server VR data state.",
   "vivecraft.serverSettings.debug.particles.vrHead.tooltip": "Will spawn particles at VR players head position, to indicate the server VR data state.",
   "vivecraft.serverSettings.debug.particles.headHitbox.tooltip": "Will spawn particles at the corners of the bow head hitbox.",
+  "vivecraft.serverSettings.messages.papi.tooltip": "Placeholder strings for the PlaceholderAPI",
+  "vivecraft.serverSettings.messages.papi.mode.tooltip": "VR mode Placeholder 'vivecraft_mode'",
+  "vivecraft.serverSettings.messages.papi.mode.VR.tooltip": "String to show for players in standing VR.",
+  "vivecraft.serverSettings.messages.papi.mode.SeatedVR.tooltip": "String to show for players in seated VR.",
+  "vivecraft.serverSettings.messages.papi.mode.NonVR.tooltip": "String to show for players not in VR.",
+  "vivecraft.serverSettings.messages.papi.mode.Vanilla.tooltip": "String to show for players that do not have Vivecraft installed.",
 
   "comment3": "chat messages",
   "vivecraft.command.usage": "Usage: /%s <option>\naccepted options:\n- %s <config>: Prints this help, and details to a specified config setting if specified.\n- %s: Lists all current players with Vivecraft installed.\n- %s: Reloads the config file from disk, overriding any settings currently set.",

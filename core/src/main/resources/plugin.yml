@@ -17,4 +17,5 @@ permissions:
     default: op
 softdepend:
   - Vault
+  - PlaceholderAPI
 folia-supported: true

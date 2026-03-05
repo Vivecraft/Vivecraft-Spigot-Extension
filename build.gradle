@@ -56,6 +56,11 @@ allprojects {
             }
         }
 
+        // for PlaceholderAPI support
+        maven {
+            url = 'https://repo.extendedclip.com/releases/'
+        }
+
         maven {
             url = 'https://jitpack.io'
         }

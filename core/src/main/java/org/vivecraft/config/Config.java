@@ -76,6 +76,11 @@ public class Config {
     public final ConfigBuilder.StringValue messagesKickViveOnly;
     public final ConfigBuilder.StringValue messagesKickVrOnly;
 
+    public final ConfigBuilder.StringValue papiModeVR;
+    public final ConfigBuilder.StringValue papiModeSeatedVR;
+    public final ConfigBuilder.StringValue papiModeNonVR;
+    public final ConfigBuilder.StringValue papiModeVanilla;
+
     // vrChanges
     public final ConfigBuilder.BooleanValue dualWielding;
     public final ConfigBuilder.DoubleValue bootsArmorDamage;
@@ -300,6 +305,27 @@ public class Config {
         this.messagesKickVrOnly = this.builder
             .push("KickVROnly")
             .define("This server is configured for VR players only.");
+        // papi replacements
+        this.builder
+            .push("papi");
+        this.builder
+            .push("mode");
+        this.papiModeVR = this.builder
+            .push("VR")
+            .define("VR");
+        this.papiModeSeatedVR = this.builder
+            .push("SeatedVR")
+            .define("Seated VR");
+        this.papiModeNonVR = this.builder
+            .push("NonVR")
+            .define("NonVR");
+        this.papiModeVanilla = this.builder
+            .push("Vanilla")
+            .define("No Vivecraft");
+        // end mode
+        this.builder.pop();
+        // end papi replacements
+        this.builder.pop();
         // end messages
         this.builder.pop();
 
