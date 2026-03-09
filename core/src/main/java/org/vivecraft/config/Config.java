@@ -604,7 +604,8 @@ public class Config {
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                     // skip comments or list values
                     continue;
-                } if (trimmed.startsWith("-")) {
+                }
+                if (trimmed.startsWith("-")) {
                     wasList = true;
                 } else if (trimmed.contains(":")) {
                     // regular line

@@ -292,7 +292,7 @@ public class NetworkHandler implements PluginMessageListener {
             newBodyPart = VRBodyPart.MAIN_HAND;
         }
         vivePlayer.useBodyPartForAim = activeBodypart.useForAim;
-        if (vivePlayer.activeBodyPart != newBodyPart && ViveMain.CONFIG.dualWielding.get() &&
+        if (vivePlayer.activeBodyPart != newBodyPart && !vivePlayer.isDrawing() && ViveMain.CONFIG.dualWielding.get() &&
             NetworkVersion.DUAL_WIELDING.accepts(vivePlayer.networkVersion))
         {
             // handle equipment changes
@@ -345,6 +345,8 @@ public class NetworkHandler implements PluginMessageListener {
             ViveMain.NMS.setHandItemInternal(vivePlayer.player,
                 VRBodyPart.MAIN_HAND,
                 ViveMain.NMS.getHandItemInternal(vivePlayer.player, newBodyPart));
+        } else {
+            vivePlayer.activeBodyPart = newBodyPart;
         }
     }
 

@@ -64,6 +64,13 @@ public class VivePlayer {
     }
 
     /**
+     * @return if the player is using the roomscale bow
+     */
+    public boolean isDrawing() {
+        return !this.isSeated() && this.draw > 0.0F;
+    }
+
+    /**
      * gets the orientation of the given bodypart
      *
      * @param bodyPart BodyPart to get the orientation of, if not available, will use the MAIN_HAND
@@ -115,7 +122,7 @@ public class VivePlayer {
     public Vector3fc getAimDir(boolean ignoreUseForAim) {
         if (this.aimDirOverride != null) {
             return this.aimDirOverride;
-        } else if (!this.isSeated() && this.draw > 0.0F) {
+        } else if (this.isDrawing()) {
             return MathUtils.subToJomlVec(this.getBodyPartPos(this.activeBodyPart.opposite()),
                 this.getBodyPartPos(this.activeBodyPart)).normalize();
         } else if (ignoreUseForAim || this.useBodyPartForAim) {
@@ -130,7 +137,7 @@ public class VivePlayer {
      * @return the orientation the player is aiming, accounts for the roomscale bow
      */
     public Quaternionfc getAimOrientation(boolean ignoreUseForAim) {
-        if (!this.isSeated() && this.draw > 0.0F) {
+        if (this.isDrawing()) {
             return new Quaternionf().lookAlong(getAimDir(ignoreUseForAim),
                 getBodyPartVectorCustom(this.activeBodyPart.opposite(), MathUtils.GRIP_FORWARD)).conjugate();
         } else if (ignoreUseForAim || this.useBodyPartForAim) {

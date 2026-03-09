@@ -65,7 +65,7 @@ public class ProjectileEvents implements Listener {
                 Vector aim = MathUtils.toBukkitVec(aimF);
 
                 double velocity = 1.0;
-                if (arrow && vivePlayer.draw != 0 && !vivePlayer.isSeated()) {
+                if (arrow && vivePlayer.isDrawing()) {
                     //this only works if the incoming speed is at max (based! on draw time)
                     //TODO: properly scale in all cases.
                     velocity = vivePlayer.draw;
