@@ -33,7 +33,15 @@ public abstract class Platform {
                     throw new RuntimeException("Vivecraft: failed to get folia scheduler", e);
                 }
             } else {
-                INSTANCE = new BukkitPlatform();
+                try {
+                    // check for paper async teleport
+                    Entity.class.getMethod("teleportAsync", Location.class);
+                    ViveMain.LOGGER.info("running on paper 1.13+");
+                    INSTANCE = (Platform) Class.forName("org.vivecraft.compat_impl.PaperPlatform").getConstructor()
+                        .newInstance();
+                } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+                    INSTANCE = new BukkitPlatform();
+                }
             }
         }
         return INSTANCE;

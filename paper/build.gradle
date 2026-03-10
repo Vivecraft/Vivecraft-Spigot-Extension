@@ -1,0 +1,12 @@
+repositories {
+    maven {
+        url = "https://repo.papermc.io/repository/maven-public/"
+    }
+}
+
+dependencies {
+    // paper
+    compileOnly('com.destroystokyo.paper:paper-api:1.13.1-R0.1-SNAPSHOT')
+
+    compileOnly(project(":core"))
+}
