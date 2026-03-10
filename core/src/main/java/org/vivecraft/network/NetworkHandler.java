@@ -375,9 +375,9 @@ public class NetworkHandler implements PluginMessageListener {
             Pose head = headData.hmdPose;
             Pose main = controller0Data.mainHand;
             Pose off = controller1Data.offHand;
-            if (vivePlayer.mcVersion.major < 13) {
-                Vector pos = vivePlayer.player.getLocation().toVector().multiply(-1.0);
+            if (vivePlayer.mcVersion.major < 16) {
                 // old clients sent world position
+                Vector pos = vivePlayer.player.getLocation().toVector().multiply(-1.0);
                 head = head.offset(pos);
                 main = main.offset(pos);
                 off = off.offset(pos);
