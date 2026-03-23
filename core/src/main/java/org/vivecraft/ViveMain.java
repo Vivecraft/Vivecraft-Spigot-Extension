@@ -24,10 +24,7 @@ import org.vivecraft.util.JsonUtils;
 import org.vivecraft.util.MCVersion;
 import org.vivecraft.util.UpdateChecker;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -162,7 +159,9 @@ public class ViveMain extends JavaPlugin {
     }
 
     private static void tick() {
-        for (VivePlayer vivePlayer : VIVE_PLAYERS.values()) {
+        // make a copy, since players could leave while iterating which would cause an exception
+        List<VivePlayer> vivePlayers = new ArrayList<>(VIVE_PLAYERS.values());
+        for (VivePlayer vivePlayer : vivePlayers) {
             vivePlayer.tick();
             if (CONFIG.sendData.get()) {
                 if (vivePlayer.isVR() && vivePlayer.vrPlayerState() != null) {
