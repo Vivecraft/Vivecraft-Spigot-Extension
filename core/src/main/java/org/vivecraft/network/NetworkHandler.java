@@ -375,7 +375,7 @@ public class NetworkHandler implements PluginMessageListener {
             Pose head = headData.hmdPose;
             Pose main = controller0Data.mainHand;
             Pose off = controller1Data.offHand;
-            if (vivePlayer.mcVersion.major < 16) {
+            if (vivePlayer.mcVersion.minor < 16) {
                 // old clients sent world position
                 Vector pos = vivePlayer.player.getLocation().toVector().multiply(-1.0);
                 head = head.offset(pos);
@@ -526,7 +526,7 @@ public class NetworkHandler implements PluginMessageListener {
                 vivePlayer.heightScale));
 
         sendPacketToTrackingPlayers(vivePlayer, player -> player.networkVersion == NetworkVersion.LEGACY ?
-            (player.mcVersion.major < 16 ? oldLegacy.get() : legacy.get()) : regular.get());
+            (player.mcVersion.minor < 16 ? oldLegacy.get() : legacy.get()) : regular.get());
     }
 
     /**

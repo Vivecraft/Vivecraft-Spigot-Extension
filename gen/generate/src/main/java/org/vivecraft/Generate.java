@@ -267,7 +267,7 @@ public class Generate {
             File gradle = new File(generatedMC, mc.version_ + "_gen/build.gradle");
             gradle.getParentFile().mkdirs();
             copyFile(usesMojang(version) ? mojangGradle : spigotGradle, gradle,
-                Utils.MapOf("XX_XX", version, "mc_X_X", "mc_1_" + mc.major + "_" + mc.minor));
+                Utils.MapOf("XX_XX", version, "mc_X_X", "mc_1_" + mc.minor + "_" + mc.patch));
 
             for (String file : files) {
                 String code = preprocessLines(lines, mc);
@@ -408,7 +408,8 @@ public class Generate {
     }
 
     private static boolean usesMojang(String version) {
-        return MCVersion.parse(version, true).major >= 17;
+        MCVersion mc = MCVersion.parse(version, true);
+        return mc.major > 1 || mc.minor >= 17;
     }
 
     private static void addCreate(Map<String, Set<String>> map, String key, String value) {

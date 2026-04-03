@@ -122,7 +122,7 @@ public class Debug {
     public static void spawnParticlesDirection(World world, Vector color, Vector position, Vector3f direction) {
         for (int i = 0; i < 5; i++) {
             // pre 1.13 the particles are regular size
-            Vector3f offset = direction.mul((MCVersion.getCurrent().major < 13 ? 0.5F : 0.25F) / 4F * i,
+            Vector3f offset = direction.mul((MCVersion.getCurrent().minor < 13 ? 0.5F : 0.25F) / 4F * i,
                 new Vector3f());
             ViveMain.API.spawnParticle(Particles.DEBUG, world,
                 new Vector(position.getX() + offset.x, position.getY() + offset.y, position.getZ() + offset.z), 1,

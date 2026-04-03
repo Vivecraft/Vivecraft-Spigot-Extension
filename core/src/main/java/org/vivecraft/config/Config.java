@@ -425,7 +425,7 @@ public class Config {
             .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p));
         this.climbeyBlocklist = this.builder
             .push("blocklist")
-            .defineStringList(mc.major > 12 ?
+            .defineStringList(mc.minor > 12 ?
                 Arrays.asList("white_wool", "dirt", "grass_block") :
                 Arrays.asList("wool:0", "dirt", "grass"))
             .setPacketFunction((v, p) -> PacketUtils.getClimbeyServerPayload(p));

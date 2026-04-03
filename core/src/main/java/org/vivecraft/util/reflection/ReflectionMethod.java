@@ -75,8 +75,8 @@ public class ReflectionMethod {
         MCVersion mc = MCVersion.getCurrentCorrected();
         Method m = null;
         for (MethodMapping mapping : mappings) {
-            int major = mc.major;
-            int minor = mc.minor;
+            int major = mc.minor;
+            int minor = mc.patch;
             while (major > 7 && m == null) {
                 while (minor >= 0 && m == null) {
                     if (minor == 0) {
@@ -89,7 +89,7 @@ public class ReflectionMethod {
                 minor = 10;
                 major--;
             }
-            if (m == null && mc.major <= 8) {
+            if (m == null && mc.minor <= 8) {
                 // get 1.8.8 in this case, that is the oldest mapping that takenaka supports
                 m = mapping.getMethod("1.8.8", namespace);
             }

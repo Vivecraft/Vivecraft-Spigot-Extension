@@ -105,7 +105,7 @@ public class ViveMain extends JavaPlugin {
             .registerIncomingPluginChannel(this, NetworkConstants.CHANNEL, handler);
         getServer().getMessenger().registerOutgoingPluginChannel(this, NetworkConstants.CHANNEL);
 
-        if (MCVersion.getCurrent().major < 13) {
+        if (MCVersion.getCurrent().minor < 13) {
             // old versions used the channel 'Vivecraft'
             getServer().getMessenger()
                 .registerIncomingPluginChannel(this, "Vivecraft", handler);

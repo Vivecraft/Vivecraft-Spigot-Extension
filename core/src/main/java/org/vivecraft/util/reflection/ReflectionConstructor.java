@@ -72,8 +72,8 @@ public class ReflectionConstructor {
         MCVersion mc = MCVersion.getCurrentCorrected();
         Constructor<?> c = null;
         for (ConstructorMapping mapping : mappings) {
-            int major = mc.major;
-            int minor = mc.minor;
+            int major = mc.minor;
+            int minor = mc.patch;
             while (major > 7 && c == null) {
                 while (minor >= 0 && c == null) {
                     if (minor == 0) {
@@ -86,7 +86,7 @@ public class ReflectionConstructor {
                 minor = 10;
                 major--;
             }
-            if (c == null && mc.major <= 8) {
+            if (c == null && mc.minor <= 8) {
                 // get 1.8.8 in this case, that is the oldest mapping that takenaka supports
                 c = mapping.getConstructor("1.8.8", namespace);
             }

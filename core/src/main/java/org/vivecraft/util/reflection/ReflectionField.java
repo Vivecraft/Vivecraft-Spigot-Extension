@@ -91,8 +91,8 @@ public class ReflectionField {
         MCVersion mc = MCVersion.getCurrentCorrected();
         Field f = null;
         for (FieldMapping mapping : mappings) {
-            int major = mc.major;
-            int minor = mc.minor;
+            int major = mc.minor;
+            int minor = mc.patch;
             while (major > 7 && f == null) {
                 while (minor >= 0 && f == null) {
                     if (minor == 0) {
@@ -105,7 +105,7 @@ public class ReflectionField {
                 minor = 10;
                 major--;
             }
-            if (f == null && mc.major <= 8) {
+            if (f == null && mc.minor <= 8) {
                 // get 1.8.8 in this case, that is the oldest mapping that takenaka supports
                 f = mapping.getField("1.8.8", namespace);
             }

@@ -16,24 +16,28 @@ public class ClassGetter {
     public static Class<?> getClass(boolean critical, ClassMapping... mappings) {
         // get the matching filed with the closest matching version, preferring older ones, unless there is none
         MCVersion mc = MCVersion.getCurrentCorrected();
+        // use 1.21.11 mappings for 26+
+        if (mc.major > 1) {
+            mc = new MCVersion(1, 21, 11);
+        }
         Class<?> c = null;
         for (String namespace : new String[]{"spigot", "mojang"}) {
             for (ClassMapping mapping : mappings) {
-                int major = mc.major;
                 int minor = mc.minor;
-                while (major > 7 && c == null) {
-                    while (minor >= 0 && c == null) {
-                        if (minor == 0) {
-                            c = mapping.getClass("1." + major, namespace);
+                int patch = mc.patch;
+                while (minor > 7 && c == null) {
+                    while (patch >= 0 && c == null) {
+                        if (patch == 0) {
+                            c = mapping.getClass("1." + minor, namespace);
                         } else {
-                            c = mapping.getClass("1." + major + "." + minor, namespace);
+                            c = mapping.getClass("1." + minor + "." + patch, namespace);
                         }
-                        minor--;
+                        patch--;
                     }
-                    minor = 10;
-                    major--;
+                    patch = 10;
+                    minor--;
                 }
-                if (c == null && mc.major <= 8) {
+                if (c == null && mc.minor <= 8) {
                     // get 1.8.8 in this case, that is the oldest mapping that takenaka supports
                     c = mapping.getClass("1.8.8", namespace);
                 }
@@ -62,7 +66,7 @@ public class ClassGetter {
         for (int i = 0; i <= 10; i++) {
             String apiClass;
             if (i != 10) {
-                apiClass = String.format("%s.v1_%s_R%s.%s", pre, mc.major, i, post);
+                apiClass = String.format("%s.v1_%s_R%s.%s", pre, mc.minor, i, post);
             } else {
                 apiClass = pre + "." + post;
             }
@@ -76,12 +80,12 @@ public class ClassGetter {
 
     public static Class<?> getCompat(String pattern) throws ClassNotFoundException {
         MCVersion mc = MCVersion.getCurrentCorrected();
-        for (int i = mc.minor; i >= 0; i--) {
+        for (int i = mc.patch; i >= 0; i--) {
             String apiClass;
             if (i != 0) {
-                apiClass = pattern.replace("X_X", "1_" + mc.major + "_" + i);
+                apiClass = pattern.replace("X_X", mc.major + "_" + mc.minor + "_" + i);
             } else {
-                apiClass = pattern.replace("X_X", "1_" + mc.major);
+                apiClass = pattern.replace("X_X", mc.major + "_" + mc.minor);
             }
             try {
                 return getRaw(apiClass);
@@ -93,7 +97,7 @@ public class ClassGetter {
                 throw e;
             } catch (ClassNotFoundException ignored) {}
         }
-        if (mc.major <= 8) {
+        if (mc.minor <= 8) {
             try {
                 return getRaw(pattern.replace("X_X", "1_8_8"));
             } catch (ClassNotFoundException ignored) {}

@@ -20,12 +20,11 @@ public class BukkitReflector {
     private static final ReflectionMethod CraftWorld_getHandle = ReflectionMethod.getWithApi(BUKKIT,
         "CraftWorld", "getHandle");
 
-    private static final ReflectionMethod CraftItemStack_asNMSCopy = ReflectionMethod.getWithApi(
-        "org.bukkit.craftbukkit", "inventory.CraftItemStack", "asNMSCopy", ItemStack.class);
+    private static final ReflectionMethod CraftItemStack_asNMSCopy = ReflectionMethod.getWithApi(BUKKIT,
+        "inventory.CraftItemStack", "asNMSCopy", ItemStack.class);
 
-    private static final ReflectionMethod CraftItemStack_asBukkitCopy = ReflectionMethod.getWithApi(
-        "org.bukkit.craftbukkit", "inventory.CraftItemStack", "asBukkitCopy",
-        ClassGetter.getClass(true, ItemStackMapping.MAPPING));
+    private static final ReflectionMethod CraftItemStack_asBukkitCopy = ReflectionMethod.getWithApi(BUKKIT,
+        "inventory.CraftItemStack", "asBukkitCopy", ClassGetter.getClass(true, ItemStackMapping.MAPPING));
 
     public static Object getEntityHandle(Entity entity) {
         return CraftEntity_getHandle.invoke(entity);

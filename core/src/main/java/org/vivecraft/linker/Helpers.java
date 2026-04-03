@@ -30,13 +30,14 @@ public class Helpers {
         MCVersion mc = MCVersion.getCurrentCorrected();
         int major = mc.major;
         int minor = mc.minor;
-        while (major > 7) {
-            while (minor >= 0) {
+        int patch = mc.patch;
+        while (minor > 7) {
+            while (patch >= 0) {
                 String compatVersion;
-                if (minor == 0) {
-                    compatVersion = "1_" + major;
+                if (patch == 0) {
+                    compatVersion = "1_" + minor;
                 } else {
-                    compatVersion = "1_" + major + "_" + minor;
+                    compatVersion = "1_" + minor + "_" + patch;
                 }
                 try {
                     Class<?> helperClass = Class.forName(String.format(classTemplate, compatVersion, compatVersion));
@@ -47,10 +48,10 @@ public class Helpers {
                         throw new RuntimeException(e);
                     }
                 } catch (ClassNotFoundException ignore) {}
-                minor--;
+                patch--;
             }
-            minor = 10;
-            major--;
+            patch = 10;
+            minor--;
         }
         throw new RuntimeException("Couldn't find any compatible class for " + classTemplate);
     }
