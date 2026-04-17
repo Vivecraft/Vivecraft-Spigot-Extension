@@ -122,7 +122,7 @@ public class NMS_1_20_6 extends NMS_1_20_2 {
                 this.ItemStack_forEachModifier.invoke(oldItemStack, this.EquipmentSlot_MAINHAND.get(),
                     (BiConsumer) (holder, modifier) -> {
                         Object instance = this.AttributeMap_getInstance.invoke(attributes, holder);
-                        if (modifier != null) {
+                        if (instance != null && modifier != null) {
                             this.AttributeInstance_removeModifier.invoke(instance, modifier);
                         }
                     });
@@ -131,7 +131,7 @@ public class NMS_1_20_6 extends NMS_1_20_2 {
                 this.ItemStack_forEachModifier.invoke(newItemStack, this.EquipmentSlot_MAINHAND.get(),
                     (BiConsumer) (holder, modifier) -> {
                         Object instance = this.AttributeMap_getInstance.invoke(attributes, holder);
-                        if (modifier != null) {
+                        if (instance != null && modifier != null) {
                             this.AttributeInstance_removeModifier.invoke(instance, modifier);
                             this.AttributeInstance_addTransientModifier.invoke(instance, modifier);
                         }

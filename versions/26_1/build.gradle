@@ -1,4 +1,18 @@
 dependencies {
     compileOnly('org.spigotmc:spigot-api:26.1-R0.1-SNAPSHOT')
     api(project(":versions:1_21_11"))
+
+    compileOnly("com.mojang:brigadier:1.3.10")
+    compileOnly("com.mojang:datafixerupper:9.0.19")
+
+    compileOnly("net.minecraft:server:26.1") {
+        attributes {
+            attribute(Attribute.of("artifactType", String), "server-jar")
+        }
+    }
+}
+
+java {
+    sourceCompatibility = 25
+    targetCompatibility = 25
 }

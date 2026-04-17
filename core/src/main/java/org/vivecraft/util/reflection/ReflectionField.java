@@ -17,6 +17,8 @@ public class ReflectionField {
 
     private ReflectionField(Field field) {
         this.field = field;
+        // make sure it is accessible
+        this.field.setAccessible(true);
     }
 
     private static ReflectionField getField(Class<?> cls, String fieldName) throws NoSuchFieldException {
@@ -62,8 +64,6 @@ public class ReflectionField {
             }
         }
 
-        // make sure it is accessible
-        f.setAccessible(true);
         return new ReflectionField(f);
     }
 
@@ -76,9 +76,7 @@ public class ReflectionField {
      */
     public static ReflectionField getField(ClassMapping mapping, String fieldName) {
         try {
-            ReflectionField f = getField(ClassGetter.getClass(true, mapping), fieldName);
-            f.field.setAccessible(true);
-            return f;
+            return getField(ClassGetter.getClass(true, mapping), fieldName);
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(
                 "Unsupported mc version: " + MCVersion.getCurrent().version + ", no mapping found for: " +
@@ -143,18 +141,51 @@ public class ReflectionField {
      *
      * @param cls       path of the containing class
      * @param fieldName name of the field
+     * @param required  throws no exeptions and returns null when this is false
      * @return found reflection field
      * @throws RuntimeException When no matching field is found
      */
     public static ReflectionField getRaw(String cls, String fieldName, boolean required) {
         try {
-            return getField(ClassGetter.getRaw(cls), fieldName);
-        } catch (ClassNotFoundException | NoSuchFieldException e) {
+            return getRaw(ClassGetter.getRaw(cls), fieldName, required);
+        } catch (ClassNotFoundException e) {
             if (!required) {
                 return null;
             }
             throw new RuntimeException("couldn't find field " + cls + "." + fieldName, e);
         }
+    }
+
+    /**
+     * Tries to find the reflection field matching the given class
+     *
+     * @param cls       containing class
+     * @param fieldName name of the field
+     * @param required  throws no exeptions and returns null when this is false
+     * @return found reflection field
+     * @throws RuntimeException When no matching field is found
+     */
+    public static ReflectionField getRaw(Class<?> cls, String fieldName, boolean required) {
+        try {
+            return getField(cls, fieldName);
+        } catch (NoSuchFieldException e) {
+            if (!required) {
+                return null;
+            }
+            throw new RuntimeException("couldn't find field " + cls.getName() + "." + fieldName, e);
+        }
+    }
+
+    /**
+     * Tries to find the reflection field matching the given class
+     *
+     * @param cls       containing class
+     * @param fieldName name of the field
+     * @return found reflection field
+     * @throws RuntimeException When no matching field is found
+     */
+    public static ReflectionField getRaw(Class<?> cls, String fieldName) {
+        return getRaw(cls, fieldName, true);
     }
 
     public Object get() {

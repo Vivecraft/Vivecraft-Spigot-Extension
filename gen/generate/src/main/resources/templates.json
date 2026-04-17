@@ -10,7 +10,8 @@
     },
     "VREndermanFreezeWhenLookAt.java": {
       "versions": {
-        "from": "1.14"
+        "from": "1.14",
+        "to": "1.21.1"
       },
       "parent": "net.minecraft.world.entity.ai.goal.Goal",
       "mappingClasses": [
@@ -19,6 +20,9 @@
       ]
     },
     "VREndermanLookForPlayerGoal.java": {
+      "versions": {
+        "to": "1.21.1"
+      },
       "parent": "net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal",
       "mappingClasses": [
         "net.minecraft.world.entity.monster.EnderMan",

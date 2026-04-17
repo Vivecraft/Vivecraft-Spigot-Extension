@@ -18,6 +18,8 @@ public class ReflectionMethod {
 
     private ReflectionMethod(Method method) {
         this.method = method;
+        // make sure it is accessible
+        this.method.setAccessible(true);
     }
 
     public static ReflectionMethod getMethod(
@@ -64,8 +66,6 @@ public class ReflectionMethod {
                 return null;
             }
         }
-        // make sure it is accessible
-        m.setAccessible(true);
         return new ReflectionMethod(m);
     }
 
@@ -130,8 +130,26 @@ public class ReflectionMethod {
      */
     public static ReflectionMethod getRaw(String cls, String methodName, Class<?>... args) {
         try {
-            return getMethod(ClassGetter.getRaw(cls), methodName, args);
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            return getRaw(ClassGetter.getRaw(cls), methodName, args);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(
+                "couldn't find method " + cls + "." + methodName + " with args: " + Arrays.toString(args), e);
+        }
+    }
+
+    /**
+     * Tries to find the reflection method matching the given class path
+     *
+     * @param cls        containing class
+     * @param methodName name of the method
+     * @param args       Classes of the arguments for the method
+     * @return found reflection method
+     * @throws RuntimeException When no matching method is found
+     */
+    public static ReflectionMethod getRaw(Class<?> cls, String methodName, Class<?>... args) {
+        try {
+            return getMethod(cls, methodName, args);
+        } catch (NoSuchMethodException e) {
             throw new RuntimeException(
                 "couldn't find method " + cls + "." + methodName + " with args: " + Arrays.toString(args), e);
         }

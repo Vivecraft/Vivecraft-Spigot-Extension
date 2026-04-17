@@ -18,6 +18,8 @@ public class ReflectionConstructor {
 
     private ReflectionConstructor(Constructor<?> constructor) {
         this.constructor = constructor;
+        // make sure it is accessible
+        this.constructor.setAccessible(true);
     }
 
     private static ReflectionConstructor getConstructor(Class<?> cls, Class<?>... args) throws NoSuchMethodException {
@@ -62,8 +64,6 @@ public class ReflectionConstructor {
                 return null;
             }
         }
-        // make sure it is accessible
-        c.setAccessible(true);
         return new ReflectionConstructor(c);
     }
 

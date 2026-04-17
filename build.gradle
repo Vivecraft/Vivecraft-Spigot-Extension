@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import groovy.json.JsonSlurper
 
 plugins {
     id 'com.gradleup.shadow' version '9.1.0'
@@ -21,9 +22,41 @@ allprojects {
 
     configurations.configureEach {
         exclude group: "net.md-5", module: "bungeecord-chat"
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == "net.minecraft" && details.requested.name == "server") {
+                // fetch the sha1 to get the server jar from mojang, based on the mc version
+                def versions = new JsonSlurper().parse(new URI("https://piston-meta.mojang.com/mc/game/version_manifest.json").toURL())
+                def sha1 = null
+                for (def v : versions.versions) {
+                    if (v.id == details.requested.version) {
+                        def info = new JsonSlurper().parse(new URI(v.url).toURL())
+                        sha1 = info.downloads.server.sha1
+                    }
+                }
+                assert sha1 != null
+                details.useVersion(sha1)
+            }
+        }
     }
 
     repositories {
+        // for official minecraft server jars
+        exclusiveContent {
+            forRepository {
+                ivy {
+                    name = "minecraft server jars"
+                    url = "https://piston-data.mojang.com/v1/objects"
+                    patternLayout {
+                        artifact '/[revision]/server.jar'
+                    }
+                    metadataSources { artifact() }
+                }
+            }
+            filter {
+                includeModule("net.minecraft", "server")
+            }
+        }
+
         maven {
             url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
             content {
@@ -44,7 +77,7 @@ allprojects {
             name = 'minecraft'
             url = 'https://libraries.minecraft.net'
             content {
-                includeModule("com.mojang", "brigadier")
+                includeGroup("com.mojang")
             }
         }
 
@@ -96,15 +129,28 @@ allprojects {
         // the small library needed for the accessors to function
         implementation("me.kcra.takenaka:generator-accessor-runtime:$takenaka_version")
     }
+
+    // to use the vanilla server jars
+    dependencies {
+        registerTransform(ServerJarTransform) {
+            from.attribute(Attribute.of("artifactType", String), "jar")
+            to.attribute(Attribute.of("artifactType", String), "server-jar")
+        }
+    }
 }
 
 dependencies {
     subprojects.each { subproj ->
         if (subproj.name != "generate" && subproj.name != "stubs") {
             if (subproj.getTasksByName("remap", false).isEmpty()) {
-                implementation subproj
+                implementation(subproj) {
+                    attributes {
+                        // we don't care about what the subproject is built against
+                        attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 99)
+                    }
+                }
             } else {
-                implementation project(path: subproj.path, configuration: "remapped")
+                implementation(project(path: subproj.path, configuration: "remapped"))
             }
         }
     }
