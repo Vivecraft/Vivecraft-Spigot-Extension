@@ -442,10 +442,8 @@ public class Config {
                     // disable crawling for everyone
                     ViveMain.VIVE_PLAYERS.values().forEach(vp -> vp.crawling = false);
                 }
-            })
-            .setPacketFunction(
-                ViveMain.MC != null && ViveMain.MC.supportsCrawling() ?
-                    ((v, p) -> new CrawlPayloadS2C(v, p.networkVersion)) : null);
+            }).setPacketFunction((v, p) -> ViveMain.MC != null && ViveMain.MC.supportsCrawling() ?
+                new CrawlPayloadS2C(v, p.networkVersion) : null);
         // end crawling
         this.builder.pop();
 

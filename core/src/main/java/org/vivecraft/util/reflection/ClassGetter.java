@@ -16,9 +16,9 @@ public class ClassGetter {
     public static Class<?> getClass(boolean critical, ClassMapping... mappings) {
         // get the matching filed with the closest matching version, preferring older ones, unless there is none
         MCVersion mc = MCVersion.getCurrentCorrected();
-        // use 1.21.11 mappings for 26+
         if (mc.major > 1) {
-            mc = new MCVersion(1, 21, 11);
+            // 26.1+ is not supposed to use mappings
+            throw new RuntimeException("tried to use reflection mappings in 26+");
         }
         Class<?> c = null;
         for (String namespace : new String[]{"spigot", "mojang"}) {

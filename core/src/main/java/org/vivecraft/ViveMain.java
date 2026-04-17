@@ -68,13 +68,15 @@ public class ViveMain extends JavaPlugin {
         // spigot only or overrides
         TRANSLATIONS.putAll(JsonUtils.readJsonMap(getResource("lang/spigot_en_us.json")));
 
+        // set up config
+        CONFIG = new Config(this);
+
+        Debug.log("Running on MC: %s", MCVersion.getCurrentCorrected());
+
         API = Helpers.getApi();
         MC = Helpers.getMc();
         NMS = Helpers.getNMS();
         MC_MODS = new MCMods();
-
-        // set up config
-        CONFIG = new Config(this);
 
         if (CONFIG.checkForUpdates.get()) {
             UpdateChecker.scheduleUpdateCheck(LOGGER::info);
@@ -105,7 +107,7 @@ public class ViveMain extends JavaPlugin {
             .registerIncomingPluginChannel(this, NetworkConstants.CHANNEL, handler);
         getServer().getMessenger().registerOutgoingPluginChannel(this, NetworkConstants.CHANNEL);
 
-        if (MCVersion.getCurrent().minor < 13) {
+        if (MCVersion.getCurrent().major == 1 && MCVersion.getCurrent().minor < 13) {
             // old versions used the channel 'Vivecraft'
             getServer().getMessenger()
                 .registerIncomingPluginChannel(this, "Vivecraft", handler);

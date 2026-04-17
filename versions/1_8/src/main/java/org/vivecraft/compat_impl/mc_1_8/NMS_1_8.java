@@ -94,6 +94,7 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionMethod ItemStack_copy;
     protected ReflectionMethod ItemStack_matches;
     protected ReflectionField ArmorItem_defense;
+    protected Class<?> ItemStack;
     protected Class<?> ArmorItem;
 
     protected ReflectionMethod Level_Clip;
@@ -130,6 +131,7 @@ public class NMS_1_8 implements NMSHelper {
         this.initDualWielding();
         this.initReducedAttack();
         this.initShieldSound();
+        this.ItemStack = ClassGetter.getClass(true, ItemStackMapping.MAPPING);
     }
 
     protected void init() {
@@ -335,6 +337,11 @@ public class NMS_1_8 implements NMSHelper {
     @Override
     public Object newVec3(double x, double y, double z) {
         return this.Vec3.newInstance(x, y, z);
+    }
+
+    @Override
+    public Class<?> getItemstackClass() {
+        return this.ItemStack;
     }
 
     @Override

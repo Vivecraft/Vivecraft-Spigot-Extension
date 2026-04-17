@@ -50,6 +50,11 @@ public interface NMSHelper {
     Object newVec3(double x, double y, double z);
 
     /**
+     * @return the class for ItemStacks
+     */
+    Class<?> getItemstackClass();
+
+    /**
      * sets the translation key with fallback
      *
      * @param itemStack      ItemStack to modify

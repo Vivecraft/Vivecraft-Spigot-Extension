@@ -3,8 +3,7 @@ package org.vivecraft.compat;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
-import org.vivecraft.accessors.ItemStackMapping;
-import org.vivecraft.util.reflection.ClassGetter;
+import org.vivecraft.ViveMain;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
 /**
@@ -24,7 +23,7 @@ public class BukkitReflector {
         "inventory.CraftItemStack", "asNMSCopy", ItemStack.class);
 
     private static final ReflectionMethod CraftItemStack_asBukkitCopy = ReflectionMethod.getWithApi(BUKKIT,
-        "inventory.CraftItemStack", "asBukkitCopy", ClassGetter.getClass(true, ItemStackMapping.MAPPING));
+        "inventory.CraftItemStack", "asBukkitCopy", ViveMain.NMS.getItemstackClass());
 
     public static Object getEntityHandle(Entity entity) {
         return CraftEntity_getHandle.invoke(entity);

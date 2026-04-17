@@ -76,6 +76,8 @@ public class NMS_26_1 implements NMSHelper {
     private final ReflectionField Mob_DEFAULT_ATTACK_REACH;
     private final ReflectionField Mob_goalSelector;
     private final ReflectionField Mob_targetSelector;
+    private final ReflectionField ServerboundUseItemPacket_xRot;
+    private final ReflectionField ServerboundUseItemPacket_yRot;
 
     private final ReflectionMethod Entity_removeAfterChangingDimensions;
     private final ReflectionMethod Mob_getAttackBoundingBox;
@@ -95,10 +97,12 @@ public class NMS_26_1 implements NMSHelper {
         this.Mob_DEFAULT_ATTACK_REACH = ReflectionField.getRaw(Mob.class, "DEFAULT_ATTACK_REACH");
         this.Mob_goalSelector = ReflectionField.getRaw(Mob.class, "goalSelector");
         this.Mob_targetSelector = ReflectionField.getRaw(Mob.class, "targetSelector");
+        this.ServerboundUseItemPacket_xRot = ReflectionField.getRaw(ServerboundUseItemPacket.class, "xRot");
+        this.ServerboundUseItemPacket_yRot = ReflectionField.getRaw(ServerboundUseItemPacket.class, "yRot");
 
         this.Entity_removeAfterChangingDimensions = ReflectionMethod.getRaw(Entity.class,
             "removeAfterChangingDimensions");
-        this.Mob_getAttackBoundingBox = ReflectionMethod.getRaw(Mob.class, "getAttackBoundingBox");
+        this.Mob_getAttackBoundingBox = ReflectionMethod.getRaw(Mob.class, "getAttackBoundingBox", double.class);
         this.LivingEntity_getHitbox = ReflectionMethod.getRaw(LivingEntity.class, "getHitbox");
     }
 
@@ -121,6 +125,11 @@ public class NMS_26_1 implements NMSHelper {
     @Override
     public Object newVec3(double x, double y, double z) {
         return new Vec3(x, y, z);
+    }
+
+    @Override
+    public Class<?> getItemstackClass() {
+        return ItemStack.class;
     }
 
     @Override
@@ -199,8 +208,10 @@ public class NMS_26_1 implements NMSHelper {
     @SuppressWarnings("unchecked")
     @Override
     public void handlePacket(Object player, Object packet, Object packetListener, float xRot, float yRot) {
-        if (packet instanceof ServerboundUseItemPacket useItemPacket) {
-            packet = new ServerboundUseItemPacket(useItemPacket.getHand(), useItemPacket.getSequence(), yRot, xRot);
+        if (packet instanceof ServerboundUseItemPacket) {
+            // modify the original packet
+            this.ServerboundUseItemPacket_xRot.set(packet, xRot);
+            this.ServerboundUseItemPacket_yRot.set(packet, yRot);
         }
         if (packet instanceof ServerboundPlayerActionPacket actionPacket &&
             actionPacket.getAction() == ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK &&

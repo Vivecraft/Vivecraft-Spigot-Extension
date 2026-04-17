@@ -4,6 +4,7 @@ import org.vivecraft.ViveMain;
 import org.vivecraft.compat.ApiHelper;
 import org.vivecraft.compat.McHelper;
 import org.vivecraft.compat.NMSHelper;
+import org.vivecraft.debug.Debug;
 import org.vivecraft.util.MCVersion;
 
 import java.util.logging.Level;
@@ -31,27 +32,34 @@ public class Helpers {
         int major = mc.major;
         int minor = mc.minor;
         int patch = mc.patch;
-        while (minor > 7) {
-            while (patch >= 0) {
-                String compatVersion;
-                if (patch == 0) {
-                    compatVersion = "1_" + minor;
-                } else {
-                    compatVersion = "1_" + minor + "_" + patch;
-                }
-                try {
-                    Class<?> helperClass = Class.forName(String.format(classTemplate, compatVersion, compatVersion));
-                    try {
-                        return helperClass.getConstructor().newInstance();
-                    } catch (Exception e) {
-                        ViveMain.LOGGER.log(Level.SEVERE, "could not instantiate " + helperClass.getName(), e);
-                        throw new RuntimeException(e);
+        while (major >= 1) {
+            while (minor >= 0) {
+                while (patch >= 0) {
+                    String compatVersion;
+                    if (patch == 0) {
+                        compatVersion = major + "_" + minor;
+                    } else {
+                        compatVersion = major + "_" + minor + "_" + patch;
                     }
-                } catch (ClassNotFoundException ignore) {}
-                patch--;
+                    try {
+                        Class<?> helperClass = Class.forName(
+                            String.format(classTemplate, compatVersion, compatVersion));
+                        try {
+                            Debug.log("using helper: %s", helperClass.getName());
+                            return helperClass.getConstructor().newInstance();
+                        } catch (Exception e) {
+                            ViveMain.LOGGER.log(Level.SEVERE, "could not instantiate " + helperClass.getName(), e);
+                            throw new RuntimeException(e);
+                        }
+                    } catch (ClassNotFoundException ignore) {}
+                    patch--;
+                }
+                patch = 11;
+                minor--;
             }
-            patch = 10;
-            minor--;
+            minor = 21;
+            patch = 11;
+            major--;
         }
         throw new RuntimeException("Couldn't find any compatible class for " + classTemplate);
     }
