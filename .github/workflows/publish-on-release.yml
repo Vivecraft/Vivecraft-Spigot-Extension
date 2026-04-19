@@ -72,7 +72,7 @@ jobs:
 
           files: "${{ steps.assets.outputs.plugin }}"
 
-          name: "${{ steps.properties.outputs.plugin_name }}"
+          name: "${{ steps.properties.outputs.plugin_name }} ${{ steps.properties.outputs.plugin_version }}"
           version: "${{ steps.properties.outputs.plugin_version }}"
           version-type: "${{ steps.properties.outputs.release_type }}"
 
