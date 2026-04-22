@@ -530,7 +530,8 @@ public class NMS_26_1 implements NMSHelper {
     public @Nullable Object getHandItemInternal(org.bukkit.entity.Player player, VRBodyPart hand) {
         ServerPlayer nsmPlayer = (ServerPlayer) BukkitReflector.getEntityHandle(player);
         if (hand.isHand()) {
-            nsmPlayer.getItemBySlot(hand == VRBodyPart.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+            return nsmPlayer.getItemBySlot(
+                hand == VRBodyPart.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
         }
         return ItemStack.EMPTY;
     }

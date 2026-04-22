@@ -71,6 +71,7 @@ public class ViveMain extends JavaPlugin {
         // set up config
         CONFIG = new Config(this);
 
+        Debug.log("Running on bukkit version: %s", Bukkit.getBukkitVersion());
         Debug.log("Running on MC: %s", MCVersion.getCurrentCorrected());
 
         API = Helpers.getApi();

@@ -37,7 +37,6 @@ public class MCVersion implements Comparable<MCVersion> {
     public static MCVersion getCurrent() {
         if (CURRENT == null) {
             String bukkitApiVersion = Bukkit.getBukkitVersion();
-            ViveMain.LOGGER.severe("bukkit version: " + bukkitApiVersion);
             String version = bukkitApiVersion.substring(0, bukkitApiVersion.indexOf("-"));
             // remove papers build string
             if (version.contains(".build")) {
