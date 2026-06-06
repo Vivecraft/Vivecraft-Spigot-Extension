@@ -9,4 +9,10 @@ public class Api_1_11_2 extends Api_1_11 {
     public boolean hasItemCooldown(Player player, ItemStack itemStack) {
         return player.hasCooldown(itemStack.getType());
     }
+
+    @Override
+    public void applyItemCooldown(Player player, ItemStack itemStack, int ticks) {
+        player.setCooldown(itemStack.getType(), ticks);
+    }
+
 }

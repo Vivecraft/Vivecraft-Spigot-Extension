@@ -230,6 +230,11 @@ public class Api_1_8 implements ApiHelper {
     }
 
     @Override
+    public void applyItemCooldown(Player player, ItemStack itemStack, int ticks) {
+        // no item cooldowns in 1.8
+    }
+
+    @Override
     public boolean isArrowPiercing(Arrow arrow) {
         // no piecing till 1.14
         return false;

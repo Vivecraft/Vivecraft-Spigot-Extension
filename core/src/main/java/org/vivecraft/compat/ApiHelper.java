@@ -178,6 +178,16 @@ public interface ApiHelper {
     boolean hasItemCooldown(Player player, ItemStack itemStack);
 
     /**
+     * applies a cooldown for the given item type to the player
+     *
+     * @param player    Player to apply the cooldown to
+     * @param itemStack ItemStack whose type the cooldown is applied for
+     * @param ticks     cooldown duration in ticks
+     * @apiNote available since 1.9 together with shields
+     */
+    void applyItemCooldown(Player player, ItemStack itemStack, int ticks);
+
+    /**
      * checks if the arrow has piecing enchant
      *
      * @param arrow Arrow to check

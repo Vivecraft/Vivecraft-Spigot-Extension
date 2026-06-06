@@ -144,81 +144,95 @@ public class DamageEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void roomscaleBlocking(EntityDamageByEntityEvent event) {
-        if (event.getEntity() instanceof Player && ViveMain.isVRPlayer(event.getEntity()) &&
-            ViveMain.CONFIG.allowRoomscaleShieldBlocking.get())
-        {
-            Player player = (Player) event.getEntity();
-            if (!player.isBlocking()) {
-                Entity damage = event.getDamager();
-                VivePlayer vivePlayer = ViveMain.getVivePlayer(player);
-                boolean isProjectile = false;
+        if (!(event.getEntity() instanceof Player)) return;
 
-                AABB bb = ViveMain.API.getEntityAABB(damage);
-                Vector travelDir = damage.getVelocity().normalize();
-                Vector dmgPos = bb.getCenter();
+        Player player = (Player) event.getEntity();
+        if (!ViveMain.isVRPlayer(player)) return;
+        if (!ViveMain.CONFIG.allowRoomscaleShieldBlocking.get()) return;
+        if (player.isBlocking()) return;
 
-                if (damage instanceof Projectile) {
-                    isProjectile = true;
-                    if (damage instanceof Arrow && ViveMain.API.isArrowPiercing((Arrow) damage)) {
-                        // can't block piercing arrows
-                        return;
-                    }
-                    // move the projectile check position half the bounding box size + 1.5m away from the player center
-                    float scale = ViveMain.API.getEntityAABB(player).getWidth() * 0.5F + 1.5F;
-                    float dist = (float) new Vector().copy(dmgPos)
-                        .subtract(ViveMain.API.getEntityAABB(player).getCenter())
-                        .dot(travelDir);
-                    dmgPos.add(travelDir.multiply(-dist - scale));
+        Entity damager = event.getDamager();
+        VivePlayer vivePlayer = ViveMain.getVivePlayer(player);
+        boolean isProjectile = damager instanceof Projectile;
+
+        AABB damagerAABB = ViveMain.API.getEntityAABB(damager);
+        Vector travelDir = damager.getVelocity().clone().normalize();
+        Vector damagePos = damagerAABB.getCenter();
+
+        if (isProjectile) {
+            Arrow arrow = (damager instanceof Arrow) ? (Arrow) damager : null;
+            if (arrow != null && ViveMain.API.isArrowPiercing(arrow)) {
+                return;
+            }
+
+            float halfWidth = ViveMain.API.getEntityAABB(player).getWidth() * 0.5F;
+            float distanceToPlayer = (float) damagePos.clone()
+                .subtract(ViveMain.API.getEntityAABB(player).getCenter())
+                .dot(travelDir);
+            damagePos.add(travelDir.clone().multiply(-distanceToPlayer - halfWidth - 1.5F));
+        } else {
+            damagePos.subtract(travelDir);
+        }
+
+        for (int i = 0; i < 2; i++) {
+            VRBodyPart hand = (i == 0) ? VRBodyPart.MAIN_HAND : VRBodyPart.OFF_HAND;
+            ItemStack stack = ViveMain.API.getHandItem(player, hand);
+            if (stack == null) continue;
+            if (!ViveMain.API.isShield(stack)) continue;
+            if (ViveMain.API.hasItemCooldown(player, stack)) continue;
+
+            Vector3fc sideDir;
+            if (vivePlayer.isLeftHanded()) {
+                sideDir = (hand == VRBodyPart.MAIN_HAND) ? MathUtils.RIGHT : MathUtils.LEFT;
+            } else {
+                sideDir = (hand == VRBodyPart.MAIN_HAND) ? MathUtils.LEFT : MathUtils.RIGHT;
+            }
+            Vector3fc shieldDir = vivePlayer.getBodyPartVectorCustom(hand, sideDir);
+
+            double angle;
+            if (isProjectile) {
+                Vector toHand = damagePos.clone().subtract(vivePlayer.getBodyPartPos(hand)).normalize();
+                angle = shieldDir.dot((float) toHand.getX(), (float) toHand.getY(), (float) toHand.getZ());
+            } else {
+                Vector toPlayer = damagePos.clone().subtract(player.getLocation().toVector()).setY(0).normalize();
+                Vector3f horizontalShield = new Vector3f(shieldDir.x(), 0, shieldDir.z()).normalize();
+                angle = horizontalShield.dot((float) toPlayer.getX(), (float) toPlayer.getY(), (float) toPlayer.getZ());
+            }
+
+            if (angle <= 0.5) continue;
+
+            boolean shieldBroken = false;
+            if (event.getDamage() >= 3) {
+                int durabilityDamage = 1 + (int) Math.floor(event.getDamage());
+                shieldBroken = ViveMain.API.addDamage(stack, durabilityDamage);
+                if (shieldBroken) {
+                    ViveMain.API.breakItem(player, hand);
                 } else {
-                    // move it back in the movement direction, to get a better source direction
-                    dmgPos.subtract(travelDir);
-                }
-
-                // check if any hand is holding a shield
-                for (int i = 0; i < 2; i++) {
-                    VRBodyPart hand = i == 0 ? VRBodyPart.MAIN_HAND : VRBodyPart.OFF_HAND;
-                    ItemStack stack = ViveMain.API.getHandItem(player, hand);
-
-                    // check for shield and do not bypass item cooldowns
-                    if (stack != null && ViveMain.API.isShield(stack) && !ViveMain.API.hasItemCooldown(player, stack)) {
-                        // check if it blocks
-                        Vector3fc sideDir;
-                        if (vivePlayer.isLeftHanded()) {
-                            sideDir = hand == VRBodyPart.MAIN_HAND ? MathUtils.RIGHT : MathUtils.LEFT;
-                        } else {
-                            sideDir = hand == VRBodyPart.MAIN_HAND ? MathUtils.LEFT : MathUtils.RIGHT;
-                        }
-                        Vector3fc shieldDir = vivePlayer.getBodyPartVectorCustom(hand, sideDir);
-
-                        // 0.5 = 120° blocking cone
-                        double angle = 0;
-                        if (isProjectile) {
-                            // direction to hand
-                            Vector dmgDir = dmgPos.subtract(vivePlayer.getBodyPartPos(hand)).normalize();
-                            angle = shieldDir.dot((float) dmgDir.getX(), (float) dmgDir.getY(), (float) dmgDir.getZ());
-                        } else {
-                            // horizontal direction to the player
-                            Vector dmgDir = dmgPos.subtract(player.getLocation().toVector()).setY(0).normalize();
-                            Vector3f hShieldDir = new Vector3f(shieldDir.x(), 0, shieldDir.z()).normalize();
-                            angle = hShieldDir.dot((float) dmgDir.getX(), (float) dmgDir.getY(), (float) dmgDir.getZ());
-                        }
-                        if (angle > 0.5) {
-                            if (event.getDamage() >= 3) {
-                                // damage shield
-                                // durability counts up the damage
-                                if (ViveMain.API.addDamage(stack, 1 + (int) Math.floor(event.getDamage()))) {
-                                    ViveMain.API.breakItem(player, hand);
-                                } else {
-                                    ViveMain.NMS.playShieldBlockSound(player, stack);
-                                }
-                            }
-                            // TODO knockback and shield disable
-                            event.setCancelled(true);
-                            return;
-                        }
-                    }
+                    ViveMain.NMS.playShieldBlockSound(player, stack);
                 }
             }
+            boolean applyCooldown = false;
+
+            if (ViveMain.CONFIG.shieldCooldownRequiresAxe.get()) {
+                if (damager instanceof Player) {
+                    Player attacker = (Player) damager;
+                    ItemStack weapon = attacker.getItemInHand();
+                    if (weapon != null && weapon.getType().name().contains("_AXE")) {
+                        applyCooldown = true;
+                    }
+                }
+            } else {
+                if (ViveMain.CONFIG.shieldCooldownEnabled.get()
+                    && event.getDamage() >= ViveMain.CONFIG.shieldCooldownMinDamage.get()) {
+                    applyCooldown = true;
+                }
+            }
+            if (applyCooldown && !shieldBroken) {
+                ViveMain.API.applyItemCooldown(player, stack, ViveMain.CONFIG.shieldCooldownTicks.get());
+            }
+
+            event.setCancelled(true);
+            return;
         }
     }
 
