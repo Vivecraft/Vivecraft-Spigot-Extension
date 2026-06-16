@@ -13,10 +13,7 @@ import org.vivecraft.api_impl.VRAPIImpl;
 import org.vivecraft.data.VrPlayerState;
 import org.vivecraft.network.NetworkConstants;
 import org.vivecraft.network.NetworkVersion;
-import org.vivecraft.util.ItemOverride;
-import org.vivecraft.util.MCVersion;
-import org.vivecraft.util.MathUtils;
-import org.vivecraft.util.MetadataHelper;
+import org.vivecraft.util.*;
 
 public class VivePlayer {
     // player movement state
@@ -48,8 +45,8 @@ public class VivePlayer {
     // network protocol this player is communicating with
     public NetworkVersion networkVersion = NetworkVersion.fromProtocolVersion(
         NetworkConstants.MAX_SUPPORTED_NETWORK_PROTOCOL);
-    // version string the player sent on join
-    public String version = "none";
+    // version the player sent on join
+    public ViveVersion version = ViveVersion.UNKNOWN;
     // if the client requested damage direction data
     public boolean wantsDamageDirection = false;
 

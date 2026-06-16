@@ -12,8 +12,6 @@
   "vivecraft.serverSettings.general.requestData.tooltip": "Asks the client for the VR data, if this is disabled no movement data will be shared, and some features will not work.",
   "vivecraft.serverSettings.general.sendData": "Send VR Data",
   "vivecraft.serverSettings.general.sendData.tooltip": "Send the VR movement data to the clients, if this is disabled clients will not see each others movement.",
-  "vivecraft.serverSettings.general.kickPlayersOnSettingUpdate": "Kick players on setting change.",
-  "vivecraft.serverSettings.general.kickPlayersOnSettingUpdate.tooltip": "Kicks players on setting changes, if they don't support updating that setting on the fly. So it forces a rejoin.",
 
   "vivecraft.serverSettings.vrChanges.dualWielding.tooltipspigot": "§6CAUTION!§r When enabling this, also make sure to enable 'allowFasterBlockBreaking', or breaking blocks too fast will still use the main hand item.",
 
@@ -80,6 +78,7 @@
   "vivecraft.command.number.outOfRange": "'%s' is out of the valid range [%s,%s] for %s.",
   "vivecraft.command.number.invalid": "'%s' is not a valid number.",
   "vivecraft.command.invalid": "'%s' is not a valid value for '%s'.",
+  "vivecraft.command.invalid.viveVersion" : "Invalid minViveVersion version number: '%s'. Version numbers need to be of the format X.X.X",
   "vivecraft.command.validValues": "Valid values are: '%s'",
   "vivecraft.command.unsupportedClient": "Some clients don't support to toggle this setting and need to rejoin the server for it to update.\n If you would like to automatically kick them on such setting changes, enable '%s'.",
 
@@ -87,8 +86,8 @@
   "vivecraft.command.listOnePlayer": "There is 1 player online.",
   "vivecraft.command.listVivePlayers": "There are %s Vivecraft players online.",
   "vivecraft.command.listOneVivePlayer": "There is 1 Vivecraft player online.",
-  "vivecraft command.reload": "Reloaded config with %s changes",
-  "vivecraft command.reload.changed": "Updated: '%s' from: '%s' to: '%s'",
+  "vivecraft.command.reload": "Reloaded config with %s changes",
+  "vivecraft.command.reload.changed": "Updated: '%s' from: '%s' to: '%s'",
   "vivecraft.plugin.update": "Vivecraft plugin update available: %s",
   "vivecraft.setting.kick": "A server setting changed that needs you to rejoin the server.",
   "vivecraft.pvp.canceled": "canceled %s vs %s damage",

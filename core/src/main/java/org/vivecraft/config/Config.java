@@ -13,6 +13,7 @@ import org.vivecraft.network.packet.s2c.DualWieldingPayloadS2C;
 import org.vivecraft.network.packet.s2c.TeleportPayloadS2C;
 import org.vivecraft.util.MCVersion;
 import org.vivecraft.util.UpdateChecker;
+import org.vivecraft.util.ViveVersion;
 
 import java.io.*;
 import java.util.*;
@@ -35,6 +36,8 @@ public class Config {
     public final ConfigBuilder.EnumValue<UpdateType> updateType;
     public final ConfigBuilder.BooleanValue vrOnly;
     public final ConfigBuilder.BooleanValue viveOnly;
+    public final ConfigBuilder.StringValue minViveVersionString;
+    public ViveVersion minViveVersion = ViveVersion.UNKNOWN;
     public final ConfigBuilder.BooleanValue allowOp;
     public final ConfigBuilder.IntValue messageKickDelay;
     public final ConfigBuilder.BooleanValue vrFun;
@@ -75,6 +78,7 @@ public class Config {
 
     public final ConfigBuilder.StringValue messagesKickViveOnly;
     public final ConfigBuilder.StringValue messagesKickVrOnly;
+    public final ConfigBuilder.StringValue messagesKickOutdatedViveVersion;
 
     public final ConfigBuilder.StringValue papiModeVR;
     public final ConfigBuilder.StringValue papiModeSeatedVR;
@@ -183,6 +187,19 @@ public class Config {
             .push("vive_only")
             .define(false)
             .setOnUpdate((ConfigBuilder.SimpleUpdateNotifier<Boolean>) nV -> NetworkHandler.updateViveVROnly());
+        this.minViveVersionString = this.builder
+            .push("minViveVersion")
+            .define("")
+            .setOnUpdate((oV, nV, notifier) -> {
+                this.minViveVersion = nV.isEmpty() ? ViveVersion.UNKNOWN : new ViveVersion(nV);
+                if (!nV.isEmpty() && !this.minViveVersion.isValid()) {
+                    if (notifier != null) {
+                        notifier.accept(ViveMain.translate("vivecraft.command.invalid.viveVersion", nV));
+                    }
+                    return;
+                }
+                NetworkHandler.updateViveVROnly();
+            });
         this.allowOp = this.builder
             .push("allow_op")
             .define(true)
@@ -305,6 +322,10 @@ public class Config {
         this.messagesKickVrOnly = this.builder
             .push("KickVROnly")
             .define("This server is configured for VR players only.");
+        this.messagesKickOutdatedViveVersion = this.builder
+            .push("KickOutdatedViveVersion")
+            .define(
+                "This server is configured to only allow Vivecraft '&minVersion' and newer. You are using Vivecraft '&userVersion'");
         // papi replacements
         this.builder
             .push("papi");
@@ -556,6 +577,10 @@ public class Config {
         // if the config is outdated, or is missing keys, re add them
         // the logger doesn't strip format codes so strip those manually
         this.builder.correct(s -> this.plugin.getLogger().warning(s.replaceAll("§.", "")));
+
+        // init the minVersion
+        this.minViveVersion = this.minViveVersionString.get().isEmpty() ? ViveVersion.UNKNOWN :
+            new ViveVersion(this.minViveVersionString.get());
 
         // save defaults
         save();

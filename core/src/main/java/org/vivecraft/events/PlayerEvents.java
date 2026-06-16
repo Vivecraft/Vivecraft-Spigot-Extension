@@ -32,7 +32,7 @@ public class PlayerEvents implements Listener {
         MetadataHelper.cleanupMetadata(player);
 
         if (ViveMain.CONFIG.messagesEnabled.get() && !ViveMain.CONFIG.messagesLeaveMessage.get().isEmpty()) {
-            NetworkUtils.sendMessageToAll(ViveMain.CONFIG.messagesLeaveMessage.get(), player.getDisplayName(), "");
+            NetworkUtils.sendMessageToAll(ViveMain.CONFIG.messagesLeaveMessage.get(), player.getDisplayName());
         }
     }
 
@@ -71,7 +71,7 @@ public class PlayerEvents implements Listener {
                         message = ViveMain.CONFIG.messagesWelcomeVr.get();
                     }
                     // actually send the message, if there is one set
-                    NetworkUtils.sendMessageToAll(message, player.getDisplayName(), "");
+                    NetworkUtils.sendMessageToAll(message, player.getDisplayName());
                 }
 
                 PermissionManager.updatePlayerPermissionGroup(player);
@@ -145,7 +145,8 @@ public class PlayerEvents implements Listener {
 
             // actually send the message, if there is one set
             if (!message.isEmpty()) {
-                event.setDeathMessage(NetworkUtils.formatMessage(message, event.getEntity().getDisplayName(), entity));
+                event.setDeathMessage(
+                    NetworkUtils.formatMessage(message, event.getEntity().getDisplayName(), "&cause", entity));
             }
         }
     }

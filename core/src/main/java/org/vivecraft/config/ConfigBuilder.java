@@ -39,7 +39,7 @@ public class ConfigBuilder {
             if (!Objects.equals(oldValue, newValue)) {
                 changes++;
                 notifier.accept(
-                    ViveMain.translate("vivecraft command.reload.changed",
+                    ViveMain.translate("vivecraft.command.reload.changed",
                         configValue.path, Utils.green(oldValue), Utils.green(newValue)));
                 if (withUpdate) {
                     configValue.set(newValue, notifier);

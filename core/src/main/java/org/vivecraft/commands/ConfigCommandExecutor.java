@@ -76,7 +76,7 @@ public class ConfigCommandExecutor implements CommandExecutor {
 
         if ("reload".equals(args[0])) {
             int changes = ViveMain.CONFIG.reload(sender::sendMessage);
-            sender.sendMessage(ViveMain.translate("vivecraft command.reload", changes));
+            sender.sendMessage(ViveMain.translate("vivecraft.command.reload", changes));
             return true;
         }
 

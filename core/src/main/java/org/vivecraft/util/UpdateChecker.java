@@ -73,24 +73,24 @@ public class UpdateChecker {
 
             JsonElement j = new JsonParser().parse(inputStreamToString(conn.getInputStream()));
 
-            List<Version> versions = new LinkedList<>();
+            List<PluginVersion> pluginVersions = new LinkedList<>();
 
             if (j.isJsonArray()) {
                 for (JsonElement element : j.getAsJsonArray()) {
                     if (element.isJsonObject()) {
                         JsonObject obj = element.getAsJsonObject();
-                        versions.add(
-                            new Version(obj.get("name").getAsString(),
+                        pluginVersions.add(
+                            new PluginVersion(obj.get("name").getAsString(),
                                 obj.get("version_number").getAsString(),
                                 obj.get("changelog").getAsString()));
                     }
                 }
             }
             // sort the versions, modrinth doesn't guarantee them to be sorted.
-            Collections.sort(versions);
+            Collections.sort(pluginVersions);
 
             String currentVersionNumber = ViveMain.INSTANCE.getDescription().getVersion();
-            Version current = new Version(currentVersionNumber, currentVersionNumber, "");
+            PluginVersion current = new PluginVersion(currentVersionNumber, currentVersionNumber, "");
 
             // enforce update notifications if using a non release
             if (current.alpha > 0 && updateType != UpdateType.ALPHA) {
@@ -104,7 +104,7 @@ public class UpdateChecker {
             StringBuilder sb = new StringBuilder();
             NEWEST_VERSION = "";
 
-            for (Version v : versions) {
+            for (PluginVersion v : pluginVersions) {
                 if (v.isVersionType(updateType) && current.compareTo(v) > 0) {
                     sb.append(Utils.green(v.fullVersion)).append(": \n").append(v.changelog).append("\n\n");
                     if (NEWEST_VERSION.isEmpty()) {
@@ -129,7 +129,7 @@ public class UpdateChecker {
             .lines().collect(Collectors.joining("\n"));
     }
 
-    private static class Version implements Comparable<Version> {
+    private static class PluginVersion implements Comparable<PluginVersion> {
 
         public String fullVersion;
 
@@ -143,7 +143,7 @@ public class UpdateChecker {
         int beta = 0;
         boolean featureTest = false;
 
-        public Version(String version, String version_number, String changelog) {
+        public PluginVersion(String version, String version_number, String changelog) {
             this.fullVersion = version;
             this.changelog = changelog;
             String[] parts = version_number.split("-");
@@ -172,7 +172,7 @@ public class UpdateChecker {
         }
 
         @Override
-        public int compareTo(Version o) {
+        public int compareTo(PluginVersion o) {
             long result = this.compareNumber() - o.compareNumber();
             if (result < 0) {
                 return 1;

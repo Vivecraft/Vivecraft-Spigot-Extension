@@ -129,8 +129,8 @@ public class NetworkHandler implements PluginMessageListener {
         // Vivecraft client connected, send server settings
         VivePlayer vivePlayer = new VivePlayer(player);
         vivePlayer.channel = channel;
-        vivePlayer.version = version.version;
-        vivePlayer.mcVersion = Utils.getMCVersion(vivePlayer.version);
+        vivePlayer.version = new ViveVersion(version.version);
+        vivePlayer.mcVersion = Utils.getMCVersion(version.version);
 
         Debug.log("player '%s' joined with vivecraft '%s' on MC '%s'", player.getName(), vivePlayer.version,
             vivePlayer.mcVersion);
