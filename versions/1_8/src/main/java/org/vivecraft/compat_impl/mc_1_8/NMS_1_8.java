@@ -24,7 +24,9 @@ import org.vivecraft.util.reflection.ReflectionConstructor;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -593,41 +595,51 @@ public class NMS_1_8 implements NMSHelper {
     @Override
     public void modifyEntity(Entity entity) {
         if (entity instanceof Creeper) {
-            if (!replaceGoal(entity, false, goal -> ViveMain.MC_MODS.creeperHelper().isSwellGoal(goal),
-                creeper -> ViveMain.MC_MODS.creeperHelper().getCreeperSwellGoal(creeper)))
+            if (replaceGoal(entity, false, goal -> ViveMain.MC_MODS.creeperHelper().isSwellGoal(goal),
+                creeper -> ViveMain.MC_MODS.creeperHelper().getCreeperSwellGoal(creeper), "SwellGoal"))
             {
-                throw new RuntimeException("Could not find swell goal for creeper");
+                Debug.log("SwellGoal replaced");
             }
         } else if (entity instanceof Enderman) {
-            if (!replaceGoal(entity, true, goal -> ViveMain.MC_MODS.endermanHelper().isLookForPlayerGoal(goal),
-                enderman -> ViveMain.MC_MODS.endermanHelper().getEndermanLookForPlayer(enderman)))
+            if (replaceGoal(entity, true, goal -> ViveMain.MC_MODS.endermanHelper().isLookForPlayerGoal(goal),
+                enderman -> ViveMain.MC_MODS.endermanHelper().getEndermanLookForPlayer(enderman), "LookForPlayerGoal"))
             {
-                throw new RuntimeException("Could not find lookforplayer goal for enderman");
+                Debug.log("look for player replaced");
             }
-            Debug.log("look for player replaced");
         }
     }
 
     protected boolean replaceGoal(
-        Entity entity, boolean isTarget, Predicate<Object> isGoal, Function<Object, Object> newGoal)
+        Entity entity, boolean isTarget, Predicate<Object> isGoal, Function<Object, Object> newGoal, String goalName)
     {
         Object nmsEntity = BukkitReflector.getEntityHandle(entity);
         Object selector = isTarget ? this.Mob_targetSelector.get(nmsEntity) : this.Mob_goalSelector.get(nmsEntity);
         Collection<?> goals = (Collection<?>) this.GoalSelector_availableGoals.get(selector);
+        if (goals.isEmpty()) {
+            Debug.log("Couldn't replace goal '%s' for entity %s\n no goals, probably modified by another plugin",
+                goalName, nmsEntity.getClass().getName());
+            return false;
+        }
         int priority = Integer.MAX_VALUE;
+        boolean removed = false;
+
         for (Object wrappedGoal : goals) {
             Object goal = this.WrappedGoal_goal.get(wrappedGoal);
             if (isGoal.test(goal)) {
                 priority = (int) this.WrappedGoal_priority.get(wrappedGoal);
                 this.GoalSelector_removeGoal.invoke(selector, goal);
+                removed = true;
                 break;
             }
         }
-        if (priority == Integer.MAX_VALUE) {
+        if (!removed) {
+            List<String> gs = new ArrayList<>();
             for (Object wrappedGoal : goals) {
                 Object goal = this.WrappedGoal_goal.get(wrappedGoal);
-                ViveMain.LOGGER.info("entity has goal: " + goal.getClass().getName());
+                gs.add(this.WrappedGoal_priority.get(wrappedGoal) + ": " + goal.getClass().getName());
             }
+            Debug.log("Couldn't replace goal '%s' for entity %s\n has goals: \n %s", goalName,
+                nmsEntity.getClass().getName(), String.join("\n ", gs));
             return false;
         }
         this.GoalSelector_addGoal.invoke(selector, priority,

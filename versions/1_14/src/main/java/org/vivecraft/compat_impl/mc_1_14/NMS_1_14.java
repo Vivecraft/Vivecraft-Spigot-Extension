@@ -10,6 +10,7 @@ import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat.types.BlockContext;
 import org.vivecraft.compat.types.FluidContext;
 import org.vivecraft.compat_impl.mc_1_13_2.NMS_1_13_2;
+import org.vivecraft.debug.Debug;
 import org.vivecraft.util.reflection.ClassGetter;
 import org.vivecraft.util.reflection.ReflectionConstructor;
 import org.vivecraft.util.reflection.ReflectionField;
@@ -152,10 +153,11 @@ public class NMS_1_14 extends NMS_1_13_2 {
     @Override
     public void modifyEntity(Entity entity) {
         if (entity instanceof Enderman) {
-            if (!replaceGoal(entity, false, goal -> ViveMain.MC_MODS.endermanHelper().isFreezeGoal(goal),
-                enderman -> ViveMain.MC_MODS.endermanHelper().getEndermanFreezeWhenLookAt(enderman)))
+            if (replaceGoal(entity, false, goal -> ViveMain.MC_MODS.endermanHelper().isFreezeGoal(goal),
+                enderman -> ViveMain.MC_MODS.endermanHelper().getEndermanFreezeWhenLookAt(enderman),
+                "FreezeWhenLookAt"))
             {
-                throw new RuntimeException("Could not find freezewhenlookat goal for enderman");
+                Debug.log("FreezeWhenLookAt replaced");
             }
         }
         super.modifyEntity(entity);

@@ -58,6 +58,7 @@ import org.vivecraft.util.MathUtils;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -371,15 +372,15 @@ public class NMS_26_1 implements NMSHelper {
                 replaceEntity(entity, newVREnderman());
             }
         } else if (entity instanceof org.bukkit.entity.Creaking) {
-            if (!((BukkitReflector.getEntityHandle(entity)) instanceof VRCreaking)) {
+            if (!(BukkitReflector.getEntityHandle(entity) instanceof VRCreaking)) {
                 Debug.log("replacing Creaking");
                 replaceEntity(entity, newVRCreaking());
             }
         } else if (entity instanceof org.bukkit.entity.Creeper) {
-            if (!replaceGoal(entity, false, goal -> ViveMain.MC_MODS.creeperHelper().isSwellGoal(goal),
-                creeper -> (Goal) ViveMain.MC_MODS.creeperHelper().getCreeperSwellGoal(creeper)))
+            if (replaceGoal(entity, false, goal -> ViveMain.MC_MODS.creeperHelper().isSwellGoal(goal),
+                creeper -> (Goal) ViveMain.MC_MODS.creeperHelper().getCreeperSwellGoal(creeper), "SwellGoal"))
             {
-                throw new RuntimeException("Could not find swell goal for creeper");
+                Debug.log("SwellGoal replaced");
             }
         }
     }
@@ -395,27 +396,39 @@ public class NMS_26_1 implements NMSHelper {
     }
 
     protected boolean replaceGoal(
-        org.bukkit.entity.Entity entity, boolean isTarget, Predicate<Object> isGoal, Function<Entity, Goal> newGoal)
+        org.bukkit.entity.Entity entity, boolean isTarget, Predicate<Object> isGoal, Function<Entity, Goal> newGoal,
+        String goalName)
     {
         Mob nmsMob = (Mob) BukkitReflector.getEntityHandle(entity);
         GoalSelector selector = isTarget ?
             (GoalSelector) this.Mob_targetSelector.get(nmsMob) :
             (GoalSelector) this.Mob_goalSelector.get(nmsMob);
         Set<WrappedGoal> goals = selector.getAvailableGoals();
+        if (goals.isEmpty()) {
+            Debug.log("Couldn't replace goal '%s' for entity %s\n no goals, probably modified by another plugin",
+                goalName, nmsMob.getClass().getName());
+            return false;
+        }
         int priority = Integer.MAX_VALUE;
+        boolean removed = false;
+
         for (WrappedGoal wrappedGoal : goals) {
             Goal goal = wrappedGoal.getGoal();
             if (isGoal.test(goal)) {
                 priority = wrappedGoal.getPriority();
                 selector.removeGoal(goal);
+                removed = true;
                 break;
             }
         }
-        if (priority == Integer.MAX_VALUE) {
+        if (!removed) {
+            List<String> gs = new ArrayList<>();
             for (WrappedGoal wrappedGoal : goals) {
                 Object goal = wrappedGoal.getGoal();
-                ViveMain.LOGGER.info("entity has goal: " + goal.getClass().getName());
+                gs.add(wrappedGoal.getPriority() + ": " + goal.getClass().getName());
             }
+            Debug.log("Couldn't replace goal '%s' for entity %s\n has goals: \n %s", goalName,
+                nmsMob.getClass().getName(), String.join("\n ", gs));
             return false;
         }
         selector.addGoal(priority, newGoal.apply(nmsMob));
