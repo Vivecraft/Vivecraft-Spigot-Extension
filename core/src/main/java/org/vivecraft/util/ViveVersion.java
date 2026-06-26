@@ -2,7 +2,7 @@ package org.vivecraft.util;
 
 import org.vivecraft.debug.Debug;
 
-public class ViveVersion implements Comparable<ViveVersion> {
+public class ViveVersion implements Comparable<ViveVersion>, org.vivecraft.api.data.ViveVersion {
 
     public final static ViveVersion UNKNOWN = new ViveVersion();
 
@@ -62,6 +62,12 @@ public class ViveVersion implements Comparable<ViveVersion> {
             // couldn't parse the version, mark as unknown
             Debug.log("coudln't parse vivecraft version: %s, Error: %s", version, e);
             this.unknown = true;
+            this.major = 0;
+            this.minor = 0;
+            this.patch = 0;
+            this.alpha = 0;
+            this.beta = 0;
+            this.featureTest = false;
         }
     }
 
@@ -119,5 +125,31 @@ public class ViveVersion implements Comparable<ViveVersion> {
         }
 
         return this.fullVersion + "(" + versionString() + ")";
+    }
+
+    @Override
+    public int getMajor() {
+        return this.major;
+    }
+
+    @Override
+    public int getMinor() {
+        return this.minor;
+    }
+
+    @Override
+    public int getPatch() {
+        return this.patch;
+    }
+
+    @Override
+    public ReleaseType getReleaseType() {
+        if (this.alpha > 0) {
+            return ReleaseType.ALPHA;
+        } else if (this.beta > 0) {
+            return ReleaseType.BETA;
+        } else {
+            return ReleaseType.RELEASE;
+        }
     }
 }

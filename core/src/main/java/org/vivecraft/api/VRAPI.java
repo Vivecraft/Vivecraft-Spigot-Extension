@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.api.data.VRPose;
 import org.vivecraft.api.data.VRPoseHistory;
+import org.vivecraft.api.data.ViveVersion;
 import org.vivecraft.api_impl.VRAPIImpl;
 
 /**
@@ -23,6 +24,32 @@ public interface VRAPI {
     static VRAPI instance() {
         return VRAPIImpl.INSTANCE;
     }
+
+
+    /**
+     * Checks whether a given player connected with Vivecraft.
+     * <br>
+     * This can return false for a player with Vivecraft, if they have not sent their Vivecraft version yet.
+     *
+     * @param player The player to check if they connected with Vivecraft.
+     * @return true if the player connected with Vivecraft.
+     * @since 1.3.13
+     */
+    boolean hasVivecraft(Player player);
+
+    /**
+     * Returns the Vivecraft version the given player joined the server with.
+     * <br>
+     * Will return version 0.0.0 if they joined with a legacy or unparsable version.
+     * <br>
+     * Will return {@code null} if they joined without Vivecraft, or have not sent their Vivecraft version yet.
+     *
+     * @param player The player to get the Vivecraft version of.
+     * @return The version the player joined with.
+     * @since 1.3.13
+     */
+    @Nullable
+    ViveVersion getVivecraftVersion(Player player);
 
     /**
      * Check whether a given player is currently in VR.

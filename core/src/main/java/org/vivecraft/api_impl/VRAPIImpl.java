@@ -9,6 +9,7 @@ import org.vivecraft.api.VRAPI;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.api.data.VRPose;
 import org.vivecraft.api.data.VRPoseHistory;
+import org.vivecraft.api.data.ViveVersion;
 import org.vivecraft.api_impl.data.VRPoseHistoryImpl;
 import org.vivecraft.network.NetworkHandler;
 
@@ -38,6 +39,22 @@ public class VRAPIImpl implements VRAPI {
 
     public void clearAllPoseHistories() {
         this.serverPoseHistories.clear();
+    }
+
+    @Override
+    public boolean hasVivecraft(Player player) {
+        return ViveMain.getVivePlayer(player) != null;
+    }
+
+    @Nullable
+    @Override
+    public ViveVersion getVivecraftVersion(Player player) {
+        VivePlayer vivePlayer = ViveMain.getVivePlayer(player);
+        if (vivePlayer == null) {
+            return null;
+        } else {
+            return vivePlayer.version;
+        }
     }
 
     @Override
