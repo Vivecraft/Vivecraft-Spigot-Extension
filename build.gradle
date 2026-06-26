@@ -175,6 +175,11 @@ shadowJar {
             exclude dependency(subproj)
         }
     }*/
+    manifest {
+        attributes(
+            "paperweight-mappings-namespace": "mojang"
+        )
+    }
 }
 
 // Disable jar and replace with shadowJar
