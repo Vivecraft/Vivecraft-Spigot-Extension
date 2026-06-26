@@ -12,6 +12,7 @@ import org.vivecraft.network.packet.s2c.CrawlPayloadS2C;
 import org.vivecraft.network.packet.s2c.DualWieldingPayloadS2C;
 import org.vivecraft.network.packet.s2c.TeleportPayloadS2C;
 import org.vivecraft.util.MCVersion;
+import org.vivecraft.util.Pair;
 import org.vivecraft.util.UpdateChecker;
 import org.vivecraft.util.ViveVersion;
 
@@ -19,6 +20,7 @@ import java.io.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class Config {
 
@@ -620,7 +622,7 @@ public class Config {
             List<String> lines = new ArrayList<>();
             String line;
             String indent = null;
-            Deque<String> stack = new ArrayDeque<>();
+            Deque<Pair<String, String>> stack = new ArrayDeque<>();
             boolean wasList = false;
             while ((line = reader.readLine()) != null) {
                 String trimmed = line.trim();
@@ -641,22 +643,26 @@ public class Config {
                     }
                     if (trimmed.endsWith(":")) {
                         if (indent == null || newIndent.length() >= indent.length()) {
-                            stack.add(entry);
+                            stack.add(Pair.of(newIndent, entry));
                         } else if (newIndent.isEmpty()) {
                             stack.clear();
-                            stack.add(entry);
+                            stack.add(Pair.of(newIndent, entry));
                             lines.add("");
                         } else {
                             stack.removeLast();
-                            stack.add(entry);
+                            stack.add(Pair.of(newIndent, entry));
                         }
                     } else {
-                        stack.add(entry);
+                        // make sure we get out of sub sections
+                        while (!stack.isEmpty() && newIndent.length() <= stack.getLast().left.length()) {
+                            stack.removeLast();
+                        }
+                        stack.add(Pair.of(newIndent, entry));
                         leaf = true;
                     }
                     indent = newIndent;
                     // add the comment
-                    String tString = "vivecraft.serverSettings." + String.join(".", stack);
+                    String tString = "vivecraft.serverSettings." + getPath(stack);
 
                     if (!leaf) {
                         addComments(lines, indent, tString, false);
@@ -664,7 +670,7 @@ public class Config {
                     addComments(lines, indent, tString + ".tooltip", leaf);
                     addComments(lines, indent, tString + ".tooltipall", false);
                     addComments(lines, indent, tString + ".tooltipspigot", false);
-                    ConfigBuilder.ConfigValue c = this.builder.getConfigValue(String.join(".", stack));
+                    ConfigBuilder.ConfigValue c = this.builder.getConfigValue(getPath(stack));
                     if (c instanceof ConfigBuilder.NumberValue) {
                         ConfigBuilder.NumberValue n = (ConfigBuilder.NumberValue) c;
                         lines.add(indent +
@@ -683,6 +689,10 @@ public class Config {
             this.plugin.getLogger().log(Level.SEVERE, "error commenting config: ", e);
             return null;
         }
+    }
+
+    private String getPath(Collection<Pair<String, String>> stack) {
+        return stack.stream().map(p -> p.right).collect(Collectors.joining("."));
     }
 
     private void addComments(List<String> lines, String indent, String key, boolean required) {
