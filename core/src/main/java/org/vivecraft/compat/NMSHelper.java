@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -284,4 +285,49 @@ public interface NMSHelper {
      * @param itemStack ItemStack that blocked
      */
     void playShieldBlockSound(Player player, ItemStack itemStack);
+
+    /**
+     * plays the shield disable sound for the given item
+     *
+     * @param player    Player that blocked something
+     * @param itemStack ItemStack that got disabled
+     */
+    void playShieldDisableSound(Player player, ItemStack itemStack);
+
+    /**
+     * return true if the given ItemStack is a shield
+     *
+     * @param itemStack ItemStack to check
+     * @return if the item is a shield
+     * @apiNote shields exist since 1.9
+     */
+    boolean isShield(ItemStack itemStack);
+
+    /**
+     * checks if the given item can block the damge of the damage event
+     *
+     * @param itemStack itemstack that tries to block the damage
+     * @param damage    damage that is being blocked
+     * @return true if the damage is blockable with this item
+     * @apiNote since 1.21.5 some damage types are unblockable
+     */
+    boolean doesBlockDamage(ItemStack itemStack, EntityDamageEvent damage);
+
+    /**
+     * handles shield blocking
+     * does knockback, item damage and sounds
+     *
+     * @param player    Player that blocked something
+     * @param itemStack ItemStack that blocked
+     * @param hand      which hanbd the itemstack is held in
+     * @param angle     attack angle that was blocked with
+     * @param attacker  attacker whos attack was blocked, for Projectiles it is the projectile that caused the damage
+     * @param damage    damage amount the attacker caused
+     * @param event     damge event that is being blocked
+     * @return amount of damage that was blocked
+     *
+     */
+    float doShieldBlocking(
+        Player player, ItemStack itemStack, VRBodyPart hand, double angle, Entity attacker, float damage,
+        EntityDamageEvent event);
 }

@@ -219,14 +219,14 @@ public class Api_1_8 implements ApiHelper {
     }
 
     @Override
-    public boolean isShield(ItemStack itemStack) {
-        // no shields in 1.8
+    public boolean hasItemCooldown(Player player, ItemStack itemStack) {
+        // no item cooldowns in 1.8
         return false;
     }
 
     @Override
-    public boolean hasItemCooldown(Player player, ItemStack itemStack) {
-        return false;
+    public void applyItemCooldown(Player player, ItemStack itemStack, int ticks, boolean force) {
+        // no item cooldowns in 1.8
     }
 
     @Override

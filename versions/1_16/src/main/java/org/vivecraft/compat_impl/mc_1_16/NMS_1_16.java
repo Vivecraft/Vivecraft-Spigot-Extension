@@ -1,6 +1,8 @@
 package org.vivecraft.compat_impl.mc_1_16;
 
 import com.google.common.collect.Multimap;
+import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat_impl.mc_1_15.NMS_1_15;
@@ -12,5 +14,13 @@ public class NMS_1_16 extends NMS_1_15 {
         Object item = this.ItemStack_getItem.invoke(BukkitReflector.asNMSCopy(itemStack));
         Multimap map = (Multimap) this.Item_getDefaultAttributeModifiers.invoke(item, this.EquipmentSlot_FEET.get());
         return applyAttributeModifiers(0, map.get(this.Attributes_ARMOR.get()));
+    }
+
+    @Override
+    protected boolean canDisableShield(LivingEntity attacker) {
+        if (attacker.getEquipment() == null) return false;
+        Material material = attacker.getEquipment().getItemInMainHand().getType();
+        return material == Material.WOODEN_AXE || material == Material.STONE_AXE || material == Material.IRON_AXE ||
+            material == Material.GOLDEN_AXE || material == Material.DIAMOND_AXE || material == Material.NETHERITE_AXE;
     }
 }

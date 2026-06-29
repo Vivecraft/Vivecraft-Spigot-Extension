@@ -1,5 +1,7 @@
 package org.vivecraft.compat_impl.mc_1_13;
 
+import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.vivecraft.accessors.*;
@@ -72,5 +74,13 @@ public class NMS_1_13 extends NMS_1_12_2 {
 
     protected boolean hasCustomHoverName(Object nmsStack) {
         return (boolean) this.ItemStack_hasCustomHoverName.invoke(nmsStack);
+    }
+
+    @Override
+    protected boolean canDisableShield(LivingEntity attacker) {
+        if (attacker.getEquipment() == null || attacker.getEquipment().getItemInMainHand() == null) return false;
+        Material material = attacker.getEquipment().getItemInMainHand().getType();
+        return material == Material.WOODEN_AXE || material == Material.STONE_AXE || material == Material.IRON_AXE ||
+            material == Material.GOLDEN_AXE || material == Material.DIAMOND_AXE;
     }
 }

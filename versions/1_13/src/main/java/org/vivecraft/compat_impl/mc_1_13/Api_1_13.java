@@ -33,8 +33,9 @@ public class Api_1_13 extends Api_1_12_2 {
 
     @Override
     public boolean addDamage(ItemStack itemStack, int damage) {
-        if (itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof Damageable) {
-            Damageable damageable = (Damageable) itemStack.getItemMeta();
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta instanceof Damageable) {
+            Damageable damageable = (Damageable) meta;
             int durability = damageable.getDamage();
             int newDurability = durability + damage;
             damageable.setDamage(newDurability);

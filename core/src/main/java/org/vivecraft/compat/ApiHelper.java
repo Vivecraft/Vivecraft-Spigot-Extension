@@ -159,15 +159,6 @@ public interface ApiHelper {
     void setHandItem(Player player, VRBodyPart hand, @Nullable ItemStack itemStack);
 
     /**
-     * return true if the given ItemStack is a shield
-     *
-     * @param itemStack ItemStack to check
-     * @return if the item is a shield
-     * @apiNote shields exist since 1.9
-     */
-    boolean isShield(ItemStack itemStack);
-
-    /**
      * checks if the player has a cooldown for the given item
      *
      * @param player    Player to check for
@@ -176,6 +167,17 @@ public interface ApiHelper {
      * @apiNote spigot has an api for it since 1.11.2
      */
     boolean hasItemCooldown(Player player, ItemStack itemStack);
+
+    /**
+     * applies a cooldown for the given item type to the player
+     *
+     * @param player    Player to apply the cooldown to
+     * @param itemStack ItemStack whose type the cooldown is applied for
+     * @param ticks     cooldown duration in ticks
+     * @param force     forces the cooldown, if false, only applies the cooldown if the curretn cooldown is lower
+     * @apiNote spigot has an api for it since 1.11.2
+     */
+    void applyItemCooldown(Player player, ItemStack itemStack, int ticks, boolean force);
 
     /**
      * checks if the arrow has piecing enchant

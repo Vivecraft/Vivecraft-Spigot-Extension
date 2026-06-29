@@ -149,17 +149,21 @@ public class DamageEvents implements Listener {
         {
             Player player = (Player) event.getEntity();
             if (!player.isBlocking()) {
-                Entity damage = event.getDamager();
+                Entity damager = event.getDamager();
                 VivePlayer vivePlayer = ViveMain.getVivePlayer(player);
                 boolean isProjectile = false;
 
-                AABB bb = ViveMain.API.getEntityAABB(damage);
-                Vector travelDir = damage.getVelocity().normalize();
+                AABB bb = ViveMain.API.getEntityAABB(damager);
+                Vector travelDir = damager.getVelocity();
+                // prevent nans from flying players
+                if (travelDir.lengthSquared() > 0) {
+                    travelDir.normalize();
+                }
                 Vector dmgPos = bb.getCenter();
 
-                if (damage instanceof Projectile) {
+                if (damager instanceof Projectile) {
                     isProjectile = true;
-                    if (damage instanceof Arrow && ViveMain.API.isArrowPiercing((Arrow) damage)) {
+                    if (damager instanceof Arrow && ViveMain.API.isArrowPiercing((Arrow) damager)) {
                         // can't block piercing arrows
                         return;
                     }
@@ -180,7 +184,9 @@ public class DamageEvents implements Listener {
                     ItemStack stack = ViveMain.API.getHandItem(player, hand);
 
                     // check for shield and do not bypass item cooldowns
-                    if (stack != null && ViveMain.API.isShield(stack) && !ViveMain.API.hasItemCooldown(player, stack)) {
+                    if (stack != null && ViveMain.NMS.isShield(stack) && !ViveMain.API.hasItemCooldown(player, stack) &&
+                        ViveMain.NMS.doesBlockDamage(stack, event))
+                    {
                         // check if it blocks
                         Vector3fc sideDir;
                         if (vivePlayer.isLeftHanded()) {
@@ -194,26 +200,34 @@ public class DamageEvents implements Listener {
                         double angle = 0;
                         if (isProjectile) {
                             // direction to hand
-                            Vector dmgDir = dmgPos.subtract(vivePlayer.getBodyPartPos(hand)).normalize();
+                            Vector dmgDir = new Vector().copy(dmgPos).subtract(vivePlayer.getBodyPartPos(hand))
+                                .normalize();
                             angle = shieldDir.dot((float) dmgDir.getX(), (float) dmgDir.getY(), (float) dmgDir.getZ());
                         } else {
                             // horizontal direction to the player
-                            Vector dmgDir = dmgPos.subtract(player.getLocation().toVector()).setY(0).normalize();
+                            Vector dmgDir = new Vector().copy(dmgPos).subtract(player.getLocation().toVector()).setY(0)
+                                .normalize();
                             Vector3f hShieldDir = new Vector3f(shieldDir.x(), 0, shieldDir.z()).normalize();
                             angle = hShieldDir.dot((float) dmgDir.getX(), (float) dmgDir.getY(), (float) dmgDir.getZ());
                         }
                         if (angle > 0.5) {
-                            if (event.getDamage() >= 3) {
-                                // damage shield
-                                // durability counts up the damage
-                                if (ViveMain.API.addDamage(stack, 1 + (int) Math.floor(event.getDamage()))) {
-                                    ViveMain.API.breakItem(player, hand);
-                                } else {
-                                    ViveMain.NMS.playShieldBlockSound(player, stack);
-                                }
+                            float damage = (float) event.getDamage();
+                            float blocked = ViveMain.NMS.doShieldBlocking(player, stack, hand, angle, damager, damage,
+                                event);
+                            if (damage <= blocked) {
+                                // no damage left, so cancel
+                                event.setCancelled(true);
+                            } else {
+                                // some damage left, so just reduce it
+                                // don't use blocking modifier, since that doesn't cancel damge done with absortion
+                                event.setDamage(damage - blocked);
                             }
-                            // TODO knockback and shield disable
-                            event.setCancelled(true);
+                            if (blocked > 0 && ViveMain.CONFIG.roomscaleShieldCooldown.get() > 0 &&
+                                damage >= ViveMain.CONFIG.roomscaleShieldCooldownDamageTrigger.get())
+                            {
+                                ViveMain.API.applyItemCooldown(player, stack,
+                                    ViveMain.CONFIG.roomscaleShieldCooldown.get(), false);
+                            }
                             return;
                         }
                     }

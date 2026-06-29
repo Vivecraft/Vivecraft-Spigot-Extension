@@ -1,12 +1,8 @@
 package org.vivecraft.compat_impl.mc_1_21_3;
 
-import org.bukkit.entity.Creaking;
-import org.bukkit.entity.Enderman;
-import org.bukkit.entity.Entity;
-import org.vivecraft.accessors.EntityMapping;
-import org.vivecraft.accessors.EntityTypeMapping;
-import org.vivecraft.accessors.LevelMapping;
-import org.vivecraft.accessors.ServerLevelMapping;
+import org.bukkit.entity.*;
+import org.bukkit.inventory.ItemStack;
+import org.vivecraft.accessors.*;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat_impl.mc_1_21.NMS_1_21;
 import org.vivecraft.debug.Debug;
@@ -34,6 +30,10 @@ public class NMS_1_21_3 extends NMS_1_21 {
     protected ReflectionConstructor VRCreaking_Constructor;
     protected Class<?> VRCreaking;
 
+    private ReflectionMethod LivingEntity_canDisableShield;
+    private ReflectionMethod Player_disableShield;
+    private ReflectionMethod Player_disableShield_paper;
+
     @Override
     protected void init() {
         super.init();
@@ -56,6 +56,19 @@ public class NMS_1_21_3 extends NMS_1_21 {
         this.VRCreaking_Constructor = ReflectionConstructor.getCompat("VRCreaking",
             ClassGetter.getClass(true, EntityTypeMapping.MAPPING), ClassGetter.getClass(true, LevelMapping.MAPPING));
         this.VRCreaking = this.VRCreaking_Constructor.constructor.getDeclaringClass();
+    }
+
+    @Override
+    protected void initShieldDisable() {
+        this.LivingEntity_canDisableShield = ReflectionMethod.getMethod(LivingEntityMapping.METHOD_CAN_DISABLE_SHIELD);
+        this.Player_disableShield = ReflectionMethod.getMethod(false, PlayerMapping.METHOD_DISABLE_SHIELD);
+        this.Player_disableShield_paper = ReflectionMethod.getRaw(
+            ClassGetter.getClass(true, PlayerMapping.MAPPING), "disableShield", false,
+            ClassGetter.getClass(true, ItemStackMapping.MAPPING),
+            ClassGetter.getClass(true, LivingEntityMapping.MAPPING));
+        if (this.Player_disableShield == null && this.Player_disableShield_paper == null) {
+            throw new RuntimeException("Player_disableShield and Player_disableShield_paper is null");
+        }
     }
 
     @Override
@@ -101,5 +114,19 @@ public class NMS_1_21_3 extends NMS_1_21 {
 
     protected void startRiding(Object vehicle, Object passanger, boolean force) {
         this.Entity_startRiding.invoke(passanger, vehicle, force);
+    }
+
+    @Override
+    protected void disableShield(Player player, LivingEntity attacker, ItemStack itemStack) {
+        Object nmsStack = BukkitReflector.getItemHandle(itemStack);
+        Object nmsAttacker = BukkitReflector.getEntityHandle(attacker);
+        Object nmsPlayer = BukkitReflector.getEntityHandle(player);
+        if (nmsStack != null && (boolean) this.LivingEntity_canDisableShield.invoke(nmsAttacker)) {
+            if (this.Player_disableShield_paper != null) {
+                this.Player_disableShield_paper.invoke(nmsPlayer, nmsStack, nmsAttacker);
+            } else {
+                this.Player_disableShield.invoke(nmsPlayer, nmsStack);
+            }
+        }
     }
 }

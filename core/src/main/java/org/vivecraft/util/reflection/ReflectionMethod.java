@@ -3,6 +3,7 @@ package org.vivecraft.util.reflection;
 import me.kcra.takenaka.accessor.mapping.MethodMapping;
 import org.jetbrains.annotations.Nullable;
 import org.vivecraft.ViveMain;
+import org.vivecraft.debug.Debug;
 import org.vivecraft.util.MCVersion;
 
 import java.lang.reflect.InvocationTargetException;
@@ -103,19 +104,26 @@ public class ReflectionMethod {
      * @param pre        path before the spigot api part
      * @param post       path after the spigot api part
      * @param methodName name of the method
+     * @param critical   if this method is needed, if this is false null is returned if it is missing
      * @param args       Classes of the arguments for the method
      * @return found reflection method
-     * @throws RuntimeException When no matching method is found
+     * @throws RuntimeException When no matching method is found and critical is true
      */
-    public static ReflectionMethod getWithApi(String pre, String post, String methodName, Class<?>... args) {
+    public static ReflectionMethod getWithApi(
+        String pre, String post, String methodName, boolean critical, Class<?>... args)
+    {
         try {
             Class<?> c = ClassGetter.getWithApi(pre, post);
             return getMethod(c, methodName, args);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
-            throw new RuntimeException(
-                "couldn't find any method matching " + pre + ".###." + post + "." + methodName + " with args: " +
-                    Arrays.toString(args),
-                e);
+            if (critical) {
+                throw new RuntimeException(
+                    "couldn't find any method matching " + pre + ".###." + post + "." + methodName + " with args: " +
+                        Arrays.toString(args),
+                    e);
+            } else {
+                return null;
+            }
         }
     }
 
@@ -124,13 +132,14 @@ public class ReflectionMethod {
      *
      * @param cls        path of the containing class
      * @param methodName name of the method
+     * @param critical   if true will throw an exception when not found, else returns null
      * @param args       Classes of the arguments for the method
      * @return found reflection method
      * @throws RuntimeException When no matching method is found
      */
-    public static ReflectionMethod getRaw(String cls, String methodName, Class<?>... args) {
+    public static ReflectionMethod getRaw(String cls, String methodName, boolean critical, Class<?>... args) {
         try {
-            return getRaw(ClassGetter.getRaw(cls), methodName, args);
+            return getRaw(ClassGetter.getRaw(cls), methodName, critical, args);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(
                 "couldn't find method " + cls + "." + methodName + " with args: " + Arrays.toString(args), e);
@@ -142,14 +151,19 @@ public class ReflectionMethod {
      *
      * @param cls        containing class
      * @param methodName name of the method
+     * @param critical   if true will throw an exception when not found, else returns null
      * @param args       Classes of the arguments for the method
      * @return found reflection method
      * @throws RuntimeException When no matching method is found
      */
-    public static ReflectionMethod getRaw(Class<?> cls, String methodName, Class<?>... args) {
+    public static ReflectionMethod getRaw(Class<?> cls, String methodName, boolean critical, Class<?>... args) {
         try {
             return getMethod(cls, methodName, args);
         } catch (NoSuchMethodException e) {
+            if (!critical) {
+                Debug.log("couldn't find method %s.%s with args: %s", cls, methodName, Arrays.toString(args));
+                return null;
+            }
             throw new RuntimeException(
                 "couldn't find method " + cls + "." + methodName + " with args: " + Arrays.toString(args), e);
         }

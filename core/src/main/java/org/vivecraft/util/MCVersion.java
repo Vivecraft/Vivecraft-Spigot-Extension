@@ -80,6 +80,9 @@ public class MCVersion implements Comparable<MCVersion> {
         } else if (segments.length == 3) {
             mc = new MCVersion(Integer.parseInt(segments[0]), Integer.parseInt(segments[1]),
                 Integer.parseInt(segments[2]));
+        } else if (segments.length == 4 && "local".equals(segments[3])) {
+            mc = new MCVersion(Integer.parseInt(segments[0]), Integer.parseInt(segments[1]),
+                Integer.parseInt(segments[2]));
         } else {
             if (fatal) {
                 throw new RuntimeException("Vivecraft: Unrecognized mc version: " + version);

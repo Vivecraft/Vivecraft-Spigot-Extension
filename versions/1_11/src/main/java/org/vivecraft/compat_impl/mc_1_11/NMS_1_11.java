@@ -1,9 +1,14 @@
 package org.vivecraft.compat_impl.mc_1_11;
 
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.vivecraft.accessors.EntityMapping;
 import org.vivecraft.accessors.ItemStackMapping;
+import org.vivecraft.accessors.PlayerMapping;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.BukkitReflector;
 import org.vivecraft.compat_impl.mc_1_9.NMS_1_9;
@@ -19,6 +24,8 @@ public class NMS_1_11 extends NMS_1_9 {
     protected ReflectionField ItemStack_EMPTY;
     protected ReflectionMethod ItemStack_isEmpty;
 
+    private ReflectionMethod Player_disableShield;
+
     @Override
     protected void init() {
         super.init();
@@ -31,6 +38,18 @@ public class NMS_1_11 extends NMS_1_9 {
         super.initInventory();
         this.ItemStack_EMPTY = ReflectionField.getField(ItemStackMapping.FIELD_EMPTY);
     }
+
+    @Override
+    protected void initShield() {
+        initShieldDisable();
+        initShieldAttackKnockback();
+    }
+
+    protected void initShieldDisable() {
+        this.Player_disableShield = ReflectionMethod.getMethod(true, PlayerMapping.METHOD_DISABLE_SHIELD_2);
+    }
+
+    protected void initShieldAttackKnockback() {}
 
     @Override
     protected Vector getEyePosition(Object nmsEntity) {
@@ -76,5 +95,27 @@ public class NMS_1_11 extends NMS_1_9 {
         } else {
             Debug.log("stacks match, don't touch attributes");
         }
+    }
+
+    @Override
+    public float doShieldBlocking(
+        Player player, ItemStack itemStack, VRBodyPart hand, double angle, Entity attacker, float damage,
+        EntityDamageEvent event)
+    {
+        super.doShieldBlocking(player, itemStack, hand, angle, attacker, damage, event);
+        // all damage is blocked in this version
+        return damage;
+    }
+
+    @Override
+    protected void disableShield(Player player, LivingEntity attacker, ItemStack itemStack) {
+        if (canDisableShield(attacker)) {
+            this.Player_disableShield.invoke(BukkitReflector.getEntityHandle(player), true);
+        }
+    }
+
+    @Override
+    protected void shieldAttackerKnockback(Player player, LivingEntity attacker) {
+        // no knockback in this version, since all damage is always blocked
     }
 }

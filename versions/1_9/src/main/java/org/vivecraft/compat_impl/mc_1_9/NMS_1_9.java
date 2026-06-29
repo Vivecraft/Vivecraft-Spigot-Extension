@@ -1,9 +1,17 @@
 package org.vivecraft.compat_impl.mc_1_9;
 
 import com.google.common.collect.Multimap;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
+import org.vivecraft.ViveMain;
 import org.vivecraft.accessors.*;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.BukkitReflector;
@@ -12,11 +20,8 @@ import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
 import java.util.Collection;
-import java.util.Random;
 
 public class NMS_1_9 extends NMS_1_8 {
-
-    protected final Random random = new Random();
 
     protected ReflectionMethod ServerPlayer_getServer;
 
@@ -32,6 +37,8 @@ public class NMS_1_9 extends NMS_1_8 {
 
     protected ReflectionField ServerboundUseItemOnPacket_blockPos;
     protected ReflectionField ServerboundUseItemOnPacket_hitDir;
+
+    private ReflectionMethod LivingEntity_knockback;
 
     @Override
     protected void init() {
@@ -78,6 +85,11 @@ public class NMS_1_9 extends NMS_1_8 {
             ServerboundUseItemOnPacketMapping.FIELD_FIELD_179725_B);
         this.ServerboundUseItemOnPacket_hitDir = ReflectionField.getField(
             ServerboundUseItemOnPacketMapping.FIELD_FIELD_149579_D);
+    }
+
+    @Override
+    protected void initShield() {
+        this.LivingEntity_knockback = ReflectionMethod.getMethod(LivingEntityMapping.METHOD_KNOCKBACK);
     }
 
     @Override
@@ -166,5 +178,72 @@ public class NMS_1_9 extends NMS_1_8 {
     @Override
     public void playShieldBlockSound(Player player, ItemStack itemStack) {
         player.playSound(player.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1.0F, 0.8F + this.random.nextFloat() * 0.4F);
+    }
+
+    @Override
+    public boolean isShield(ItemStack itemStack) {
+        return itemStack.getType() == Material.SHIELD;
+    }
+
+    protected void hurtShield(float damage, ItemStack shield, Player player, VRBodyPart hand) {
+        if (damage >= 3) {
+            // damage shield
+            // durability counts up the damage
+            if (ViveMain.API.addDamage(shield, 1 + (int) Math.floor(damage))) {
+                ViveMain.API.breakItem(player, hand);
+                return;
+            }
+        }
+        playShieldBlockSound(player, shield);
+    }
+
+    @Override
+    public float doShieldBlocking(
+        Player player, ItemStack itemStack, VRBodyPart hand, double angle, Entity attacker, float damage,
+        EntityDamageEvent event)
+    {
+        Object nmsPlayer = BukkitReflector.getEntityHandle(player);
+
+        // damage item and play block sound
+        hurtShield(damage, itemStack, player, hand);
+
+        if (attacker instanceof LivingEntity) {
+            // attacker knockback
+            shieldAttackerKnockback(player, (LivingEntity) attacker);
+
+            // do disable
+            disableShield(player, (LivingEntity) attacker, itemStack);
+        }
+
+        // 66% of the damage is blocked in 1.9/1.10
+        return attacker instanceof Projectile ? 0 : damage * 0.66F;
+    }
+
+    protected void disableShield(Player player, LivingEntity attacker, ItemStack itemStack) {
+        if (canDisableShield(attacker) && attacker.getEquipment() != null) {
+            ItemStack axe = attacker.getEquipment().getItemInMainHand();
+            if (axe != null) {
+                float threshold = 0.25F + axe.getEnchantmentLevel(Enchantment.DIG_SPEED) * 0.05F;
+                if (this.random.nextFloat() < threshold) {
+                    ViveMain.API.applyItemCooldown(player, itemStack, 100, false);
+                }
+            }
+        }
+    }
+
+    protected boolean canDisableShield(LivingEntity attacker) {
+        if (attacker.getEquipment() == null || attacker.getEquipment().getItemInMainHand() == null) return false;
+        Material material = attacker.getEquipment().getItemInMainHand().getType();
+        return material == Material.WOOD_AXE || material == Material.STONE_AXE || material == Material.IRON_AXE ||
+            material == Material.GOLD_AXE || material == Material.DIAMOND_AXE;
+    }
+
+    protected void shieldAttackerKnockback(Player player, LivingEntity attacker) {
+        Location playerPos = player.getLocation();
+        Location attackerPos = attacker.getLocation();
+
+        this.LivingEntity_knockback.invoke(BukkitReflector.getEntityHandle(attacker),
+            BukkitReflector.getEntityHandle(player), 0.5F, playerPos.getX() - attackerPos.getX(),
+            playerPos.getZ() - attackerPos.getZ());
     }
 }

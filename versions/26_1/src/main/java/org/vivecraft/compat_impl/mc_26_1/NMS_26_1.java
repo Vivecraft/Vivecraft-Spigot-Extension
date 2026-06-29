@@ -1,6 +1,7 @@
 package org.vivecraft.compat_impl.mc_26_1;
 
 import io.netty.channel.Channel;
+import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.component.DataComponents;
@@ -15,10 +16,14 @@ import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -30,6 +35,7 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.creaking.Creaking;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.AttackRange;
 import net.minecraft.world.item.component.BlocksAttacks;
@@ -41,6 +47,7 @@ import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -83,6 +90,8 @@ public class NMS_26_1 implements NMSHelper {
     private final ReflectionMethod Entity_removeAfterChangingDimensions;
     private final ReflectionMethod Mob_getAttackBoundingBox;
     private final ReflectionMethod LivingEntity_getHitbox;
+    protected ReflectionMethod LivingEntity_blockedByItem;
+    protected ReflectionMethod BlocksAttacks_disablePaper;
 
     public NMS_26_1() {
         this.ServerGamePacketListenerImpl_aboveGroundTickCount = ReflectionField.getRaw(
@@ -102,9 +111,17 @@ public class NMS_26_1 implements NMSHelper {
         this.ServerboundUseItemPacket_yRot = ReflectionField.getRaw(ServerboundUseItemPacket.class, "yRot");
 
         this.Entity_removeAfterChangingDimensions = ReflectionMethod.getRaw(Entity.class,
-            "removeAfterChangingDimensions");
-        this.Mob_getAttackBoundingBox = ReflectionMethod.getRaw(Mob.class, "getAttackBoundingBox", double.class);
-        this.LivingEntity_getHitbox = ReflectionMethod.getRaw(LivingEntity.class, "getHitbox");
+            "removeAfterChangingDimensions", true);
+        this.Mob_getAttackBoundingBox = ReflectionMethod.getRaw(Mob.class, "getAttackBoundingBox", true, double.class);
+        this.LivingEntity_getHitbox = ReflectionMethod.getRaw(LivingEntity.class, "getHitbox", true);
+        initShield();
+    }
+
+    protected void initShield() {
+        this.LivingEntity_blockedByItem = ReflectionMethod.getRaw(LivingEntity.class, "blockedByItem", true,
+            LivingEntity.class);
+        this.BlocksAttacks_disablePaper = ReflectionMethod.getRaw(BlocksAttacks.class, "disable", false,
+            ServerLevel.class, LivingEntity.class, float.class, ItemStack.class, LivingEntity.class);
     }
 
     @Override
@@ -645,6 +662,25 @@ public class NMS_26_1 implements NMSHelper {
     }
 
     @Override
+    public boolean isShield(org.bukkit.inventory.ItemStack itemStack) {
+        // spigot technically has an api call to get the "BlocksAttacks" component, but paper doesn't support it
+        return ((ItemStack) BukkitReflector.asNMSCopy(itemStack)).has(DataComponents.BLOCKS_ATTACKS);
+    }
+
+    @Override
+    public boolean doesBlockDamage(org.bukkit.inventory.ItemStack itemStack, EntityDamageEvent damage) {
+        BlocksAttacks blocksAttacks = ((ItemStack) BukkitReflector.asNMSCopy(itemStack)).get(
+            DataComponents.BLOCKS_ATTACKS);
+        if (blocksAttacks != null) {
+            return !blocksAttacks.bypassedBy().map(s -> s.contains(
+                    ((DamageSource) BukkitReflector.getDamageSourceHandle(damage.getDamageSource())).typeHolder()))
+                .orElse(false);
+        }
+        // not a blocking item
+        return false;
+    }
+
+    @Override
     public void playShieldBlockSound(org.bukkit.entity.Player player, org.bukkit.inventory.ItemStack itemStack) {
         BlocksAttacks blocksAttacks = ((ItemStack) BukkitReflector.asNMSCopy(itemStack)).get(
             DataComponents.BLOCKS_ATTACKS);
@@ -652,5 +688,105 @@ public class NMS_26_1 implements NMSHelper {
             ServerPlayer nmsPlayer = (ServerPlayer) BukkitReflector.getEntityHandle(player);
             blocksAttacks.onBlocked(nmsPlayer.level(), nmsPlayer);
         }
+    }
+
+    @Override
+    public void playShieldDisableSound(org.bukkit.entity.Player player, org.bukkit.inventory.ItemStack itemStack) {
+        BlocksAttacks blocksAttacks = ((ItemStack) BukkitReflector.asNMSCopy(itemStack)).get(
+            DataComponents.BLOCKS_ATTACKS);
+        if (blocksAttacks != null) {
+            ServerPlayer nmsPlayer = (ServerPlayer) BukkitReflector.getEntityHandle(player);
+            if (blocksAttacks.disableSound().isPresent()) {
+                nmsPlayer.level().playSound(null, nmsPlayer.getX(), nmsPlayer.getY(),
+                    nmsPlayer.getZ(), blocksAttacks.disableSound().get(), nmsPlayer.getSoundSource(), 0.8F,
+                    0.8F + nmsPlayer.level().getRandom().nextFloat() * 0.4F);
+            }
+        }
+    }
+
+    @Override
+    public float doShieldBlocking(
+        org.bukkit.entity.Player bukkitPlayer, org.bukkit.inventory.ItemStack itemStack, VRBodyPart hand, double angle,
+        org.bukkit.entity.Entity bukkitAttacker, float damage, EntityDamageEvent event)
+    {
+        // getthe actual backing itemstack, since we are chaning it and not just reading it
+        ItemStack stack = ((ItemStack) BukkitReflector.getItemHandle(itemStack));
+        if (stack != null) {
+            BlocksAttacks blocksAttacks = stack.get(DataComponents.BLOCKS_ATTACKS);
+            if (blocksAttacks != null) {
+                DamageSource damageSource = (DamageSource) BukkitReflector.getDamageSourceHandle(
+                    event.getDamageSource());
+                if (damageSource != null) {
+                    Entity attacker = (Entity) BukkitReflector.getEntityHandle(bukkitAttacker);
+                    ServerPlayer player = (ServerPlayer) BukkitReflector.getEntityHandle(bukkitPlayer);
+
+                    // reduce damage
+                    float damageBlocked = blocksAttacks.resolveBlockedDamage(damageSource, damage, angle);
+                    boolean blocked = damageBlocked > 0;
+
+                    // damage item
+                    blocksAttacks.hurtBlockingItem(player.level(), stack, player,
+                        hand == VRBodyPart.MAIN_HAND ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND,
+                        damageBlocked);
+
+                    if (blocked && !damageSource.is(DamageTypeTags.IS_PROJECTILE) &&
+                        attacker instanceof LivingEntity livingEntity)
+                    {
+                        // attacker knockback
+                        doAttackerKnockback(livingEntity, player, damageSource, damage);
+
+                        // do disable
+                        float secondsToDisableBlocking = livingEntity.getSecondsToDisableBlocking();
+                        if (secondsToDisableBlocking > 0.0F) {
+                            if (this.BlocksAttacks_disablePaper != null) {
+                                this.BlocksAttacks_disablePaper.invoke(blocksAttacks, player.level(), player,
+                                    secondsToDisableBlocking, stack, livingEntity);
+                            } else {
+                                blocksAttacks.disable(player.level(), player, secondsToDisableBlocking, stack);
+                            }
+                        }
+                    }
+
+                    // play blocking sound
+                    if (blocked) {
+                        blocksAttacks.onBlocked(player.level(), player);
+                    }
+
+                    // mark hurt toi send knockback to clients
+                    if (!damageSource.is(DamageTypeTags.NO_IMPACT) && (!blocked || damage - damageBlocked > 0.0F)) {
+                        player.hurtMarked = true;
+                    }
+
+                    // player knockback
+                    if (!damageSource.is(DamageTypeTags.NO_KNOCKBACK)) {
+                        doBlockKnockback(player, damageSource, damage - damageBlocked);
+                    }
+                    return damageBlocked;
+                }
+            }
+        }
+        return 0;
+    }
+
+    protected void doAttackerKnockback(
+        LivingEntity attacker, LivingEntity player, DamageSource damageSource, float damage)
+    {
+        this.LivingEntity_blockedByItem.invoke(attacker, player);
+    }
+
+    protected void doBlockKnockback(ServerPlayer player, DamageSource damageSource, float damage) {
+        double xd = 0.0;
+        double zd = 0.0;
+        if (damageSource.getDirectEntity() instanceof Projectile projectile) {
+            DoubleDoubleImmutablePair knockbackDirection = projectile.calculateHorizontalHurtKnockbackDirection(
+                player, damageSource);
+            xd = -knockbackDirection.leftDouble();
+            zd = -knockbackDirection.rightDouble();
+        } else if (damageSource.getSourcePosition() != null) {
+            xd = damageSource.getSourcePosition().x() - player.getX();
+            zd = damageSource.getSourcePosition().z() - player.getZ();
+        }
+
+        player.knockback(0.4F, xd, zd);
     }
 }

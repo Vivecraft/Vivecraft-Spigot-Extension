@@ -2,6 +2,7 @@ package org.vivecraft.compat_impl.mc_1_8;
 
 import io.netty.channel.Channel;
 import org.bukkit.entity.*;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
@@ -24,14 +25,13 @@ import org.vivecraft.util.reflection.ReflectionConstructor;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class NMS_1_8 implements NMSHelper {
+
+    protected final Random random = new Random();
 
     protected ReflectionField LivingEntity_BodyYaw;
     protected ReflectionMethod Entity_getUUID;
@@ -132,7 +132,7 @@ public class NMS_1_8 implements NMSHelper {
         this.initInventory();
         this.initDualWielding();
         this.initReducedAttack();
-        this.initShieldSound();
+        this.initShield();
         this.ItemStack = ClassGetter.getClass(true, ItemStackMapping.MAPPING);
     }
 
@@ -282,7 +282,7 @@ public class NMS_1_8 implements NMSHelper {
         this.Entity_distanceToSqr = ReflectionMethod.getMethod(EntityMapping.METHOD_DISTANCE_TO_SQR);
     }
 
-    protected void initShieldSound() {}
+    protected void initShield() {}
 
     @Override
     public Vector getEntityPosition(Object nmsEntity) {
@@ -356,7 +356,8 @@ public class NMS_1_8 implements NMSHelper {
 
     @Override
     public boolean hasItemStackName(ItemStack itemStack, String translationKey, String fallback) {
-        if (!itemStack.hasItemMeta()) return false;
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta == null) return false;
         return fallback.equals(itemStack.getItemMeta().getDisplayName());
     }
 
@@ -781,5 +782,30 @@ public class NMS_1_8 implements NMSHelper {
     @Override
     public void playShieldBlockSound(Player player, ItemStack itemStack) {
         // no blocking sound in 1.8
+    }
+
+    @Override
+    public void playShieldDisableSound(Player player, ItemStack itemStack) {
+        player.playSound(player.getEyeLocation(), ViveMain.API.getBreakingSound(), 0.8F,
+            0.8F + this.random.nextFloat() * 0.4F);
+    }
+
+    @Override
+    public boolean isShield(ItemStack itemStack) {
+        // no shields in 1.8
+        return false;
+    }
+
+    @Override
+    public boolean doesBlockDamage(ItemStack itemStack, EntityDamageEvent damage) {
+        return damage.getCause() != EntityDamageEvent.DamageCause.FALLING_BLOCK;
+    }
+
+    @Override
+    public float doShieldBlocking(
+        Player player, ItemStack itemStack, VRBodyPart hand, double angle, Entity attacker, float damage,
+        EntityDamageEvent event)
+    {
+        return 0;
     }
 }

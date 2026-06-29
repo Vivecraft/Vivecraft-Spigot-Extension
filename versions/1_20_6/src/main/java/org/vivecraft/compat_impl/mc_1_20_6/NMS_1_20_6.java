@@ -1,11 +1,13 @@
 package org.vivecraft.compat_impl.mc_1_20_6;
 
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.vivecraft.accessors.*;
 import org.vivecraft.compat.BukkitReflector;
-import org.vivecraft.compat_impl.mc_1_20_2.NMS_1_20_2;
+import org.vivecraft.compat_impl.mc_1_20_4.NMS_1_20_4;
 import org.vivecraft.debug.Debug;
+import org.vivecraft.util.reflection.ClassGetter;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
@@ -13,7 +15,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public class NMS_1_20_6 extends NMS_1_20_2 {
+public class NMS_1_20_6 extends NMS_1_20_4 {
 
     // custom item name
     protected ReflectionMethod ItemStack_set;
@@ -33,6 +35,10 @@ public class NMS_1_20_6 extends NMS_1_20_2 {
     protected ReflectionMethod AttributeMap_getInstance;
     protected ReflectionMethod AttributeInstance_addTransientModifier;
     protected ReflectionMethod AttributeInstance_removeModifier;
+
+    private ReflectionMethod LivingEntity_canDisableShield;
+    private ReflectionMethod Player_disableShield;
+    private ReflectionMethod Player_disableShield_paper;
 
     @Override
     protected void init() {
@@ -68,6 +74,18 @@ public class NMS_1_20_6 extends NMS_1_20_2 {
         this.AttributeInstance_removeModifier = ReflectionMethod.getMethod(
             AttributeInstanceMapping.METHOD_REMOVE_MODIFIER);
         this.AttributeMap_getInstance = ReflectionMethod.getMethod(AttributeMapMapping.METHOD_GET_INSTANCE);
+    }
+
+    @Override
+    protected void initShieldDisable() {
+        this.LivingEntity_canDisableShield = ReflectionMethod.getMethod(LivingEntityMapping.METHOD_CAN_DISABLE_SHIELD);
+        this.Player_disableShield = ReflectionMethod.getMethod(false, PlayerMapping.METHOD_DISABLE_SHIELD_1);
+        this.Player_disableShield_paper = ReflectionMethod.getRaw(
+            ClassGetter.getClass(true, PlayerMapping.MAPPING), "disableShield", false,
+            ClassGetter.getClass(true, LivingEntityMapping.MAPPING));
+        if (this.Player_disableShield == null && this.Player_disableShield_paper == null) {
+            throw new RuntimeException("Player_disableShield and Player_disableShield_paper is null");
+        }
     }
 
     @Override
@@ -138,5 +156,23 @@ public class NMS_1_20_6 extends NMS_1_20_2 {
                     });
             }
         }
+    }
+
+    @Override
+    protected void disableShield(Player player, LivingEntity attacker, ItemStack itemStack) {
+        Object nmsAttacker = BukkitReflector.getEntityHandle(attacker);
+        Object nmsPlayer = BukkitReflector.getEntityHandle(player);
+        if ((boolean) this.LivingEntity_canDisableShield.invoke(nmsAttacker)) {
+            if (this.Player_disableShield_paper != null) {
+                this.Player_disableShield_paper.invoke(nmsPlayer, nmsAttacker);
+            } else {
+                this.Player_disableShield.invoke(nmsPlayer);
+            }
+        }
+    }
+
+    @Override
+    protected boolean canDisableShield(LivingEntity attacker) {
+        throw new AssertionError("not applicalbe for 1.20.6+");
     }
 }

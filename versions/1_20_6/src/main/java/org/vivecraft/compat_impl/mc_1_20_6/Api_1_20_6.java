@@ -5,9 +5,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-import org.vivecraft.compat_impl.mc_1_20_2.Api_1_20_2;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.vivecraft.compat_impl.mc_1_20_4.Api_1_20_4;
 
-public class Api_1_20_6 extends Api_1_20_2 {
+public class Api_1_20_6 extends Api_1_20_4 {
 
     @Override
     public String getCausingEntityName(PlayerDeathEvent event) {
@@ -25,8 +26,9 @@ public class Api_1_20_6 extends Api_1_20_2 {
 
     @Override
     public boolean addDamage(ItemStack itemStack, int damage) {
-        if (itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof Damageable) {
-            Damageable damageable = (Damageable) itemStack.getItemMeta();
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta instanceof Damageable) {
+            Damageable damageable = (Damageable) meta;
             int durability = damageable.getDamage();
             int newDurability = durability + damage;
             damageable.setDamage(newDurability);

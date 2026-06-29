@@ -95,6 +95,8 @@ public class Config {
     public final ConfigBuilder.DoubleValue projectileInaccuracyMultiplier;
     public final ConfigBuilder.BooleanValue allowFasterBlockBreaking;
     public final ConfigBuilder.BooleanValue allowRoomscaleShieldBlocking;
+    public final ConfigBuilder.IntValue roomscaleShieldCooldown;
+    public final ConfigBuilder.DoubleValue roomscaleShieldCooldownDamageTrigger;
     public final ConfigBuilder.BooleanValue allowAttacksWhileBlocking;
     // bow
     public final ConfigBuilder.DoubleValue bowStandingMultiplier;
@@ -376,6 +378,12 @@ public class Config {
         this.allowRoomscaleShieldBlocking = this.builder
             .push("allowRoomscaleShieldBlocking")
             .define(true);
+        this.roomscaleShieldCooldown = this.builder
+            .push("roomscaleShieldCooldown")
+            .defineInRange(0, 0, 1000);
+        this.roomscaleShieldCooldownDamageTrigger = this.builder
+            .push("roomscaleShieldCooldownDamageTrigger")
+            .defineInRange(3.0, 0.0, 100.0);
         this.allowAttacksWhileBlocking = this.builder
             .push("allowAttacksWhileBlocking")
             .define(true)

@@ -66,6 +66,11 @@ accessors {
         method("net.minecraft.world.entity.ai.attributes.AttributeMap", "getAttributes")
         method("net.minecraft.world.phys.AABB", "getHitbox")
         method("net.minecraft.world.item.ItemStack", "getActiveItem")
+        method("void", "blockedByItem", "net.minecraft.world.entity.LivingEntity")
+        method("void", "knockback", "net.minecraft.world.entity.Entity", "float", "double", "double")
+        method("float", "getSecondsToDisableBlocking")
+        method("void", "knockback", "double", "double", "double")
+        method("boolean", "canDisableShield")
     }
 
     mapClass("net.minecraft.world.entity.Entity") {
@@ -85,6 +90,7 @@ accessors {
         field("float", "eyeHeight") // 1.14+
         field("float", "length") // up to 1.13.2
         field("net.minecraft.network.syncher.EntityDataAccessor", "DATA_POSE")
+        field("boolean", "hurtMarked")
         method("net.minecraft.world.phys.AABB", "getBoundingBox")
         method("net.minecraft.world.phys.Vec3", "getLookAngle")
         method("net.minecraft.world.phys.Vec3", "position") // 1.15+
@@ -115,10 +121,24 @@ accessors {
         method("void", "setPose", "net.minecraft.world.entity.Pose")
         method("net.minecraft.world.entity.Pose", "getPose")
         method("net.minecraft.network.syncher.SynchedEntityData", "getEntityData")
+        method("net.minecraft.sounds.SoundSource", "getSoundSource")
     }
 
     mapClass("net.minecraft.world.entity.player.Player") {
         field("net.minecraft.world.entity.player.Inventory", "inventory")
+        method("void", "disableShield", "net.minecraft.world.item.ItemStack") // 1.21.2-1.21.4
+        method("void", "disableShield") // 1.20.5-1.21.1
+        method("void", "disableShield", "boolean") // 1.11-1.20.4
+        method("net.minecraft.world.item.ItemCooldowns", "getCooldowns")
+    }
+    mapClass("net.minecraft.world.item.ItemCooldowns") {
+        method("void", "addCooldown", "net.minecraft.world.item.Item", "int")
+        method("void", "addCooldown", "net.minecraft.world.item.Item", "int")
+        field("int", "tickCount")
+        field("java.util.Map", "cooldowns")
+    }
+    mapClass("net.minecraft.world.item.ItemCooldowns\$CooldownInstance") {
+        field("int", "endTime")
     }
     mapClass("net.minecraft.server.level.ServerPlayer") {
         field("net.minecraft.server.network.ServerGamePacketListenerImpl", "connection")
@@ -204,6 +224,8 @@ accessors {
         method("net.minecraft.world.phys.BlockHitResult", "clip", "net.minecraft.world.level.ClipContext") // 1.14+
     }
     mapClass("net.minecraft.world.level.Level") {
+        method("void", "playSound", "net.minecraft.world.entity.Entity", "double", "double", "double",
+            "net.minecraft.core.Holder", "net.minecraft.sounds.SoundSource", "float", "float")
         method("net.minecraft.world.level.block.state.BlockState", "getBlockState", "net.minecraft.core.BlockPos")
         // 1.13
         method("net.minecraft.util.math.RayTraceResult", "func_200259_a", "net.minecraft.util.math.Vec3d",
@@ -314,8 +336,38 @@ accessors {
         field("net.minecraft.core.component.DataComponentType", "BLOCKS_ATTACKS")
     }
 
+    mapClass("net.minecraft.tags.DamageTypeTags") {
+        field("net.minecraft.tags.TagKey", "IS_PROJECTILE")
+        field("net.minecraft.tags.TagKey", "NO_IMPACT")
+        field("net.minecraft.tags.TagKey", "NO_KNOCKBACK")
+        field("net.minecraft.tags.TagKey", "BYPASSES_SHIELD")
+    }
+
+    mapClass("net.minecraft.world.InteractionHand") {
+        field("net.minecraft.world.InteractionHand", "MAIN_HAND")
+        field("net.minecraft.world.InteractionHand", "OFF_HAND")
+    }
+
     mapClass("net.minecraft.world.item.component.BlocksAttacks") {
         method("void", "onBlocked", "net.minecraft.server.level.ServerLevel", "net.minecraft.world.entity.LivingEntity")
+        method("java.util.Optional", "bypassedBy")
+        method("float", "resolveBlockedDamage", "net.minecraft.world.damagesource.DamageSource", "float", "double")
+        method("void", "hurtBlockingItem", "net.minecraft.world.level.Level", "net.minecraft.world.item.ItemStack",
+            "net.minecraft.world.entity.LivingEntity", "net.minecraft.world.InteractionHand", "float")
+        method("void", "disable", "net.minecraft.server.level.ServerLevel", "net.minecraft.world.entity.LivingEntity",
+            "float", "net.minecraft.world.item.ItemStack")
+        field("java.util.Optional", "disableSound")
+    }
+
+    mapClass("net.minecraft.world.entity.projectile.Projectile") {
+        method("it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair", "calculateHorizontalHurtKnockbackDirection",
+            "net.minecraft.world.entity.LivingEntity", "net.minecraft.world.damagesource.DamageSource")
+    }
+
+    mapClass("net.minecraft.world.damagesource.DamageSource") {
+        method("boolean", "is", "net.minecraft.tags.TagKey")
+        method("net.minecraft.world.entity.Entity", "getDirectEntity")
+        method("net.minecraft.world.phys.Vec3", "getSourcePosition")
     }
 
     mapClass("net.minecraft.core.component.DataComponentHolder") {

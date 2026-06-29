@@ -2,6 +2,7 @@ package org.vivecraft.compat_impl.mc_1_14;
 
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.vivecraft.ViveMain;
@@ -47,6 +48,8 @@ public class NMS_1_14 extends NMS_1_13_2 {
 
     protected ReflectionConstructor CrawlPoseDataItem_Constructor;
 
+    protected ReflectionMethod LivingEntity_blockedByItem;
+
     @Override
     protected void init() {
         super.init();
@@ -91,6 +94,11 @@ public class NMS_1_14 extends NMS_1_13_2 {
             ServerboundUseItemOnPacketMapping.FIELD_BLOCK_HIT);
         this.BlockHitResult_blockPos = ReflectionField.getField(BlockHitResultMapping.FIELD_BLOCK_POS);
         this.BlockHitResult_direction = ReflectionField.getField(BlockHitResultMapping.FIELD_DIRECTION);
+    }
+
+    @Override
+    protected void initShieldAttackKnockback() {
+        this.LivingEntity_blockedByItem = ReflectionMethod.getMethod(LivingEntityMapping.METHOD_BLOCKED_BY_ITEM);
     }
 
     @Override
@@ -196,5 +204,11 @@ public class NMS_1_14 extends NMS_1_13_2 {
     @Override
     protected Object getUseItemOnPos(Object packet) {
         return this.BlockHitResult_blockPos.get(this.ServerboundUseItemOnPacket_blockHit.get(packet));
+    }
+
+    @Override
+    protected void shieldAttackerKnockback(Player player, LivingEntity attacker) {
+        this.LivingEntity_blockedByItem.invoke(BukkitReflector.getEntityHandle(attacker),
+            BukkitReflector.getEntityHandle(player));
     }
 }
