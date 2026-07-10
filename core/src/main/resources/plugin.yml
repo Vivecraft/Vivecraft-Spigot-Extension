@@ -15,6 +15,21 @@ permissions:
   vivecraft.config:
     description: Allows changing vivecraft configs at runtime
     default: op
+  vivecraft.no-pvp-standing-vs-standing:
+    description: Prevents pvp attacks when both players are in Standing VR
+    default: false
+  vivecraft.no-pvp-standing-vs-seated:
+    description: Prevents pvp attacks when one players is in Standing VR and the other is in Seated VR
+    default: false
+  vivecraft.no-pvp-standing-vs-nonvr:
+    description: Prevents pvp attacks when one players is in Standing VR and the other is not in VR
+    default: false
+  vivecraft.no-pvp-seated-vs-seated:
+    description: Prevents pvp attacks when both players are in Seated VR
+    default: false
+  vivecraft.no-pvp-seated-vs-nonvr:
+    description: Prevents pvp attacks both one players is in Seated VR and the other is not in VR
+    default: false
 softdepend:
   - Vault
   - PlaceholderAPI

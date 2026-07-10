@@ -61,7 +61,10 @@ public class DamageEvents implements Listener {
                 (!thisVive.isVR() && otherVive.isVR() && otherVive.isSeated()))
             {
                 // nonvr vs Seated
-                if (!ViveMain.CONFIG.pvpSeatedvrVsNonvr.get()) {
+                if (!ViveMain.CONFIG.pvpSeatedvrVsNonvr.get() ||
+                    thisVive.player.hasPermission("vivecraft.no-pvp-seated-vs-nonvr") ||
+                    otherVive.player.hasPermission("vivecraft.no-pvp-seated-vs-nonvr"))
+                {
                     blockedDamage = true;
                     blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
                         ViveMain.translate("vivecraft.mode.nonVR"),
@@ -71,7 +74,10 @@ public class DamageEvents implements Listener {
                 (!thisVive.isVR() && otherVive.isVR() && !otherVive.isSeated()))
             {
                 // nonvr vs Standing
-                if (!ViveMain.CONFIG.pvpVrVsNonvr.get()) {
+                if (!ViveMain.CONFIG.pvpVrVsNonvr.get() ||
+                    thisVive.player.hasPermission("vivecraft.no-pvp-standing-vs-nonvr") ||
+                    otherVive.player.hasPermission("vivecraft.no-pvp-standing-vs-nonvr"))
+                {
                     blockedDamage = true;
                     blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
                         ViveMain.translate("vivecraft.mode.nonVR"),
@@ -81,7 +87,10 @@ public class DamageEvents implements Listener {
                 (thisVive.isVR() && thisVive.isSeated() && otherVive.isVR() && !otherVive.isSeated()))
             {
                 // Standing vs Seated
-                if (!ViveMain.CONFIG.pvpVrVsSeatedvr.get()) {
+                if (!ViveMain.CONFIG.pvpVrVsSeatedvr.get() ||
+                    thisVive.player.hasPermission("vivecraft.no-pvp-standing-vs-seated") ||
+                    otherVive.player.hasPermission("vivecraft.no-pvp-standing-vs-seated"))
+                {
                     blockedDamage = true;
                     blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
                         ViveMain.translate("vivecraft.mode.seatedVR"),
@@ -89,7 +98,10 @@ public class DamageEvents implements Listener {
                 }
             } else if (otherVive.isVR() && !otherVive.isSeated() && thisVive.isVR() && !thisVive.isSeated()) {
                 // Standing vs Standing
-                if (!ViveMain.CONFIG.pvpVrVsVr.get()) {
+                if (!ViveMain.CONFIG.pvpVrVsVr.get() ||
+                    thisVive.player.hasPermission("vivecraft.no-pvp-standing-vs-standing") ||
+                    otherVive.player.hasPermission("vivecraft.no-pvp-standing-vs-standing"))
+                {
                     blockedDamage = true;
                     blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
                         ViveMain.translate("vivecraft.mode.standingVR"),
@@ -97,7 +109,10 @@ public class DamageEvents implements Listener {
                 }
             } else if (otherVive.isVR() && otherVive.isSeated() && thisVive.isVR() && thisVive.isSeated()) {
                 // Seated vs Seated
-                if (!ViveMain.CONFIG.pvpSeatedvrVsSeatedvr.get()) {
+                if (!ViveMain.CONFIG.pvpSeatedvrVsSeatedvr.get() ||
+                    thisVive.player.hasPermission("vivecraft.no-pvp-seated-vs-seated") ||
+                    otherVive.player.hasPermission("vivecraft.no-pvp-seated-vs-seated"))
+                {
                     blockedDamage = true;
                     blockedDamageCase = ViveMain.translate("vivecraft.pvp.canceled",
                         ViveMain.translate("vivecraft.mode.seatedVR"),
