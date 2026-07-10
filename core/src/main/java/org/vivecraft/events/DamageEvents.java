@@ -215,8 +215,15 @@ public class DamageEvents implements Listener {
                             float blocked = ViveMain.NMS.doShieldBlocking(player, stack, hand, angle, damager, damage,
                                 event);
                             if (damage <= blocked) {
-                                // no damage left, so cancel
-                                event.setCancelled(true);
+                                if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION ||
+                                    event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION)
+                                {
+                                    // canceling the event would disable explosion knockback so just set the damage to 0
+                                    event.setDamage(0);
+                                } else {
+                                    // no damage left, so cancel
+                                    event.setCancelled(true);
+                                }
                             } else {
                                 // some damage left, so just reduce it
                                 // don't use blocking modifier, since that doesn't cancel damge done with absortion
