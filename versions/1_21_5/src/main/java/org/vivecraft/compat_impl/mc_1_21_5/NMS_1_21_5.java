@@ -19,6 +19,7 @@ import java.util.Optional;
 public class NMS_1_21_5 extends NMS_1_21_3 {
 
     protected ReflectionField Inventory_equipment;
+    protected ReflectionMethod Inventory_setItem;
     protected ReflectionMethod EntityEquipment_get;
     protected ReflectionMethod EntityEquipment_set;
     protected ReflectionField EquipmentSlot_OFFHAND;
@@ -64,6 +65,7 @@ public class NMS_1_21_5 extends NMS_1_21_3 {
         this.Inventory_selected = ReflectionField.getField(InventoryMapping.FIELD_SELECTED);
         this.ItemStack_EMPTY = ReflectionField.getField(ItemStackMapping.FIELD_EMPTY);
         this.Inventory_equipment = ReflectionField.getField(InventoryMapping.FIELD_EQUIPMENT);
+        this.Inventory_setItem = ReflectionMethod.getMethod(InventoryMapping.METHOD_SET_ITEM);
         this.EntityEquipment_get = ReflectionMethod.getMethod(EntityEquipmentMapping.METHOD_GET);
         this.EntityEquipment_set = ReflectionMethod.getMethod(EntityEquipmentMapping.METHOD_SET);
         this.EquipmentSlot_OFFHAND = ReflectionField.getField(EquipmentSlotMapping.FIELD_OFFHAND);
@@ -133,12 +135,21 @@ public class NMS_1_21_5 extends NMS_1_21_3 {
 
     @Override
     public void setHandItemInternal(Player player, VRBodyPart hand, Object itemStack) {
-        if (hand.isHand()) {
-            Object slot =
-                hand == VRBodyPart.MAIN_HAND ? this.EquipmentSlot_MAINHAND.get() : this.EquipmentSlot_OFFHAND.get();
-            Object equipment = this.Inventory_equipment.get(
-                this.Player_inventory.get(BukkitReflector.getEntityHandle(player)));
-            this.EntityEquipment_set.invoke(equipment, slot, itemStack);
+        if (hand.isHand() && getHandItemInternal(player, hand) != itemStack) {
+
+            Object inventory = this.Player_inventory.get(BukkitReflector.getEntityHandle(player));
+            if (hand == VRBodyPart.MAIN_HAND) {
+                int selected = (int) this.Inventory_selected.get(inventory);
+                int tempSelection = selected == 0 ? 1 : 0;
+                // temporarily change the selected item index, to not trigger any item switching hooks
+                this.Inventory_selected.set(inventory, tempSelection);
+                this.Inventory_setItem.invoke(inventory, selected, itemStack);
+                this.Inventory_selected.set(inventory, selected);
+            } else {
+                Object equipment = this.Inventory_equipment.get(
+                    this.Player_inventory.get(BukkitReflector.getEntityHandle(player)));
+                this.EntityEquipment_set.invoke(equipment, this.EquipmentSlot_OFFHAND.get(), itemStack);
+            }
         }
     }
 

@@ -86,6 +86,7 @@ public class NMS_26_1 implements NMSHelper {
     private final ReflectionField Mob_targetSelector;
     private final ReflectionField ServerboundUseItemPacket_xRot;
     private final ReflectionField ServerboundUseItemPacket_yRot;
+    private final ReflectionField Inventory_selected;
 
     private final ReflectionMethod Entity_removeAfterChangingDimensions;
     private final ReflectionMethod Mob_getAttackBoundingBox;
@@ -109,6 +110,7 @@ public class NMS_26_1 implements NMSHelper {
         this.Mob_targetSelector = ReflectionField.getRaw(Mob.class, "targetSelector");
         this.ServerboundUseItemPacket_xRot = ReflectionField.getRaw(ServerboundUseItemPacket.class, "xRot");
         this.ServerboundUseItemPacket_yRot = ReflectionField.getRaw(ServerboundUseItemPacket.class, "yRot");
+        this.Inventory_selected = ReflectionField.getRaw(Inventory.class, "selected");
 
         this.Entity_removeAfterChangingDimensions = ReflectionMethod.getRaw(Entity.class,
             "removeAfterChangingDimensions", true);
@@ -568,13 +570,21 @@ public class NMS_26_1 implements NMSHelper {
 
     @Override
     public void setHandItemInternal(org.bukkit.entity.Player player, VRBodyPart hand, @Nullable Object itemStack) {
-        if (hand.isHand()) {
+        if (hand.isHand() && getHandItemInternal(player, hand) != itemStack) {
             if (itemStack == null) {
                 itemStack = ItemStack.EMPTY;
             }
             Inventory inventory = ((ServerPlayer) BukkitReflector.getEntityHandle(player)).getInventory();
-            inventory.setItem(hand == VRBodyPart.MAIN_HAND ? inventory.getSelectedSlot() : Inventory.SLOT_OFFHAND,
-                (ItemStack) itemStack);
+            if (hand == VRBodyPart.MAIN_HAND) {
+                int selected = (int) this.Inventory_selected.get(inventory);
+                int tempSelection = selected == 0 ? 1 : 0;
+                // temporarily change the selected item index, to not trigger any item switching hooks
+                this.Inventory_selected.set(inventory, tempSelection);
+                inventory.setItem(selected, (ItemStack) itemStack);
+                this.Inventory_selected.set(inventory, selected);
+            } else {
+                inventory.setItem(Inventory.SLOT_OFFHAND, (ItemStack) itemStack);
+            }
         }
     }
 

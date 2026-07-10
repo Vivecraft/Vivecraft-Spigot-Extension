@@ -71,12 +71,18 @@ public class NMS_1_11 extends NMS_1_9 {
     @Override
     @SuppressWarnings("unchecked")
     public void setHandItemInternal(Player player, VRBodyPart hand, Object itemStack) {
-        if (hand == VRBodyPart.MAIN_HAND) {
+        if (hand.isHand() && getHandItemInternal(player, hand) != itemStack) {
             Object inventory = this.Player_inventory.get(BukkitReflector.getEntityHandle(player));
-            ((List) this.Inventory_items.get(inventory)).set((int) this.Inventory_selected.get(inventory), itemStack);
-        } else if (hand == VRBodyPart.OFF_HAND) {
-            Object inventory = this.Player_inventory.get(BukkitReflector.getEntityHandle(player));
-            ((List) this.Inventory_offhandSlot.get(inventory)).set(0, itemStack);
+            if (hand == VRBodyPart.MAIN_HAND) {
+                int selected = (int) this.Inventory_selected.get(inventory);
+                int tempSelection = selected == 0 ? 1 : 0;
+                // temporarily change the selected item index, to not trigger any item switching hooks
+                this.Inventory_selected.set(inventory, tempSelection);
+                ((List) this.Inventory_items.get(inventory)).set(selected, itemStack);
+                this.Inventory_selected.set(inventory, selected);
+            } else {
+                ((List) this.Inventory_offhandSlot.get(inventory)).set(0, itemStack);
+            }
         }
     }
 
