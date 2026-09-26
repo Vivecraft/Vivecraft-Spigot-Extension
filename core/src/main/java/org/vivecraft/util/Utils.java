@@ -3,6 +3,7 @@ package org.vivecraft.util;
 import org.bukkit.ChatColor;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -109,5 +110,19 @@ public class Utils {
      */
     public static String padColor(Object o, ChatColor color) {
         return color + o.toString() + ChatColor.RESET;
+    }
+
+    @SafeVarargs
+    public static <T> T getFirst(Supplier<T>... suppliers) {
+        for (int i = 0; i < suppliers.length; i++) {
+            try {
+                return suppliers[i].get();
+            } catch (Exception e) {
+                if (i == suppliers.length - 1) {
+                    throw e;
+                }
+            }
+        }
+        throw new IllegalArgumentException("None of the given Supplier got an Object!");
     }
 }

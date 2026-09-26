@@ -1,16 +1,16 @@
-package org.vivecraft.compat_impl.mc_26_1;
+package org.vivecraft.compat_impl.mc_26_3;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 import org.vivecraft.ViveMain;
 
 import java.util.function.Function;
 
-public class VREnderMan extends EnderMan {
+public class VREnderMan extends Enderman {
 
-    public VREnderMan(EntityType<EnderMan> entityType, net.minecraft.world.level.Level level) {
+    public VREnderMan(EntityType<Enderman> entityType, net.minecraft.world.level.Level level) {
         super(entityType, level);
     }
 
@@ -22,12 +22,13 @@ public class VREnderMan extends EnderMan {
             ViveMain.MC_MODS.endermanHelper().adjustedVRTolerance(tolerance, entity), scaleByDistance, visual, yValues);
     }
 
+
     public static boolean isVREnderMan(Object entity) {
         return entity instanceof VREnderMan;
     }
 
     @SuppressWarnings("unchecked")
     public static Function<Entity, Entity> VREnderManSupplier() {
-        return entity -> new VREnderMan((EntityType<EnderMan>) entity.getType(), entity.level());
+        return entity -> new VREnderMan((EntityType<Enderman>) entity.getType(), entity.level());
     }
 }

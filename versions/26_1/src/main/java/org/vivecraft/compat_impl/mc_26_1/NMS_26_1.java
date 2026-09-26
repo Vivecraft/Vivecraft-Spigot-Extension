@@ -32,7 +32,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
-import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.creaking.Creaking;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -386,7 +385,7 @@ public class NMS_26_1 implements NMSHelper {
     @Override
     public void modifyEntity(org.bukkit.entity.Entity entity) {
         if (entity instanceof org.bukkit.entity.Enderman) {
-            if (!(BukkitReflector.getEntityHandle(entity) instanceof VREnderMan)) {
+            if (!(isVREnderMan(BukkitReflector.getEntityHandle(entity)))) {
                 Debug.log("replacing Enderman");
                 replaceEntity(entity, newVREnderman());
             }
@@ -404,9 +403,12 @@ public class NMS_26_1 implements NMSHelper {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    protected boolean isVREnderMan(Object entity) {
+        return VREnderMan.isVREnderMan(entity);
+    }
+
     protected Function<Entity, Entity> newVREnderman() {
-        return entity -> new VREnderMan((EntityType<EnderMan>) entity.getType(), entity.level());
+        return VREnderMan.VREnderManSupplier();
     }
 
     @SuppressWarnings("unchecked")
@@ -743,7 +745,7 @@ public class NMS_26_1 implements NMSHelper {
                         attacker instanceof LivingEntity livingEntity)
                     {
                         // attacker knockback
-                        doAttackerKnockback(livingEntity, player, damageSource, damage);
+                        doAttackerKnockback(livingEntity, player, damageSource, damage, damageBlocked >= damage);
 
                         // do disable
                         float secondsToDisableBlocking = livingEntity.getSecondsToDisableBlocking();
@@ -779,7 +781,7 @@ public class NMS_26_1 implements NMSHelper {
     }
 
     protected void doAttackerKnockback(
-        LivingEntity attacker, LivingEntity player, DamageSource damageSource, float damage)
+        LivingEntity attacker, LivingEntity player, DamageSource damageSource, float damage, boolean fullyBlocked)
     {
         this.LivingEntity_blockedByItem.invoke(attacker, player);
     }
