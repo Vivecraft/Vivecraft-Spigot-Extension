@@ -44,6 +44,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -661,16 +662,20 @@ public class NMS_26_1 implements NMSHelper {
     public Vector3fc getHitDirIfGate(Object player, Object packet) {
         if (packet instanceof ServerboundUseItemOnPacket useItemOnPacket) {
             ServerPlayer nmsPlayer = (ServerPlayer) player;
-            BlockPos blockPos = useItemOnPacket.getHitResult().getBlockPos();
+            BlockPos blockPos = getHitresult(useItemOnPacket).getBlockPos();
             Block block = nmsPlayer.level().getBlockState(blockPos).getBlock();
             if (block instanceof FenceGateBlock) {
-                Vec3i dir = useItemOnPacket.getHitResult().getDirection().getUnitVec3i();
+                Vec3i dir = getHitresult(useItemOnPacket).getDirection().getUnitVec3i();
                 if (dir.getY() == 0) {
                     return new Vector3f(-dir.getX(), -dir.getY(), -dir.getZ());
                 }
             }
         }
         return null;
+    }
+
+    protected BlockHitResult getHitresult(ServerboundUseItemOnPacket useItemOnPacket) {
+        return useItemOnPacket.getHitResult();
     }
 
     @Override

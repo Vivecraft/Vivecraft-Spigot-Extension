@@ -1,11 +1,13 @@
 package org.vivecraft.compat_impl.mc_26_3;
 
+import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlocksAttacks;
+import net.minecraft.world.phys.BlockHitResult;
 import org.vivecraft.compat_impl.mc_26_2.NMS_26_2;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
@@ -26,6 +28,11 @@ public class NMS_26_3 extends NMS_26_2 {
         LivingEntity attacker, LivingEntity player, DamageSource damageSource, float damage, boolean fullyBlocked)
     {
         this.LivingEntity_blockedByItem.invoke(attacker, player, damageSource, damage, fullyBlocked);
+    }
+
+    @Override
+    protected BlockHitResult getHitresult(ServerboundUseItemOnPacket useItemOnPacket) {
+        return useItemOnPacket.hitResult();
     }
 
     @Override
