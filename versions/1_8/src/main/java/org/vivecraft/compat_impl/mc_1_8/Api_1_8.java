@@ -1,15 +1,13 @@
 package org.vivecraft.compat_impl.mc_1_8;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.Potion;
@@ -26,10 +24,11 @@ import org.vivecraft.compat.types.Item;
 import org.vivecraft.compat.types.Particles;
 import org.vivecraft.util.AABB;
 import org.vivecraft.util.MathUtils;
+import org.vivecraft.util.Utils;
 import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 
 public class Api_1_8 implements ApiHelper {
@@ -277,5 +276,57 @@ public class Api_1_8 implements ApiHelper {
                     MathUtils.toBukkitVec(dir), 0.05, false, itemStack);
             }
         }
+    }
+
+    @Override
+    public void removeRecipes(List<ShapedRecipe> toRemove) {
+        Iterator<Recipe> recipes = Bukkit.recipeIterator();
+        while (recipes.hasNext()) {
+            Recipe recipe = recipes.next();
+            for (ShapedRecipe customRecipe : toRemove) {
+                if (recipeEquals(customRecipe, recipe)) {
+                    recipes.remove();
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean hasRecipe(ShapedRecipe recipe) {
+        Iterator<Recipe> recipes = Bukkit.recipeIterator();
+        while (recipes.hasNext()) {
+            if (recipeEquals(recipe, recipes.next())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean recipeEquals(ShapedRecipe customRecipe, Recipe other) {
+        if (!(other instanceof ShapedRecipe) || other.getResult().getType() != customRecipe.getResult().getType()) {
+            return false;
+        }
+
+        ShapedRecipe otherRecipe = (ShapedRecipe) other;
+
+        if (otherRecipe.getShape().length != customRecipe.getShape().length) return false;
+
+        Map<Character, ItemStack> customItems = customRecipe.getIngredientMap();
+        Map<Character, ItemStack> otherItems = otherRecipe.getIngredientMap();
+
+        if (Utils.containsAll(customItems.values(), otherItems.values())) {
+            String customShape = String.join("", customRecipe.getShape());
+            String otherShape = String.join("", otherRecipe.getShape());
+
+            for (int i = 0; i < customShape.length(); i++) {
+                ItemStack customItem = customItems.get(customShape.charAt(i));
+                ItemStack otherItem = otherItems.get(otherShape.charAt(i));
+                if (!Objects.equals(customItem, otherItem)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

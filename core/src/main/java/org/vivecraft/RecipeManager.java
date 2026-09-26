@@ -4,13 +4,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.vivecraft.util.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RecipeManager {
 
@@ -79,59 +78,13 @@ public class RecipeManager {
 
     public void addRecipes(List<ShapedRecipe> toAdd) {
         for (ShapedRecipe recipe : toAdd) {
-            if (!hasRecipe(recipe)) {
+            if (!ViveMain.API.hasRecipe(recipe)) {
                 Bukkit.addRecipe(recipe);
             }
         }
     }
 
     public void removeRecipes(List<ShapedRecipe> toRemove) {
-        Iterator<Recipe> recipes = Bukkit.recipeIterator();
-        while (recipes.hasNext()) {
-            Recipe recipe = recipes.next();
-            for (ShapedRecipe customRecipe : toRemove) {
-                if (recipeEquals(customRecipe, recipe)) {
-                    recipes.remove();
-                }
-            }
-        }
-    }
-
-    private boolean hasRecipe(ShapedRecipe recipe) {
-        Iterator<Recipe> recipes = Bukkit.recipeIterator();
-        while (recipes.hasNext()) {
-            if (recipeEquals(recipe, recipes.next())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean recipeEquals(ShapedRecipe customRecipe, Recipe other) {
-        if (!(other instanceof ShapedRecipe) || other.getResult().getType() != customRecipe.getResult().getType()) {
-            return false;
-        }
-
-        ShapedRecipe otherRecipe = (ShapedRecipe) other;
-
-        if (otherRecipe.getShape().length != customRecipe.getShape().length) return false;
-
-        Map<Character, ItemStack> customItems = customRecipe.getIngredientMap();
-        Map<Character, ItemStack> otherItems = otherRecipe.getIngredientMap();
-
-        if (Utils.containsAll(customItems.values(), otherItems.values())) {
-            String customShape = String.join("", customRecipe.getShape());
-            String otherShape = String.join("", otherRecipe.getShape());
-
-            for (int i = 0; i < customShape.length(); i++) {
-                ItemStack customItem = customItems.get(customShape.charAt(i));
-                ItemStack otherItem = otherItems.get(otherShape.charAt(i));
-                if (!Objects.equals(customItem, otherItem)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
+        ViveMain.API.removeRecipes(toRemove);
     }
 }

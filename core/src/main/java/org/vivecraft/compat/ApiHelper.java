@@ -16,6 +16,8 @@ import org.vivecraft.compat.types.Item;
 import org.vivecraft.compat.types.Particles;
 import org.vivecraft.util.AABB;
 
+import java.util.List;
+
 /**
  * handles calls that have a bukkit api call in new versions, but not the old ones
  */
@@ -108,6 +110,20 @@ public interface ApiHelper {
      * @param id        recipe id to apply
      */
     ShapedRecipe createRecipe(ItemStack itemStack, String id);
+
+    /**
+     * checks if the given recipe is currently registered
+     *
+     * @param recipe ShapedRecipe to check if it is registered
+     */
+    boolean hasRecipe(ShapedRecipe recipe);
+
+    /**
+     * removes the given recipes from the registry
+     *
+     * @param toRemove list of ShapedRecipes to remove
+     */
+    void removeRecipes(List<ShapedRecipe> toRemove);
 
     /**
      * gets the name of the causing entity
