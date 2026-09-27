@@ -20,7 +20,9 @@ public enum NetworkVersion {
     // adds possibility to toggle settings after initial connection
     OPTION_TOGGLE,
     // adds packet to override the aim direction
-    AIM_OVERRIDE;
+    AIM_OVERRIDE,
+    // adds a roomscale attack packet to distinguish button attacks from roomscale attacks on blocks
+    ROOMSCALE_ATTACK_PACKET;
 
     public static NetworkVersion fromProtocolVersion(int protocolVersion) {
         return values()[protocolVersion + 1];

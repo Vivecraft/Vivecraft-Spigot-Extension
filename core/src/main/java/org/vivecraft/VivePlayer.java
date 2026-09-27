@@ -34,6 +34,10 @@ public class VivePlayer {
 
     // dual wielding switches out hte main hand item, this keeps track of the original item
     public ItemOverride itemOverride = null;
+    // any block break action that happens while this is true, is treated as a roomscale hit
+    public boolean isHitRoomscale = false;
+    // keeps track of ticks worth of attacks made in this roomscale hit streak
+    public int roomscaleHitCount = 0;
     public boolean useBodyPartForAim = false;
     public boolean crawling;
     // if the player has VR active

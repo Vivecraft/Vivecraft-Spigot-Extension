@@ -112,6 +112,9 @@ public class NetworkHandler implements PluginMessageListener {
             case AIM_POSITION_OVERRIDE:
                 this.handleAimPos(vivePlayer, (AimPosOverridePayloadC2S) payload);
                 break;
+            case ROOMSCALE_ATTACK:
+                this.handleRoomscaleAttack(vivePlayer, (RoomscaleAttackPayloadC2S) payload);
+                break;
 
             // legacy support
             case CONTROLLER0DATA:
@@ -210,6 +213,11 @@ public class NetworkHandler implements PluginMessageListener {
         if (NetworkVersion.OPTION_TOGGLE.accepts(vivePlayer.networkVersion)) {
             sendPacket(vivePlayer, new AttackWhileBlockingPayloadS2C(ViveMain.CONFIG.allowAttacksWhileBlocking.get()));
         }
+
+        // not supported atm, needs to wrap the gamemode
+//        if (NetworkVersion.ROOMSCALE_ATTACK_PACKET.accepts(vivePlayer.networkVersion)) {
+//            sendPacket(vivePlayer, new RoomscaleAttackPayloadS2C());
+//        }
 
         // send if hotswitching is allowed
         sendPacket(vivePlayer, PacketUtils.getVRSwitchingPayload());
@@ -413,6 +421,13 @@ public class NetworkHandler implements PluginMessageListener {
             vivePlayer.aimPosOverride = null;
         }
         vivePlayer.aimReset = reset.ticks;
+    }
+
+    private void handleRoomscaleAttack(VivePlayer vivePlayer, RoomscaleAttackPayloadC2S roomscaleAttack) {
+        vivePlayer.isHitRoomscale = roomscaleAttack.isRoomscaleAttack;
+        if (!vivePlayer.isHitRoomscale) {
+            vivePlayer.roomscaleHitCount += roomscaleAttack.hitsMade;
+        }
     }
 
     /**
