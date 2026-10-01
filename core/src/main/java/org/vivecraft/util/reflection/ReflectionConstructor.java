@@ -148,8 +148,28 @@ public class ReflectionConstructor {
      */
     public static ReflectionConstructor getRaw(String cls, Class<?>... args) {
         try {
-            return getConstructor(ClassGetter.getRaw(cls), args);
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            return getRaw(true, ClassGetter.getRaw(cls), args);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("couldn't find constructor " + cls + " with args: " + Arrays.toString(args), e);
+        }
+    }
+
+    /**
+     * Tries to find the reflection constructor matching the given class path
+     *
+     * @param required throws no exceptions and returns null when this is false
+     * @param cls      path of the containing class
+     * @param args     Classes of the arguments for the constructor
+     * @return found reflection constructor
+     * @throws RuntimeException When no matching constructor is found
+     */
+    public static ReflectionConstructor getRaw(boolean required, Class<?> cls, Class<?>... args) {
+        try {
+            return getConstructor(cls, args);
+        } catch (NoSuchMethodException e) {
+            if (!required) {
+                return null;
+            }
             throw new RuntimeException("couldn't find constructor " + cls + " with args: " + Arrays.toString(args), e);
         }
     }

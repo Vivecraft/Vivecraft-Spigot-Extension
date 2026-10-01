@@ -1,7 +1,9 @@
 package org.vivecraft.compat_impl.mc_26_3;
 
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
+import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,11 +11,24 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.phys.BlockHitResult;
 import org.vivecraft.compat_impl.mc_26_2.NMS_26_2;
+import org.vivecraft.util.reflection.ReflectionConstructor;
+import org.vivecraft.util.reflection.ReflectionField;
 import org.vivecraft.util.reflection.ReflectionMethod;
 
 import java.util.function.Function;
 
 public class NMS_26_3 extends NMS_26_2 {
+    private ReflectionField ServerboundUseItemPacket_paperTimestamp;
+    private ReflectionConstructor ServerboundUseItemPacket_paper;
+
+    @Override
+    protected void initPackets() {
+        super.initPackets();
+        this.ServerboundUseItemPacket_paperTimestamp = ReflectionField.getRaw(ServerboundUseItemPacket.class,
+            "timestamp", false);
+        this.ServerboundUseItemPacket_paper = ReflectionConstructor.getRaw(false, ServerboundUseItemPacket.class,
+            InteractionHand.class, int.class, float.class, float.class, long.class);
+    }
 
     @Override
     protected void initShield() {
@@ -21,6 +36,17 @@ public class NMS_26_3 extends NMS_26_2 {
             LivingEntity.class, DamageSource.class, float.class, boolean.class);
         this.BlocksAttacks_disablePaper = ReflectionMethod.getRaw(BlocksAttacks.class, "disable", false,
             ServerLevel.class, LivingEntity.class, float.class, ItemStack.class, LivingEntity.class);
+    }
+
+    @Override
+    protected Object modifyUsePacket(ServerboundUseItemPacket packet, float xRot, float yRot) {
+        // packet is now a record, can't change fields
+        if (this.ServerboundUseItemPacket_paper != null && this.ServerboundUseItemPacket_paperTimestamp != null) {
+            return this.ServerboundUseItemPacket_paper.newInstance(packet.hand(), packet.sequence(), yRot, xRot,
+                this.ServerboundUseItemPacket_paperTimestamp.get(packet));
+        } else {
+            return new ServerboundUseItemPacket(packet.hand(), packet.sequence(), yRot, xRot);
+        }
     }
 
     @Override

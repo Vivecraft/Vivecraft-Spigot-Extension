@@ -1,10 +1,14 @@
 package org.vivecraft.util;
 
 import org.bukkit.util.Vector;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.vivecraft.ViveMain;
 
 public class MathUtils {
+
+    private static final boolean JOML_1_10_9 = isJoml1_10_9();
 
     public static final float PI = (float) Math.PI;
     public static final float DEG_TO_RAD = (float) (Math.PI / 180.0);
@@ -21,6 +25,11 @@ public class MathUtils {
     // hand grip is usually offset 0° to 45° from the controller pointing direction, this is probably a solid middle ground
     public static final Vector3fc GRIP_FORWARD = new Vector3f(0, 0, 1).rotateX(DEG_TO_RAD * 20F);
 
+    /**
+     * does nothing, just to init the static joml version
+     */
+    public static void init() {}
+
     public static Vector toBukkitVec(Vector3fc v) {
         return new Vector(v.x(), v.y(), v.z());
     }
@@ -36,5 +45,25 @@ public class MathUtils {
 
     public static boolean equalsPosition(double x0, double y0, double z0, double x1, double y1, double z1) {
         return Double.compare(x0, x1) == 0 && Double.compare(y0, y1) == 0 && Double.compare(z0, z1) == 0;
+    }
+
+    public static Quaternionf lookAlong(Vector3fc dir, Vector3fc up) {
+        if (JOML_1_10_9) {
+            // joml 1.10.9 has look along reversed
+            return new Quaternionf().lookAlong(dir.mul(-1F, new Vector3f()), up);
+        } else {
+            return new Quaternionf().lookAlong(dir, up);
+        }
+    }
+
+    private static boolean isJoml1_10_9() {
+        String jomlVersion = Quaternionf.class.getPackage().getImplementationVersion();
+        if (jomlVersion != null) {
+            ViveMain.LOGGER.info("Game is unsing joml version: " + jomlVersion);
+            return "1.10.9".equals(jomlVersion);
+        } else {
+            ViveMain.LOGGER.info("Game is unsing unknown joml version, assuming it is our 1.10.8");
+            return false;
+        }
     }
 }

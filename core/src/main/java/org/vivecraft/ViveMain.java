@@ -22,6 +22,7 @@ import org.vivecraft.network.NetworkHandler;
 import org.vivecraft.pluginsupport.VivecraftPAPIExpansion;
 import org.vivecraft.util.JsonUtils;
 import org.vivecraft.util.MCVersion;
+import org.vivecraft.util.MathUtils;
 import org.vivecraft.util.UpdateChecker;
 
 import java.util.*;
@@ -62,6 +63,8 @@ public class ViveMain extends JavaPlugin {
         INSTANCE = this;
         LOGGER = getLogger();
         VERSION = getDescription().getName() + " " + getDescription().getVersion();
+
+        MathUtils.init();
 
         // regular vivecraft strings
         TRANSLATIONS = JsonUtils.readJsonMap(getResource("lang/en_us.json"));

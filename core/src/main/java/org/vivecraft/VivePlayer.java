@@ -3,7 +3,6 @@ package org.vivecraft;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -84,7 +83,7 @@ public class VivePlayer {
             }
             return this.vrPlayerState.getBodyPartPose(bodyPart).orientation;
         } else {
-            return new Quaternionf().lookAlong(MathUtils.toJomlVec(this.player.getLocation().getDirection()),
+            return MathUtils.lookAlong(MathUtils.toJomlVec(this.player.getLocation().getDirection()),
                 MathUtils.UP);
         }
     }
@@ -139,7 +138,7 @@ public class VivePlayer {
      */
     public Quaternionfc getAimOrientation(boolean ignoreUseForAim) {
         if (this.isDrawing()) {
-            return new Quaternionf().lookAlong(getAimDir(ignoreUseForAim),
+            return MathUtils.lookAlong(getAimDir(ignoreUseForAim),
                 getBodyPartVectorCustom(this.activeBodyPart.opposite(), MathUtils.GRIP_FORWARD)).conjugate();
         } else if (ignoreUseForAim || this.useBodyPartForAim) {
             return this.getBodyPartOrientation(this.activeBodyPart);

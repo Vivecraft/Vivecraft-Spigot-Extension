@@ -84,8 +84,8 @@ public class NMS_26_1 implements NMSHelper {
     private final ReflectionField Mob_DEFAULT_ATTACK_REACH;
     private final ReflectionField Mob_goalSelector;
     private final ReflectionField Mob_targetSelector;
-    private final ReflectionField ServerboundUseItemPacket_xRot;
-    private final ReflectionField ServerboundUseItemPacket_yRot;
+    protected ReflectionField ServerboundUseItemPacket_xRot;
+    protected ReflectionField ServerboundUseItemPacket_yRot;
     private final ReflectionField Inventory_selected;
 
     private final ReflectionMethod Entity_removeAfterChangingDimensions;
@@ -108,8 +108,6 @@ public class NMS_26_1 implements NMSHelper {
         this.Mob_DEFAULT_ATTACK_REACH = ReflectionField.getRaw(Mob.class, "DEFAULT_ATTACK_REACH");
         this.Mob_goalSelector = ReflectionField.getRaw(Mob.class, "goalSelector");
         this.Mob_targetSelector = ReflectionField.getRaw(Mob.class, "targetSelector");
-        this.ServerboundUseItemPacket_xRot = ReflectionField.getRaw(ServerboundUseItemPacket.class, "xRot");
-        this.ServerboundUseItemPacket_yRot = ReflectionField.getRaw(ServerboundUseItemPacket.class, "yRot");
         this.Inventory_selected = ReflectionField.getRaw(Inventory.class, "selected");
 
         this.Entity_removeAfterChangingDimensions = ReflectionMethod.getRaw(Entity.class,
@@ -117,6 +115,7 @@ public class NMS_26_1 implements NMSHelper {
         this.Mob_getAttackBoundingBox = ReflectionMethod.getRaw(Mob.class, "getAttackBoundingBox", true, double.class);
         this.LivingEntity_getHitbox = ReflectionMethod.getRaw(LivingEntity.class, "getHitbox", true);
         initShield();
+        initPackets();
     }
 
     protected void initShield() {
@@ -124,6 +123,11 @@ public class NMS_26_1 implements NMSHelper {
             LivingEntity.class);
         this.BlocksAttacks_disablePaper = ReflectionMethod.getRaw(BlocksAttacks.class, "disable", false,
             ServerLevel.class, LivingEntity.class, float.class, ItemStack.class, LivingEntity.class);
+    }
+
+    protected void initPackets() {
+        this.ServerboundUseItemPacket_xRot = ReflectionField.getRaw(ServerboundUseItemPacket.class, "xRot");
+        this.ServerboundUseItemPacket_yRot = ReflectionField.getRaw(ServerboundUseItemPacket.class, "yRot");
     }
 
     @Override
@@ -228,10 +232,8 @@ public class NMS_26_1 implements NMSHelper {
     @SuppressWarnings("unchecked")
     @Override
     public void handlePacket(Object player, Object packet, Object packetListener, float xRot, float yRot) {
-        if (packet instanceof ServerboundUseItemPacket) {
-            // modify the original packet
-            this.ServerboundUseItemPacket_xRot.set(packet, xRot);
-            this.ServerboundUseItemPacket_yRot.set(packet, yRot);
+        if (packet instanceof ServerboundUseItemPacket serverboundUseItemPacket) {
+            packet = modifyUsePacket(serverboundUseItemPacket, xRot, yRot);
         }
         if (packet instanceof ServerboundPlayerActionPacket actionPacket &&
             actionPacket.getAction() == ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK &&
@@ -241,6 +243,13 @@ public class NMS_26_1 implements NMSHelper {
             this.ServerPlayerGameMode_destroyProgressStart.set(((ServerPlayer) player).gameMode, 0);
         }
         ((Packet<PacketListener>) packet).handle((PacketListener) packetListener);
+    }
+
+    protected Object modifyUsePacket(ServerboundUseItemPacket packet, float xRot, float yRot) {
+        // modify the original packet
+        this.ServerboundUseItemPacket_xRot.set(packet, xRot);
+        this.ServerboundUseItemPacket_yRot.set(packet, yRot);
+        return packet;
     }
 
     @Override
