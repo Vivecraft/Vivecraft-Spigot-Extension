@@ -48,6 +48,7 @@ public class Config {
     public final ConfigBuilder.BooleanValue sendData;
     public final ConfigBuilder.BooleanValue sendDataToOwner;
     public final ConfigBuilder.BooleanValue kickPlayersOnSettingUpdate;
+    public final ConfigBuilder.BooleanValue wrapPlayerGameMode;
 
     public final ConfigBuilder.BooleanValue spigotSettingsEnabled;
     public final ConfigBuilder.DoubleValue spigotSettingsMovedTooQuickly;
@@ -231,6 +232,9 @@ public class Config {
         this.kickPlayersOnSettingUpdate = this.builder
             .push("kickPlayersOnSettingUpdate")
             .define(false);
+        this.wrapPlayerGameMode = this.builder
+            .push("wrapPlayerGameMode")
+            .define(true);
         // end general
         this.builder.pop();
 

@@ -215,6 +215,7 @@ public class NetworkHandler implements PluginMessageListener {
         }
 
         if (NetworkVersion.ROOMSCALE_ATTACK_PACKET.accepts(vivePlayer.networkVersion) &&
+            ViveMain.CONFIG.wrapPlayerGameMode.get() &&
             ViveMain.MC_MODS.gameModeHelper().modifyGamemode(player))
         {
             sendPacket(vivePlayer, new RoomscaleAttackPayloadS2C());
