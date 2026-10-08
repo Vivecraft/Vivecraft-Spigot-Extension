@@ -14,6 +14,8 @@
   "vivecraft.serverSettings.general.sendData.tooltip": "Send the VR movement data to the clients, if this is disabled clients will not see each others movement.",
   "vivecraft.serverSettings.general.wrapPlayerGameMode": "Wrap Player Game Mode",
   "vivecraft.serverSettings.general.wrapPlayerGameMode.tooltip": "Wraps the Game Mode of players with Vivecraft, to better show their block destroy progress when they are in VR.\n This setting is here, to disable this feature, in case it causes issues with other plugins.",
+  "vivecraft.serverSettings.general.addConfigComments": "Add Comments to the Config",
+  "vivecraft.serverSettings.general.addConfigComments.tooltip": "Adds Comments to the config, describing what the different settings do and what the valid ranges are.",
 
   "vivecraft.serverSettings.vrChanges.dualWielding.tooltipspigot": "§6CAUTION!§r When enabling this, also make sure to enable 'allowFasterBlockBreaking', or breaking blocks too fast will still use the main hand item.",
 

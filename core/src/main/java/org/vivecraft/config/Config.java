@@ -36,6 +36,7 @@ public class Config {
     // general
     public final ConfigBuilder.BooleanValue checkForUpdates;
     public final ConfigBuilder.EnumValue<UpdateType> updateType;
+    public final ConfigBuilder.BooleanValue addConfigComments;
     public final ConfigBuilder.BooleanValue vrOnly;
     public final ConfigBuilder.BooleanValue viveOnly;
     public final ConfigBuilder.StringValue minViveVersionString;
@@ -184,6 +185,9 @@ public class Config {
                     UpdateChecker.scheduleUpdateCheck(notifier);
                 }
             });
+        this.addConfigComments = this.builder
+            .push("addConfigComments")
+            .define(true);
         this.vrOnly = this.builder
             .push("vr_only")
             .define(false)
@@ -611,6 +615,8 @@ public class Config {
         if (this.inMemory) return;
         // save the current state
         this.plugin.saveConfig();
+
+        if (!this.addConfigComments.get()) return;
 
         // add comments to it and resave
         File configFile = new File(this.plugin.getDataFolder(), "config.yml");
