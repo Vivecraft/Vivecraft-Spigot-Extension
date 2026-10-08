@@ -653,7 +653,10 @@ public class Config {
                         wasList = false;
                         stack.removeLast();
                     }
-                    if (trimmed.endsWith(":")) {
+
+                    // we are entering a subsection, if there is nothing after the first `:`, or just a comment
+                    if (trimmed.substring(trimmed.indexOf(":")).matches(":\\s*(#.*|$)")) {
+                        // sub section
                         if (indent == null || newIndent.length() >= indent.length()) {
                             stack.add(Pair.of(newIndent, entry));
                         } else if (newIndent.isEmpty()) {
