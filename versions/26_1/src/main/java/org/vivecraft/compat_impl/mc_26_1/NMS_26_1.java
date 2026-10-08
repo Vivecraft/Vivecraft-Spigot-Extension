@@ -47,11 +47,14 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.api.data.VRBodyPart;
@@ -78,6 +81,8 @@ public class NMS_26_1 implements NMSHelper {
     private final ReflectionField ServerCommonPacketListenerImpl_connection;
     private final ReflectionField Connection_channel;
     private final ReflectionField ServerPlayerGameMode_destroyProgressStart;
+    private final ReflectionField ServerPlayerGameMode_destroyPos;
+    private final ReflectionField ServerPlayerGamemode_isDestroyingBlock;
     private final ReflectionField Entity_eyeHeight;
     private final ReflectionField SynchedEntityData_itemsById;
     private final ReflectionField Entity_DATA_POSE;
@@ -102,6 +107,10 @@ public class NMS_26_1 implements NMSHelper {
         this.Connection_channel = ReflectionField.getRaw(Connection.class, "channel");
         this.ServerPlayerGameMode_destroyProgressStart = ReflectionField.getRaw(
             ServerPlayerGameMode.class, "destroyProgressStart");
+        this.ServerPlayerGameMode_destroyPos = ReflectionField.getRaw(
+            ServerPlayerGameMode.class, "destroyPos");
+        this.ServerPlayerGamemode_isDestroyingBlock = ReflectionField.getRaw(
+            ServerPlayerGameMode.class, "isDestroyingBlock");
         this.Entity_eyeHeight = ReflectionField.getRaw(Entity.class, "eyeHeight");
         this.SynchedEntityData_itemsById = ReflectionField.getRaw(SynchedEntityData.class, "itemsById");
         this.Entity_DATA_POSE = ReflectionField.getRaw(Entity.class, "DATA_POSE");
@@ -217,6 +226,29 @@ public class NMS_26_1 implements NMSHelper {
     @Override
     public Object getLevel(Object entity) {
         return ((Entity) entity).level();
+    }
+
+    @Override
+    public Object makeBlockPos(int x, int y, int z) {
+        return new BlockPos(x, y, z);
+    }
+
+    @Override
+    public Object getBlockState(Object level, Object blockPos) {
+        return ((Level) level).getBlockState((BlockPos) blockPos);
+    }
+
+    @Override
+    public boolean isDestroying(Player player) {
+        return (boolean) this.ServerPlayerGamemode_isDestroyingBlock.get(
+            ((ServerPlayer) BukkitReflector.getEntityHandle(player)).gameMode);
+    }
+
+    @Override
+    public Vector3ic getDestroyPos(Player player) {
+        BlockPos pos = (BlockPos) this.ServerPlayerGameMode_destroyPos.get(
+            ((ServerPlayer) BukkitReflector.getEntityHandle(player)).gameMode);
+        return new Vector3i(pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Override

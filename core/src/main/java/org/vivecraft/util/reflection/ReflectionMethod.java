@@ -169,6 +169,39 @@ public class ReflectionMethod {
         }
     }
 
+    /**
+     * Tries to find the reflection method matching the given class path
+     *
+     * @param cls         containing class
+     * @param methodNames name of the methods that are acceptable
+     * @param critical    if true will throw an exception when not found, else returns null
+     * @param args        Classes of the arguments for the method
+     * @return found reflection method
+     * @throws RuntimeException When no matching method is found
+     */
+    public static ReflectionMethod getRaw(Class<?> cls, String[] methodNames, boolean critical, Class<?>... args) {
+        ReflectionMethod method = null;
+        NoSuchMethodException noMethodError = null;
+        for (String methodName : methodNames) {
+            try {
+                method = getMethod(cls, methodName, args);
+            } catch (NoSuchMethodException e) {
+                noMethodError = e;
+            }
+        }
+        if (method == null) {
+            if (!critical) {
+                Debug.log("couldn't find any method %s in class %s with args: %s",
+                    Arrays.toString(methodNames), cls, Arrays.toString(args));
+            } else {
+                throw new RuntimeException(
+                    "couldn't find any method named " + Arrays.toString(methodNames) + " in class" + cls +
+                        " with args: " + Arrays.toString(args), noMethodError);
+            }
+        }
+        return method;
+    }
+
     public Object invokes(Object... args) {
         try {
             return this.method.invoke(null, args);

@@ -78,92 +78,7 @@ public class Generate {
     {
 
         // iterate over all methods and collect needed imports
-        Set<String> imports = new HashSet<>();
-        List<MethodHolder> methods = new ArrayList<>();
-        List<FieldHolder> fields = new ArrayList<>();
-        List<ConstructorHolder> constructors = new ArrayList<>();
-
-        if (content.has("methods")) {
-            for (String methodName : content.getAsJsonObject("methods").keySet()) {
-                Set<String> classes = new HashSet<>();
-                JsonObject current = content.getAsJsonObject("methods").getAsJsonObject(methodName);
-
-                VersionLimit versionLimit = VersionLimit.UNLIMITED;
-                if (current.has("versions")) {
-                    versionLimit = parseVersionlimit(current);
-                }
-                // type
-                String type = current.get("type").getAsString();
-                if (type.contains(".")) {
-                    classes.add(type);
-                }
-                String method =
-                    "    " + (current.has("access") ? current.get("access").getAsString() : "public") + " " +
-                        (current.has("static") ? "static " : "") +
-                        type +
-                        " " + methodName + "(";
-                char argName = 'a';
-                boolean firstArg = true;
-
-                // args
-                for (JsonElement arg : current.getAsJsonArray("args")) {
-                    if (arg.getAsString().contains(".")) {
-                        classes.add(arg.getAsString().replace("...", ""));
-                    }
-                    method += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
-                    firstArg = false;
-                }
-                method += ")";
-                if (!content.has("interface")) {
-                    method += "{\n        throw new AssertionError();\n    }\n\n";
-                } else {
-                    method += ";\n\n";
-                }
-                methods.add(new MethodHolder(method, methodName, clazz, classes, versionLimit));
-                //imports.addAll(classes);
-            }
-        }
-
-        if (content.has("fields")) {
-            for (String fieldName : content.getAsJsonObject("fields").keySet()) {
-                JsonObject current = content.getAsJsonObject("fields").getAsJsonObject(fieldName);
-
-                // type
-                String type = current.get("type").getAsString();
-                if (type.contains(".")) {
-                    imports.add(type);
-                }
-
-                String field = "    public ";
-                if (current.has("static")) {
-                    field += "static ";
-                }
-                field += type + " " + fieldName + ";\n\n";
-                fields.add(new FieldHolder(field, fieldName, clazz, type));
-            }
-        }
-
-        if (content.has("constructors")) {
-            for (String con : content.getAsJsonObject("constructors").keySet()) {
-                Set<String> classes = new HashSet<>();
-
-                String code = "    public " + clazz + "(";
-                char argName = 'a';
-                boolean firstArg = true;
-
-                // args
-                for (JsonElement arg : content.getAsJsonObject("constructors").getAsJsonArray(con)) {
-                    if (arg.getAsString().contains(".")) {
-                        classes.add(arg.getAsString());
-                    }
-                    code += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
-                    firstArg = false;
-                }
-                code += ") {}\n\n";
-                constructors.add(new ConstructorHolder(code, clazz, classes));
-                imports.addAll(classes);
-            }
-        }
+        ClassHolder holder = extractClass(clazz, content);
 
         // writing file
         Set<String> writtenFiles = new HashSet<>();
@@ -176,74 +91,100 @@ public class Generate {
                 continue;
             }
             String parentPackage = parentClass.substring(0, parentClass.lastIndexOf('.'));
-            String parentName = parentClass.substring(parentPackage.length() + 1);
 
             File target = new File(stubs, parentClass.replace(".", "/") + ".java");
             target.getParentFile().mkdirs();
             try (FileWriter writer = new FileWriter(target)) {
                 String code = "package " + parentPackage + ";\n";
 
-                if (!imports.isEmpty()) {
-                    code += "\n";
-                }
+                code += parseClass(holder, version, false);
 
-                for (String imp : imports) {
-                    code += "import " + getClass(imp, version) + ";\n";
-                }
-
-                code += "\npublic " + (content.has("interface") ? "interface " : "class ") + parentName;
-                if (content.has("parent")) {
-                    code += " extends " + getClass(content.get("parent").getAsString(), version);
-                }
-                code += " {\n";
-
-                if (!fields.isEmpty()) {
-                    code += "\n";
-                }
-
-                for (FieldHolder field : fields) {
-                    String line = field.code;
-                    if (field.type.contains(".")) {
-                        line = line.replace(field.type, getClass(field.type, version));
-                    }
-                    line = line.replace(field.name, getField(field.clazz, field.name, version));
-                    code += line;
-                }
-
-                if (!constructors.isEmpty()) {
-                    code += "\n";
-                }
-
-                for (ConstructorHolder con : constructors) {
-                    String line = con.code;
-                    line = line.replace(con.clazz, parentName);
-                    for (String c : con.argClasses) {
-                        line = line.replace(c, getClass(c, version));
-                    }
-                    code += line;
-                }
-
-                if (!methods.isEmpty()) {
-                    code += "\n";
-                }
-
-                for (MethodHolder method : methods) {
-                    String line = method.code;
-                    if (method.limit.valid(version)) {
-                        for (String c : method.argClasses) {
-                            if (!c.contains(".")) continue;
-                            line = line.replace(c, getClass(c, version));
-                        }
-                        line = line.replace(method.name, getMethod(method.clazz, method.name, version));
-                    }
-                    code += line;
-                }
-
-                code += "}\n";
                 writer.write(code);
             }
             writtenFiles.add(parentClass);
         }
+    }
+
+    private static String parseClass(ClassHolder holder, String version, boolean stat) {
+        String code = "";
+
+        String className = getClass(holder.name, version);
+        className = className.substring(className.lastIndexOf('.') + 1);
+
+        code += "\npublic " + (stat ? "static " : "") + holder.type + " " + className;
+        if (!holder.parent.isEmpty()) {
+            code += " extends " + getClass(holder.parent, version);
+        }
+        code += " {\n";
+
+        if (!holder.fields.isEmpty()) {
+            code += "\n";
+        }
+
+        for (FieldHolder field : holder.fields) {
+            if (!field.limit.valid(version)) {
+                continue;
+            }
+            String line = field.code;
+            if (field.type.contains(".")) {
+                line = line.replace(field.type, getClass(field.type, version));
+            }
+            line = line.replace(field.name, getField(field.clazz, field.name, version));
+            code += line;
+        }
+
+        if (!holder.constructors.isEmpty()) {
+            code += "\n";
+        }
+
+        for (ConstructorHolder con : holder.constructors) {
+            String line = con.code;
+            line = line.replace(con.clazz, className);
+            for (String c : con.argClasses) {
+                line = line.replace(c, getClass(c, version));
+            }
+            code += line;
+        }
+
+        if (!holder.methods.isEmpty()) {
+            code += "\n";
+        }
+
+        for (MethodHolder method : holder.methods) {
+            String line = method.code;
+            String mappedVer = method.mapVersion(version);
+            if (method.limit.valid(mappedVer)) {
+                for (String c : method.argClasses) {
+                    if (!c.contains(".")) continue;
+                    line = line.replace(c, getClass(c, version));
+                }
+                line = line.replace(method.name,
+                    getMethod(method.clazz, method.name, mappedVer));
+                code += line;
+            } else if (usesMojang(method.limit)) {
+                code += line.replace("$", ".").replaceAll("_\\d+\\b", "");
+            }
+        }
+
+        if (!holder.enums.isEmpty()) {
+            for (EnumHolder e : holder.enums) {
+                if (e.limit.valid(version)) {
+                    String enumName = getClassRaw(e.name, version);
+                    code += "    public static enum " + enumName.substring(enumName.indexOf("$") + 1) + " {}\n";
+                }
+            }
+        }
+
+        if (!holder.internalClasses.isEmpty()) {
+            for (ClassHolder c : holder.internalClasses) {
+                if (getVersions(c.name).contains(version)) {
+                    code += "\n" + parseClass(c, version, true);
+                }
+            }
+        }
+
+        code += "}\n";
+        return code;
     }
 
     private static void writeAndRemapTemplate(
@@ -285,35 +226,77 @@ public class Generate {
                         {
                             continue;
                         }
+                        // also remap any enums this class has
+                        if (mappings.getAsJsonObject(clazz).has("enums")) {
+                            for (Map.Entry<String, JsonElement> e : mappings.getAsJsonObject(clazz)
+                                .getAsJsonObject("enums").entrySet()) {
+                                if (e.getValue().getAsJsonObject().has("versions")) {
+                                    if (!parseVersionlimit(e.getValue().getAsJsonObject()).valid(version)) {
+                                        continue;
+                                    }
+                                }
+                                code = code.replace(e.getKey(), getClass(e.getKey(), version));
+                            }
+                        }
+
+                        // also remap any internal classes this class has
+                        if (mappings.getAsJsonObject(clazz).has("internal_classes")) {
+                            for (Map.Entry<String, JsonElement> iClazz : mappings.getAsJsonObject(clazz)
+                                .getAsJsonObject("internal_classes").entrySet()) {
+                                if (!parseVersionlimit(iClazz.getValue().getAsJsonObject()).valid(mc) ||
+                                    !validClasses.contains(iClazz.getKey()))
+                                {
+                                    continue;
+                                }
+                                code = code.replace(iClazz.getKey(), getClass(iClazz.getKey(), version));
+                            }
+                        }
                         code = code.replace(clazz, getClass(clazz, version));
                     }
 
                     for (String clazz : mappings.keySet()) {
-                        if (!parseVersionlimit(mappings.getAsJsonObject(clazz)).valid(mc) ||
-                            !validClasses.contains(clazz))
-                        {
-                            continue;
-                        }
-                        JsonObject c = mappings.getAsJsonObject(clazz);
-                        if (c.has("methods")) {
-                            for (String method : c.getAsJsonObject("methods").keySet()) {
-                                JsonObject m = c.getAsJsonObject("methods").getAsJsonObject(method);
-                                if (!parseVersionlimit(m).valid(version)) continue;
-                                code = code.replace(method, getMethod(clazz, method, version));
-                            }
-                        }
-                        if (c.has("fields")) {
-                            for (String field : c.getAsJsonObject("fields").keySet()) {
-                                JsonObject f = c.getAsJsonObject("fields").getAsJsonObject(field);
-                                if (!parseVersionlimit(f).valid(version)) continue;
-                                code = code.replace(field, getField(clazz, field, version));
-                            }
-                        }
+                        code = patchFieldMethod(code, mappings.getAsJsonObject(clazz), clazz, validClasses, version,
+                            mc);
                     }
                     writer.write(code);
                 }
             }
         }
+    }
+
+    private static String patchFieldMethod(
+        String code, JsonObject c, String clazz, List<String> validClasses, String version, MCVersion mc)
+    {
+        if (!parseVersionlimit(c).valid(mc) ||
+            !validClasses.contains(clazz))
+        {
+            return code;
+        }
+
+        if (c.has("methods")) {
+            for (String method : c.getAsJsonObject("methods").keySet()) {
+                JsonObject m = c.getAsJsonObject("methods").getAsJsonObject(method);
+                if (!parseVersionlimit(m).valid(version)) continue;
+                code = code.replaceAll("\\b" + method + "\\b", getMethod(clazz, method, version));
+            }
+        }
+        if (c.has("fields")) {
+            for (String field : c.getAsJsonObject("fields").keySet()) {
+                JsonObject f = c.getAsJsonObject("fields").getAsJsonObject(field);
+                if (!parseVersionlimit(f).valid(version)) continue;
+                code = code.replaceAll("\\b" + field + "\\b", getField(clazz, field, version));
+            }
+        }
+
+        if (c.has("internal_classes")) {
+            JsonObject internalClasses = c.getAsJsonObject("internal_classes");
+            for (String iclazz : internalClasses.keySet()) {
+                code = patchFieldMethod(code, internalClasses.getAsJsonObject(iclazz), iclazz, validClasses, version,
+                    mc);
+            }
+        }
+
+        return code;
     }
 
     private static String preprocessLines(List<String> lines, MCVersion mc) {
@@ -368,6 +351,18 @@ public class Generate {
         return Objects.requireNonNull(
                 Objects.requireNonNull(Mappings.LOOKUP.getClass(clazz), "no mapping for class: " + clazz)
                     .getMappings(version), "no mapping of class: " + clazz + " with version: " + version)
+            .get(getNameSpace(version)).replace("$", ".");
+    }
+
+    private static String getClassRaw(String clazz, String version) {
+        try {
+            // don't try to remap java native classes
+            Class.forName(clazz.replace("...", ""));
+            return clazz;
+        } catch (Exception ignore) {}
+        return Objects.requireNonNull(
+                Objects.requireNonNull(Mappings.LOOKUP.getClass(clazz), "no mapping for class: " + clazz)
+                    .getMappings(version), "no mapping of class: " + clazz + " with version: " + version)
             .get(getNameSpace(version));
     }
 
@@ -375,7 +370,12 @@ public class Generate {
         String[] parts = method.split("_");
         int index = 0;
         if (parts.length > 1) {
-            index = Integer.parseInt(parts[1]);
+            try {
+                index = Integer.parseInt(parts[parts.length - 1]);
+                parts[0] = String.join("_", Arrays.copyOfRange(parts, 0, parts.length - 1));
+            } catch (NumberFormatException ignore) {
+                parts[0] = String.join("_", parts);
+            }
         }
         return Objects.requireNonNull(Objects.requireNonNull(
                     Objects.requireNonNull(Mappings.LOOKUP.getClass(clazz), "no mapping for class: " + clazz)
@@ -412,10 +412,151 @@ public class Generate {
         return mc.major > 1 || mc.minor >= 17;
     }
 
+    private static boolean usesMojang(VersionLimit version) {
+        return version.from.major > 1 || version.from.minor >= 17 || version.to.major > 1 || version.to.minor >= 17;
+    }
+
     private static void addCreate(Map<String, Set<String>> map, String key, String value) {
         Set<String> set = map.getOrDefault(key, new HashSet<>());
         set.add(value);
         map.put(key, set);
+    }
+
+    private static ClassHolder extractClass(String clazz, JsonObject content) {
+        ClassHolder holder = new ClassHolder();
+
+        holder.name = clazz;
+        holder.type = content.has("interface") ? "interface" : "class";
+        holder.parent = content.has("parent") ? content.get("parent").getAsString() : "";
+
+        if (content.has("methods")) {
+            for (String methodName : content.getAsJsonObject("methods").keySet()) {
+                Set<String> classes = new HashSet<>();
+                JsonObject current = content.getAsJsonObject("methods").getAsJsonObject(methodName);
+
+                VersionLimit versionLimit = VersionLimit.UNLIMITED;
+                if (current.has("versions")) {
+                    versionLimit = parseVersionlimit(current);
+                }
+                Map<String, String> versionOverrides = new HashMap<>();
+                if (current.has("version_overrides")) {
+                    for (String key : current.getAsJsonObject("version_overrides").keySet()) {
+                        versionOverrides.put(key, current.getAsJsonObject("version_overrides").get(key).getAsString());
+                    }
+                }
+                // type
+                String type = current.get("type").getAsString();
+                if (type.contains(".")) {
+                    classes.add(type);
+                }
+                String method =
+                    "    " + (current.has("access") ? current.get("access").getAsString() : "public") + " " +
+                        (current.has("static") ? "static " : "") +
+                        type +
+                        " " + methodName + "(";
+                char argName = 'a';
+                boolean firstArg = true;
+
+                // args
+                for (JsonElement arg : current.getAsJsonArray("args")) {
+                    if (arg.getAsString().contains(".")) {
+                        classes.add(arg.getAsString().replace("...", ""));
+                    }
+                    method += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
+                    firstArg = false;
+                }
+                method += ")";
+                if (!content.has("interface")) {
+                    method += "{\n        throw new AssertionError();\n    }\n\n";
+                } else {
+                    method += ";\n\n";
+                }
+                holder.methods.add(
+                    new MethodHolder(method, methodName, clazz, classes, versionLimit, versionOverrides));
+            }
+        }
+
+        if (content.has("fields")) {
+            for (String fieldName : content.getAsJsonObject("fields").keySet()) {
+                JsonObject current = content.getAsJsonObject("fields").getAsJsonObject(fieldName);
+
+                VersionLimit versionLimit = VersionLimit.UNLIMITED;
+                if (current.has("versions")) {
+                    versionLimit = parseVersionlimit(current);
+                }
+
+                // type
+                String type = current.get("type").getAsString();
+
+                String field = "    public ";
+                if (current.has("static")) {
+                    field += "static ";
+                }
+                field += type + " " + fieldName + ";\n\n";
+                holder.fields.add(new FieldHolder(field, fieldName, clazz, type, versionLimit));
+            }
+        }
+
+        if (content.has("constructors")) {
+            JsonObject conJson = content.getAsJsonObject("constructors");
+            for (String con : conJson.keySet()) {
+                Set<String> classes = new HashSet<>();
+
+                String code = "    public " + clazz + "(";
+                char argName = 'a';
+                boolean firstArg = true;
+
+                // args
+                for (JsonElement arg : conJson.getAsJsonObject(con).getAsJsonArray("args")) {
+                    if (arg.getAsString().contains(".")) {
+                        classes.add(arg.getAsString());
+                    }
+                    code += (firstArg ? "" : ", ") + arg.getAsString() + " " + (argName++);
+                    firstArg = false;
+                }
+                code += ") {";
+                if (conJson.getAsJsonObject(con).has("super")) {
+                    code += "\n        super(" +
+                        conJson.getAsJsonObject(con).getAsJsonPrimitive("super").getAsString() +
+                        ");\n    ";
+                }
+                code += "}\n\n";
+                holder.constructors.add(new ConstructorHolder(code, clazz, classes));
+            }
+        }
+
+        // check for internal enums
+        if (content.has("enums")) {
+            for (String e : content.getAsJsonObject("enums").keySet()) {
+                JsonObject current = content.getAsJsonObject("enums").getAsJsonObject(e);
+                VersionLimit versionLimit = VersionLimit.UNLIMITED;
+                if (current.has("versions")) {
+                    versionLimit = parseVersionlimit(current);
+                }
+                holder.enums.add(new EnumHolder(e, versionLimit));
+            }
+        }
+
+        if (content.has("internal_classes")) {
+            for (String c : content.getAsJsonObject("internal_classes").keySet()) {
+                holder.internalClasses.add(
+                    extractClass(c, content.getAsJsonObject("internal_classes").getAsJsonObject(c)));
+            }
+        }
+
+        return holder;
+    }
+
+    private static class ClassHolder {
+        public String name;
+        public String parent;
+        public String type;
+
+        public final List<MethodHolder> methods = new ArrayList<>();
+        public final List<FieldHolder> fields = new ArrayList<>();
+        public final List<ConstructorHolder> constructors = new ArrayList<>();
+        public final List<EnumHolder> enums = new ArrayList<>();
+        public final List<ClassHolder> internalClasses = new ArrayList<>();
     }
 
     private static class MethodHolder {
@@ -424,12 +565,34 @@ public class Generate {
         public final String clazz;
         public final Set<String> argClasses;
         public final VersionLimit limit;
+        private final Map<String, String> versionOverrides;
 
-        public MethodHolder(String code, String name, String clazz, Set<String> argClasses, VersionLimit limit) {
+        public MethodHolder(
+            String code, String name, String clazz, Set<String> argClasses, VersionLimit limit,
+            Map<String, String> versionOverrides)
+        {
             this.code = code;
             this.name = name;
             this.clazz = clazz;
             this.argClasses = argClasses;
+            this.limit = limit;
+            this.versionOverrides = versionOverrides;
+        }
+
+        public String mapVersion(String version) {
+            if (versionOverrides.containsKey(version)) {
+                return versionOverrides.get(version);
+            }
+            return version;
+        }
+    }
+
+    private static class EnumHolder {
+        public final String name;
+        public final VersionLimit limit;
+
+        public EnumHolder(String name, VersionLimit limit) {
+            this.name = name;
             this.limit = limit;
         }
     }
@@ -439,12 +602,14 @@ public class Generate {
         public final String name;
         public final String clazz;
         public final String type;
+        public final VersionLimit limit;
 
-        public FieldHolder(String code, String name, String clazz, String type) {
+        public FieldHolder(String code, String name, String clazz, String type, VersionLimit limit) {
             this.code = code;
             this.name = name;
             this.clazz = clazz;
             this.type = type;
+            this.limit = limit;
         }
     }
 

@@ -34,9 +34,20 @@ public class VivePlayer {
     // dual wielding switches out hte main hand item, this keeps track of the original item
     public ItemOverride itemOverride = null;
     // any block break action that happens while this is true, is treated as a roomscale hit
+
+    // these are used for 26.3 blockbreak animation
+    // true if currently hitting roomscale, only set during packet processing
     public boolean isHitRoomscale = false;
-    // keeps track of ticks worth of attacks made in this roomscale hit streak
-    public int roomscaleHitCount = 0;
+    // true if the last processed hit was roomscale
+    public boolean lastHitRoomscale = false;
+    // keeps track of block breaking progress made in this roomscale hit streak
+    public float roomscaleHitProgress = 0F;
+    // roomscale block breaking progress when the last break update was sent
+    public float lastRoomscaleHitProgress = 0F;
+    // tick count that tracks the remaining particle ticks that need to be sent
+    public int roomscaleAttackParticlesRemaining = 0;
+    // 26.3 END
+
     public boolean useBodyPartForAim = false;
     public boolean crawling;
     // if the player has VR active

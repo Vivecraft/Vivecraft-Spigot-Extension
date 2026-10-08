@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3ic;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.types.Item;
 import org.vivecraft.compat.types.Particles;
@@ -230,4 +231,13 @@ public interface ApiHelper {
      * @param itemStack ItemStack to make the particles for
      */
     void breakItemEffects(Player player, VRBodyPart hand, ItemStack itemStack);
+
+    /**
+     * returns the damage the player does the block at the given location per tick
+     *
+     * @param player        Player that is destroying the block
+     * @param blockPosition position of the block that is being destroyed
+     * @return progress per tick
+     */
+    float getBlockDestroySpeed(Player player, Vector3ic blockPosition);
 }

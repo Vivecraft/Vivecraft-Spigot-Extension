@@ -46,6 +46,14 @@ public class Api_1_9 extends Api_1_8 {
     }
 
     @Override
+    protected void initDestroySpeed() {
+        this.BlockBehaviour_getDestroyProgress = ReflectionMethod.getMethod(true,
+            BlockBehaviour$BlockStateBaseMapping.METHOD_GET_DESTROY_PROGRESS,
+            BlockStateMapping.METHOD_GET_DESTROY_PROGRESS,
+            IBlockPropertiesMapping.METHOD_FUNC_185903_A);
+    }
+
+    @Override
     public <T> void spawnParticle(
         Particles particle, World world, Vector pos, int count, Vector data, double speed, boolean force, T pData)
     {

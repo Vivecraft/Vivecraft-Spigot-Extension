@@ -65,6 +65,7 @@
       },
       "parent": "net.minecraft.network.syncher.SynchedEntityData$DataItem",
       "mappingClasses": [
+        "net.minecraft.network.syncher.SynchedEntityData",
         "net.minecraft.network.syncher.SynchedEntityData$DataItem",
         "net.minecraft.network.syncher.EntityDataAccessor",
         "net.minecraft.world.entity.Pose"
@@ -83,14 +84,213 @@
         "net.minecraft.network.protocol.PacketUtils",
         "net.minecraft.server.RunningOnDifferentThreadException"
       ]
+    },
+    "VRServerPlayerGameMode.java": {
+      "parent": "net.minecraft.server.level.ServerPlayerGameMode",
+      "mappingClasses": [
+        "net.minecraft.server.level.ServerPlayer",
+        "net.minecraft.server.level.ServerPlayerGameMode",
+        "net.minecraft.core.BlockPos",
+        "net.minecraft.core.Direction",
+        "net.minecraft.network.protocol.game.ServerboundPlayerActionPacket"
+      ]
+    },
+    "VRDemoMode.java": {
+      "parent": "net.minecraft.server.level.DemoMode",
+      "mappingClasses": [
+        "net.minecraft.server.level.ServerPlayer",
+        "net.minecraft.server.level.DemoMode",
+        "net.minecraft.server.level.ServerPlayerGameMode",
+        "net.minecraft.core.BlockPos",
+        "net.minecraft.core.Direction",
+        "net.minecraft.network.protocol.game.ServerboundPlayerActionPacket"
+      ]
     }
   },
   "mappings": {
+    "net.minecraft.server.level.DemoMode": {
+      "parent": "net.minecraft.server.level.ServerPlayerGameMode",
+      "constructors": {
+        "1.17-1.99.99": {
+          "args": ["net.minecraft.server.level.ServerPlayer"],
+          "super": "a"
+        },
+        "1.14-1.16.5": {
+          "args": ["net.minecraft.server.level.ServerLevel"],
+          "super": "a"
+        },
+        "1.8-1.13.2": {
+          "args": ["net.minecraft.world.level.Level"],
+          "super": "a"
+        }
+      }
+    },
+    "net.minecraft.server.level.ServerPlayer": {
+      "fields": {
+        "gameMode": {
+          "type": "net.minecraft.server.level.ServerPlayerGameMode"
+        }
+      }
+    },
+    "net.minecraft.server.level.ServerPlayerGameMode": {
+      "constructors": {
+        "1.17-1.99.99": {
+          "args": ["net.minecraft.server.level.ServerPlayer"]
+        },
+        "1.14-1.16.5": {
+          "args": ["net.minecraft.server.level.ServerLevel"]
+        },
+        "1.8-1.13.2": {
+          "args": ["net.minecraft.world.level.Level"]
+        }
+      },
+      "fields": {
+        "player": {
+          "type": "net.minecraft.server.level.ServerPlayer"
+        },
+        "level": {
+          "type": "net.minecraft.server.level.ServerLevel",
+          "versions": {
+            "from": "1.14"
+          }
+        },
+        "world": {
+          "type": "net.minecraft.world.level.Level",
+          "versions": {
+            "to": "1.13.2"
+          }
+        }
+      },
+      "methods": {
+        "setGameModeForPlayer": {
+          "versions": {
+            "from": "1.16.1"
+          },
+          "type": "void",
+          "args": ["net.minecraft.world.level.GameType", "net.minecraft.world.level.GameType"]
+        },
+        "setGameModeForPlayer_1": {
+          "versions": {
+            "from": "1.10",
+            "to": "1.15.2"
+          },
+          "type": "void",
+          "args": ["net.minecraft.world.level.GameType"]
+        },
+        "func_73076_a": {
+          "versions": {
+            "to": "1.9.4"
+          },
+          "type": "void",
+          "args": ["net.minecraft.world.WorldSettings$GameType"]
+        },
+        "getGameModeForPlayer": {
+          "versions": {
+            "from": "1.10"
+          },
+          "type": "net.minecraft.world.level.GameType",
+          "args": []
+        },
+        "getPreviousGameModeForPlayer": {
+          "versions": {
+            "from": "1.16.1"
+          },
+          "type": "net.minecraft.world.level.GameType",
+          "args": []
+        },
+        "func_73081_b": {
+          "versions": {
+            "to": "1.9.4"
+          },
+          "type": "net.minecraft.world.WorldSettings$GameType",
+          "args": []
+        },
+        "tick": {
+          "type": "void",
+          "args": []
+        },
+        "handleBlockBreakAction": {
+          "versions": {
+            "from": "1.19"
+          },
+          "type": "void",
+          "args": [
+            "net.minecraft.core.BlockPos",
+            "net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action",
+            "net.minecraft.core.Direction",
+            "int",
+            "int"
+          ]
+        },
+        "handleBlockBreakAction_1": {
+          "versions": {
+            "from": "1.14.4",
+            "to": "1.18.2"
+          },
+          "type": "void",
+          "args": [
+            "net.minecraft.core.BlockPos",
+            "net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action",
+            "net.minecraft.core.Direction",
+            "int"
+          ]
+        },
+        "func_180784_a": {
+          "versions": {
+            "to": "1.14.3"
+          },
+          "version_overrides": {
+            "1.14.4": "1.14.3"
+          },
+          "type": "void",
+          "args": ["net.minecraft.core.BlockPos", "net.minecraft.core.Direction"]
+        },
+        "func_180785_a": {
+          "versions": {
+            "to": "1.14.3"
+          },
+          "version_overrides": {
+            "1.14.4": "1.14.3"
+          },
+          "type": "void",
+          "args": ["net.minecraft.core.BlockPos"]
+        },
+        "func_180238_e": {
+          "versions": {
+            "to": "1.14.3"
+          },
+          "version_overrides": {
+            "1.14.4": "1.14.3"
+          },
+          "type": "void",
+          "args": []
+        }
+      }
+    },
+    "net.minecraft.core.BlockPos": {},
+    "net.minecraft.core.Direction": {},
+    "net.minecraft.network.protocol.game.ServerboundPlayerActionPacket": {
+      "enums": {
+        "net.minecraft.network.protocol.game.ServerboundPlayerActionPacket$Action": {}
+      }
+    },
+    "net.minecraft.world.level.GameType": {},
+    "net.minecraft.world.level.LevelSettings": {
+      "enums": {
+        "net.minecraft.world.WorldSettings$GameType": {
+          "versions": {
+            "to": "1.9.4"
+          }
+        }
+      }
+    },
     "net.minecraft.world.entity.monster.Creeper": {},
     "net.minecraft.world.entity.ai.goal.SwellGoal": {
       "parent": "net.minecraft.world.entity.ai.goal.Goal",
       "constructors": {
-        "1": ["net.minecraft.world.entity.monster.Creeper"]
+        "1": {
+          "args": ["net.minecraft.world.entity.monster.Creeper"]
+        }
       },
       "fields": {
         "target": {
@@ -127,13 +327,17 @@
     "net.minecraft.world.entity.monster.creaking.Creaking": {
       "parent": "net.minecraft.world.entity.LivingEntity",
       "constructors": {
-        "1": ["net.minecraft.world.entity.EntityType", "net.minecraft.world.level.Level"]
+        "1": {
+          "args": ["net.minecraft.world.entity.EntityType", "net.minecraft.world.level.Level"]
+        }
       }
     },
     "net.minecraft.world.entity.monster.EnderMan": {
       "parent": "net.minecraft.world.entity.LivingEntity",
       "constructors": {
-        "1": ["net.minecraft.world.entity.EntityType", "net.minecraft.world.level.Level"]
+        "1": {
+          "args": ["net.minecraft.world.entity.EntityType", "net.minecraft.world.level.Level"]
+        }
       }
     },
     "net.minecraft.world.entity.player.Player": {},
@@ -164,16 +368,22 @@
     "net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal": {
       "parent": "net.minecraft.world.entity.ai.goal.target.TargetGoal",
       "constructors": {
-        "1.8-1.13.2": ["net.minecraft.world.entity.PathfinderMob", "Class", "boolean"],
-        "1.14-1.15.2": ["net.minecraft.world.entity.Mob", "Class", "boolean"],
-        "1.16+": [
-          "net.minecraft.world.entity.Mob",
-          "Class",
-          "int",
-          "boolean",
-          "boolean",
-          "java.util.function.Predicate"
-        ]
+        "1.8-1.13.2": {
+          "args": ["net.minecraft.world.entity.PathfinderMob", "Class", "boolean"]
+        },
+        "1.14-1.15.2": {
+          "args": ["net.minecraft.world.entity.Mob", "Class", "boolean"]
+        },
+        "1.16+": {
+          "args": [
+            "net.minecraft.world.entity.Mob",
+            "Class",
+            "int",
+            "boolean",
+            "boolean",
+            "java.util.function.Predicate"
+          ]
+        }
       },
       "fields": {
         "target": {
@@ -192,14 +402,20 @@
     },
     "net.minecraft.world.entity.EntityType": {},
     "net.minecraft.world.level.Level": {},
-    "net.minecraft.network.syncher.SynchedEntityData$DataItem": {
-      "constructors": {
-        "1": ["net.minecraft.network.syncher.EntityDataAccessor", "Object"]
-      },
-      "methods": {
-        "setValue": {
-          "type": "void",
-          "args": ["Object"]
+    "net.minecraft.network.syncher.SynchedEntityData": {
+      "internal_classes": {
+        "net.minecraft.network.syncher.SynchedEntityData$DataItem": {
+          "constructors": {
+            "1": {
+              "args": ["net.minecraft.network.syncher.EntityDataAccessor", "Object"]
+            }
+          },
+          "methods": {
+            "setValue": {
+              "type": "void",
+              "args": ["Object"]
+            }
+          }
         }
       }
     },

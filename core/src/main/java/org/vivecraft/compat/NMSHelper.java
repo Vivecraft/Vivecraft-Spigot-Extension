@@ -10,6 +10,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.joml.Vector3ic;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.api.data.VRBodyPart;
 import org.vivecraft.compat.types.BlockContext;
@@ -110,6 +111,41 @@ public interface NMSHelper {
      * gets the level this entity is in
      */
     Object getLevel(Object entity);
+
+    /**
+     * creates a BlockPos object with the given position
+     *
+     * @param x X position
+     * @param y Y position
+     * @param z Z position
+     * @return a BlockPos object with the given position
+     */
+    Object makeBlockPos(int x, int y, int z);
+
+    /**
+     * gets the BlockState of the block at the given position in the given level
+     *
+     * @param level    Level to get the state in
+     * @param blockPos Position tro get the BlockState from
+     * @return BlockState at hte given position in the given level
+     */
+    Object getBlockState(Object level, Object blockPos);
+
+    /**
+     * checks if the player is currently destroying a block
+     *
+     * @param player Player to check
+     * @return if the player is destroying a block
+     */
+    boolean isDestroying(Player player);
+
+    /**
+     * returns the block position of hte block the player is destroying
+     *
+     * @param player the player to get the block destroy position for
+     * @return the block position the player is currently destroying
+     */
+    Vector3ic getDestroyPos(Player player);
 
     /**
      * handels the given packet task

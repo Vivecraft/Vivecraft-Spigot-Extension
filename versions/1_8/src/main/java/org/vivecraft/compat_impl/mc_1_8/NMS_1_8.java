@@ -9,6 +9,8 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.vivecraft.ViveMain;
 import org.vivecraft.VivePlayer;
 import org.vivecraft.accessors.*;
@@ -48,6 +50,8 @@ public class NMS_1_8 implements NMSHelper {
 
     protected ReflectionField ServerPlayer_gameMode;
     protected ReflectionField ServerPlayerGameMode_destroyProgressStart;
+    protected ReflectionField ServerPlayerGameMode_destroyPos;
+    protected ReflectionField ServerPlayerGamemode_isDestroyingBlock;
     protected ReflectionField ServerboundPlayerActionPacket_action;
     protected ReflectionField ServerboundPlayerActionPacketAction_STOP_DESTROY_BLOCK;
 
@@ -119,6 +123,8 @@ public class NMS_1_8 implements NMSHelper {
     protected ReflectionMethod AttributeMap_addAttributeModifiers;
     protected ReflectionMethod AttributeMap_removeAttributeModifiers;
 
+    protected ReflectionConstructor BlockPos_Constructor;
+
     protected Class<?> Mob;
     protected Class<?> MeleeAttackGoal;
     protected ReflectionMethod MeleeAttackGoal_getAttackReachSqr;
@@ -166,6 +172,10 @@ public class NMS_1_8 implements NMSHelper {
         this.ServerPlayer_gameMode = ReflectionField.getField(ServerPlayerMapping.FIELD_GAME_MODE);
         this.ServerPlayerGameMode_destroyProgressStart = ReflectionField.getField(
             ServerPlayerGameModeMapping.FIELD_DESTROY_PROGRESS_START);
+        this.ServerPlayerGameMode_destroyPos = ReflectionField.getField(
+            ServerPlayerGameModeMapping.FIELD_DESTROY_POS);
+        this.ServerPlayerGamemode_isDestroyingBlock = ReflectionField.getField(
+            ServerPlayerGameModeMapping.FIELD_IS_DESTROYING_BLOCK);
 
         this.ServerboundPlayerActionPacket_action = ReflectionField.getField(
             ServerboundPlayerActionPacketMapping.FIELD_ACTION);
@@ -173,6 +183,8 @@ public class NMS_1_8 implements NMSHelper {
             ServerboundPlayerActionPacket$ActionMapping.FIELD_STOP_DESTROY_BLOCK);
         this.ItemStack_copy = ReflectionMethod.getMethod(ItemStackMapping.METHOD_COPY);
         this.ItemStack_matches = ReflectionMethod.getMethod(ItemStackMapping.METHOD_MATCHES);
+
+        this.BlockPos_Constructor = ReflectionConstructor.getConstructor(BlockPosMapping.CONSTRUCTOR_0);
     }
 
     protected void initVec3() {
@@ -402,6 +414,30 @@ public class NMS_1_8 implements NMSHelper {
     @Override
     public Object getLevel(Object entity) {
         return this.Entity_getLevel.invoke(entity);
+    }
+
+    @Override
+    public Object makeBlockPos(int x, int y, int z) {
+        return this.BlockPos_Constructor.newInstance(x, y, z);
+    }
+
+    @Override
+    public Object getBlockState(Object level, Object blockPos) {
+        return this.Level_getBlockState.invoke(level, blockPos);
+    }
+
+    @Override
+    public boolean isDestroying(Player player) {
+        return (boolean) this.ServerPlayerGamemode_isDestroyingBlock.get(
+            this.ServerPlayer_gameMode.get(BukkitReflector.getEntityHandle(player)));
+    }
+
+    @Override
+    public Vector3ic getDestroyPos(Player player) {
+        Object gameMode = this.ServerPlayer_gameMode.get(BukkitReflector.getEntityHandle(player));
+        Object destroyPos = this.ServerPlayerGameMode_destroyPos.get(gameMode);
+        return new Vector3i((int) this.Vec3i_x.get(destroyPos), (int) this.Vec3i_y.get(destroyPos),
+            (int) this.Vec3i_z.get(destroyPos));
     }
 
     @Override

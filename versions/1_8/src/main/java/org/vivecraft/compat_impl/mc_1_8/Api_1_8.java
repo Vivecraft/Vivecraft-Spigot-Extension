@@ -15,6 +15,7 @@ import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.joml.Vector3ic;
 import org.vivecraft.ViveMain;
 import org.vivecraft.accessors.*;
 import org.vivecraft.api.data.VRBodyPart;
@@ -53,9 +54,13 @@ public class Api_1_8 implements ApiHelper {
     protected ReflectionMethod ItemStack_getItem;
     protected ReflectionMethod Item_getId;
 
+    protected ReflectionMethod BlockBehaviour_getDestroyProgress;
+    private ReflectionMethod BlockState_getBlock;
+
     public Api_1_8() {
         this.init();
         this.initAABB();
+        this.initDestroySpeed();
     }
 
     protected void init() {
@@ -77,6 +82,11 @@ public class Api_1_8 implements ApiHelper {
         this.AABB_maxX = ReflectionField.getField(AABBMapping.FIELD_MAX_X);
         this.AABB_maxY = ReflectionField.getField(AABBMapping.FIELD_MAX_Y);
         this.AABB_maxZ = ReflectionField.getField(AABBMapping.FIELD_MAX_Z);
+    }
+
+    protected void initDestroySpeed() {
+        this.BlockBehaviour_getDestroyProgress = ReflectionMethod.getMethod(BlockMapping.METHOD_FUNC_180647_A);
+        this.BlockState_getBlock = ReflectionMethod.getMethod(false, BlockStateMapping.METHOD_GET_BLOCK);
     }
 
     @Override
@@ -276,6 +286,22 @@ public class Api_1_8 implements ApiHelper {
                     MathUtils.toBukkitVec(dir), 0.05, false, itemStack);
             }
         }
+    }
+
+    @Override
+    public float getBlockDestroySpeed(Player player, Vector3ic blockPosition) {
+        Object nmsPlayer = BukkitReflector.getEntityHandle(player);
+        Object nmsLevel = ViveMain.NMS.getLevel(nmsPlayer);
+
+        Object blockPos = ViveMain.NMS.makeBlockPos(blockPosition.x(), blockPosition.y(), blockPosition.z());
+        Object blockState = ViveMain.NMS.getBlockState(nmsLevel, blockPos);
+
+        // for 1.8
+        if (this.BlockState_getBlock != null) {
+            blockState = this.BlockState_getBlock.invoke(blockState);
+        }
+
+        return (float) this.BlockBehaviour_getDestroyProgress.invoke(blockState, nmsPlayer, nmsLevel, blockPos);
     }
 
     @Override

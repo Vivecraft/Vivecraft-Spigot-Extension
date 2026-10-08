@@ -122,6 +122,7 @@ accessors {
         method("net.minecraft.world.entity.Pose", "getPose")
         method("net.minecraft.network.syncher.SynchedEntityData", "getEntityData")
         method("net.minecraft.sounds.SoundSource", "getSoundSource")
+        method("int", "getId")
     }
 
     mapClass("net.minecraft.world.entity.player.Player") {
@@ -168,6 +169,10 @@ accessors {
     }
     mapClass("net.minecraft.world.level.block.Block") {
         method("net.minecraft.world.item.Item", "asItem")
+        // 1.8 destroy speed
+        method("float", "func_180647_a", "net.minecraft.entity.player.EntityPlayer",
+            "net.minecraft.world.World", "net.minecraft.util.BlockPos")
+        method("net.minecraft.server.VVV.Material", "getMaterial")
     }
 
     mapClass("net.minecraft.server.network.ServerGamePacketListenerImpl") {
@@ -210,7 +215,45 @@ accessors {
     mapClass("net.minecraft.network.PacketListener")
     mapClass("net.minecraft.server.level.ServerPlayerGameMode") {
         field("int", "destroyProgressStart")
+        field("net.minecraft.core.BlockPos", "destroyPos")
+        field("boolean", "isDestroyingBlock")
+        field("boolean", "hasDelayedDestroy")
+        field("net.minecraft.server.level.ServerPlayer", "player")
+        field("net.minecraft.server.level.ServerLevel", "level")
+        field("net.minecraft.server.VVV.World", "world")
+        field("int", "lastSentState")
+        method("void", "setGameModeForPlayer", "net.minecraft.world.level.GameType", "net.minecraft.world.level.GameType")
+        // 1.15.2 and older
+        method("void", "setGameModeForPlayer", "net.minecraft.world.level.GameType")
+        // 1.9 and older
+        method("void", "func_73076_a", "net.minecraft.world.WorldSettings\$GameType")
+        method("void", "tick")
+        method("void", "handleBlockBreakAction", "net.minecraft.core.BlockPos",
+            "net.minecraft.network.protocol.game.ServerboundPlayerActionPacket\$Action",
+            "net.minecraft.core.Direction", "int", "int")
+        // 1.18.2 and older
+        method("void", "handleBlockBreakAction", "net.minecraft.core.BlockPos",
+            "net.minecraft.network.protocol.game.ServerboundPlayerActionPacket\$Action",
+            "net.minecraft.core.Direction", "int")
+
+        method("net.minecraft.world.level.GameType", "getGameModeForPlayer")
+        // 1.9 and older
+        method("net.minecraft.world.WorldSettings\$GameType", "func_73081_b")
+        method("net.minecraft.world.level.GameType", "getPreviousGameModeForPlayer")
+
+        // pre 1.14.4 block actions
+        // START_DESTROY_BLOCK action
+        method("void", "func_180784_a", "net.minecraft.util.math.BlockPos", "net.minecraft.util.Direction")
+        // STOP_DESTROY_BLOCK action
+        method("void", "func_180785_a", "net.minecraft.util.math.BlockPos")
+        // ABORT_DESTROY_BLOCK action
+        method("void", "func_180238_e")
+
     }
+    mapClass("net.minecraft.server.level.DemoMode")
+    mapClass("net.minecraft.world.level.GameType")
+    mapClass("net.minecraft.world.level.LevelSettings")
+    mapClass("net.minecraft.world.WorldSettings\$GameType")
     mapClass("net.minecraft.server.RunningOnDifferentThreadException")
 
     mapClass("net.minecraft.server.level.ServerLevel") {
@@ -240,6 +283,7 @@ accessors {
         // 1.13 getClosestPlayer
         method("net.minecraft.entity.player.EntityPlayer", "func_184150_a", "double", "double", "double", "double",
             "double", "java.util.function.Function", "java.util.function.Predicate")
+        method("void", "destroyBlockProgress", "int", "net.minecraft.core.BlockPos", "int")
     }
     mapClass("net.minecraft.world.level.EntityGetter") {
         // 1.14 +
@@ -576,12 +620,33 @@ accessors {
     }
     mapClass("net.minecraft.world.level.block.state.BlockBehaviour\$BlockStateBase") {
         method("net.minecraft.world.level.block.Block", "getBlock")
+        // 1.16+ destroy speed
+        method("float", "getDestroyProgress", "net.minecraft.world.entity.player.Player",
+            "net.minecraft.world.level.BlockGetter", "net.minecraft.core.BlockPos")
+        method("boolean", "isAir")
     }
     mapClass("net.minecraft.world.level.block.state.BlockState") {
         method("net.minecraft.world.level.block.Block", "getBlock")
+        // 1.13+ destroy speed
+        method("float", "getDestroyProgress", "net.minecraft.world.entity.player.Player",
+            "net.minecraft.world.level.BlockGetter", "net.minecraft.core.BlockPos")
+        method("net.minecraft.world.level.block.Block", "getBlock")
+        method("boolean", "isAir")
+    }
+    mapClass("net.minecraft.block.state.IBlockProperties") {
+        // 1.9+ destroy speed
+        method("float", "func_185903_a", "net.minecraft.entity.player.EntityPlayer",
+            "net.minecraft.world.World", "net.minecraft.util.math.BlockPos")
+        method("net.minecraft.server.VVV.Material", "getMaterial")
+    }
+    mapClass("net.minecraft.core.BlockPos") {
+        constructor("int", "int", "int")
     }
     mapClass("net.minecraft.world.level.block.FenceGateBlock")
     mapClass("net.minecraft.world.item.component.AttackRange") {
         method("float", "effectiveMaxRange", "net.minecraft.world.entity.Entity")
+    }
+    mapClass("net.minecraft.world.level.material.Material") {
+        field("net.minecraft.world.level.material.Material", "AIR")
     }
 }

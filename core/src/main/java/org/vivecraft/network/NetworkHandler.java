@@ -214,10 +214,11 @@ public class NetworkHandler implements PluginMessageListener {
             sendPacket(vivePlayer, new AttackWhileBlockingPayloadS2C(ViveMain.CONFIG.allowAttacksWhileBlocking.get()));
         }
 
-        // not supported atm, needs to wrap the gamemode
-//        if (NetworkVersion.ROOMSCALE_ATTACK_PACKET.accepts(vivePlayer.networkVersion)) {
-//            sendPacket(vivePlayer, new RoomscaleAttackPayloadS2C());
-//        }
+        if (NetworkVersion.ROOMSCALE_ATTACK_PACKET.accepts(vivePlayer.networkVersion) &&
+            ViveMain.MC_MODS.gameModeHelper().modifyGamemode(player))
+        {
+            sendPacket(vivePlayer, new RoomscaleAttackPayloadS2C());
+        }
 
         // send if hotswitching is allowed
         sendPacket(vivePlayer, PacketUtils.getVRSwitchingPayload());
@@ -425,8 +426,9 @@ public class NetworkHandler implements PluginMessageListener {
 
     private void handleRoomscaleAttack(VivePlayer vivePlayer, RoomscaleAttackPayloadC2S roomscaleAttack) {
         vivePlayer.isHitRoomscale = roomscaleAttack.isRoomscaleAttack;
-        if (!vivePlayer.isHitRoomscale) {
-            vivePlayer.roomscaleHitCount += roomscaleAttack.hitsMade;
+        if (!vivePlayer.isHitRoomscale && ViveMain.NMS.isDestroying(vivePlayer.player)) {
+            vivePlayer.roomscaleHitProgress += roomscaleAttack.hitsMade *
+                ViveMain.API.getBlockDestroySpeed(vivePlayer.player, ViveMain.NMS.getDestroyPos(vivePlayer.player));
         }
     }
 
